@@ -1,0 +1,9 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A chip read with no mat id: the passage has no checkpoint (a key field is
+# implicitly `one`).
+race:p_orphan a race:Passage ;
+  race:runner race:r101 ;
+  race:at "2026-07-11T05:30:00Z"^^xsd:dateTime .

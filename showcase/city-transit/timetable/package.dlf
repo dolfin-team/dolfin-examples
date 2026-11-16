@@ -1,0 +1,6 @@
+package <https://www.dolfin.fr/showcase/city-transit/timetable>:
+  dolfin_version "1"
+  version "1.4.0"
+  author "Dolfin"
+  description "Réseau Lumière (fictional), operations side: service journeys and their passing times read from a NeTEx-like XML export, vehicle types and disruptions. Imports the network package at a pinned version; SHACL checks that every passing time is at a stop its journey's line serves."
+  import <https://www.dolfin.fr/showcase/city-transit/network> "2.1.0"

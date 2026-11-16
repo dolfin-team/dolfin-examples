@@ -1,0 +1,11 @@
+@prefix coop: <https://www.dolfin.fr/showcase/seed-cooperative/coop#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Ferme des Hauts-Plateaux "gives" its own lot to itself.
+coop:exchange_e032 a coop:Exchange ;
+  coop:exchange_id "E032" ;
+  coop:exchanged_on "2026-06-12"^^xsd:date ;
+  coop:from coop:farm_82100145600017 ;
+  coop:to coop:farm_82100145600017 ;
+  coop:lot coop:lot_gv_2025_001 ;
+  coop:price "3"^^unit:graine .

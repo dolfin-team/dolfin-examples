@@ -1,0 +1,1197 @@
+{
+  "base_iri": "",
+  "concepts": [
+    {
+      "alt_labels": [],
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain_of": [
+        {
+          "id": "serves",
+          "label": "serves",
+          "label_i18n": {
+            "": "serves"
+          }
+        },
+        {
+          "id": "stops",
+          "label": "stops",
+          "label_i18n": {
+            "": "stops"
+          }
+        },
+        {
+          "id": "mode",
+          "label": "mode",
+          "label_i18n": {
+            "": "mode"
+          }
+        },
+        {
+          "id": "length",
+          "label": "length",
+          "label_i18n": {
+            "": "length"
+          }
+        },
+        {
+          "id": "code",
+          "label": "code",
+          "label_i18n": {
+            "": "code"
+          }
+        }
+      ],
+      "has_fields": [
+        {
+          "cardinality": "any",
+          "definition": "The stops a line calls at, without order: what other packages query and check against. Written next to `stops` in every line below.",
+          "definition_i18n": {
+            "": "The stops a line calls at, without order: what other packages query and check against. Written next to `stops` in every line below."
+          },
+          "label": "serves",
+          "label_i18n": {
+            "": "serves"
+          },
+          "name": "serves",
+          "type_ref": "Stop"
+        },
+        {
+          "cardinality": "at most 1",
+          "definition": "The stops in running order, from one terminus to the other. Not filled in the facts: a `list of` value in a fact is emitted as one plain triple per stop, not as an rdf:List, and then fails sh:maxCount 1 (rust/BUGS.md, mountain-ultra A). `serves` lists the stops in running order instead.",
+          "definition_i18n": {
+            "": "The stops in running order, from one terminus to the other. Not filled in the facts: a `list of` value in a fact is emitted as one plain triple per stop, not as an rdf:List, and then fails sh:maxCount 1 (rust/BUGS.md, mountain-ultra A). `serves` lists the stops in running order instead."
+          },
+          "label": "stops",
+          "label_i18n": {
+            "": "stops"
+          },
+          "name": "stops",
+          "type_ref": "List"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "mode",
+          "label_i18n": {
+            "": "mode"
+          },
+          "name": "mode",
+          "type_ref": "Mode"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "length",
+          "label_i18n": {
+            "": "length"
+          },
+          "name": "length",
+          "type_ref": "Length"
+        },
+        {
+          "cardinality": "any",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "code",
+          "label_i18n": {
+            "": "code"
+          },
+          "name": "code",
+          "type_ref": "string"
+        }
+      ],
+      "id": "Line",
+      "inherited_fields": [],
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Line",
+      "is_enum": false,
+      "label": "Line",
+      "label_i18n": {
+        "": "Line"
+      },
+      "line": null,
+      "parents": [],
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Line",
+      "scope_note": "",
+      "source_file": "",
+      "variant_definitions_i18n": {},
+      "variant_labels_i18n": {},
+      "variants": []
+    },
+    {
+      "alt_labels": [],
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain_of": [
+        {
+          "id": "reachable_from",
+          "label": "reachable_from",
+          "label_i18n": {
+            "": "reachable_from"
+          }
+        },
+        {
+          "id": "connected_to",
+          "label": "connected_to",
+          "label_i18n": {
+            "": "connected_to"
+          }
+        },
+        {
+          "id": "served_by",
+          "label": "served_by",
+          "label_i18n": {
+            "": "served_by"
+          }
+        },
+        {
+          "id": "zone",
+          "label": "zone",
+          "label_i18n": {
+            "": "zone"
+          }
+        },
+        {
+          "id": "accessible",
+          "label": "accessible",
+          "label_i18n": {
+            "": "accessible"
+          }
+        },
+        {
+          "id": "long",
+          "label": "long",
+          "label_i18n": {
+            "": "long"
+          }
+        },
+        {
+          "id": "lat",
+          "label": "lat",
+          "label_i18n": {
+            "": "lat"
+          }
+        },
+        {
+          "id": "name",
+          "label": "name",
+          "label_i18n": {
+            "": "name"
+          }
+        },
+        {
+          "id": "stop_code",
+          "label": "stop_code",
+          "label_i18n": {
+            "": "stop_code"
+          }
+        }
+      ],
+      "has_fields": [
+        {
+          "cardinality": "any",
+          "definition": "On foot through one or more walkways.",
+          "definition_i18n": {
+            "": "On foot through one or more walkways."
+          },
+          "label": "reachable_from",
+          "label_i18n": {
+            "": "reachable_from"
+          },
+          "name": "reachable_from",
+          "type_ref": "Stop"
+        },
+        {
+          "cardinality": "any",
+          "definition": "A walkway between two nearby stops of different lines: both directions.",
+          "definition_i18n": {
+            "": "A walkway between two nearby stops of different lines: both directions."
+          },
+          "label": "connected_to",
+          "label_i18n": {
+            "": "connected_to"
+          },
+          "name": "connected_to",
+          "type_ref": "Stop"
+        },
+        {
+          "cardinality": "any",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "served_by",
+          "label_i18n": {
+            "": "served_by"
+          },
+          "name": "served_by",
+          "type_ref": "Line"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "zone",
+          "label_i18n": {
+            "": "zone"
+          },
+          "name": "zone",
+          "type_ref": "FareZone"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "Step-free from the street to a low-floor vehicle.",
+          "definition_i18n": {
+            "": "Step-free from the street to a low-floor vehicle."
+          },
+          "label": "accessible",
+          "label_i18n": {
+            "": "accessible"
+          },
+          "name": "accessible",
+          "type_ref": "boolean"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "long",
+          "label_i18n": {
+            "": "long"
+          },
+          "name": "long",
+          "type_ref": "float"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "WGS 84, in degrees.",
+          "definition_i18n": {
+            "": "WGS 84, in degrees."
+          },
+          "label": "lat",
+          "label_i18n": {
+            "": "lat"
+          },
+          "name": "lat",
+          "type_ref": "float"
+        },
+        {
+          "cardinality": "exactly 1",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "name",
+          "label_i18n": {
+            "": "name"
+          },
+          "name": "name",
+          "type_ref": "string"
+        },
+        {
+          "cardinality": "any",
+          "definition": "",
+          "definition_i18n": {},
+          "label": "stop_code",
+          "label_i18n": {
+            "": "stop_code"
+          },
+          "name": "stop_code",
+          "type_ref": "string"
+        }
+      ],
+      "id": "Stop",
+      "inherited_fields": [],
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Stop",
+      "is_enum": false,
+      "label": "Stop",
+      "label_i18n": {
+        "": "Stop"
+      },
+      "line": null,
+      "parents": [],
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Stop",
+      "scope_note": "",
+      "source_file": "",
+      "variant_definitions_i18n": {},
+      "variant_labels_i18n": {},
+      "variants": []
+    },
+    {
+      "alt_labels": [],
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain_of": [],
+      "has_fields": [],
+      "id": "Mode",
+      "inherited_fields": [],
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Mode",
+      "is_enum": true,
+      "label": "Mode",
+      "label_i18n": {
+        "": "Mode"
+      },
+      "line": null,
+      "parents": [],
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Mode",
+      "scope_note": "",
+      "source_file": "",
+      "variant_definitions_i18n": {},
+      "variant_labels_i18n": {
+        "BRT": {
+          "": "Brt"
+        },
+        "BUS": {
+          "": "Bus"
+        },
+        "TRAM": {
+          "": "Tram"
+        }
+      },
+      "variants": [
+        "TRAM",
+        "BUS",
+        "BRT"
+      ]
+    },
+    {
+      "alt_labels": [],
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain_of": [],
+      "has_fields": [],
+      "id": "FareZone",
+      "inherited_fields": [],
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#FareZone",
+      "is_enum": true,
+      "label": "FareZone",
+      "label_i18n": {
+        "": "FareZone"
+      },
+      "line": null,
+      "parents": [],
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.FareZone",
+      "scope_note": "",
+      "source_file": "",
+      "variant_definitions_i18n": {},
+      "variant_labels_i18n": {
+        "Z1": {
+          "": "Z1"
+        },
+        "Z2": {
+          "": "Z2"
+        },
+        "Z3": {
+          "": "Z3"
+        }
+      },
+      "variants": [
+        "Z1",
+        "Z2",
+        "Z3"
+      ]
+    },
+    {
+      "alt_labels": [],
+      "col": null,
+      "definition": "A physical dimension (dolfin-units): a line length in km or m is dimension-checked.",
+      "definition_i18n": {
+        "": "A physical dimension (dolfin-units): a line length in km or m is dimension-checked."
+      },
+      "domain_of": [],
+      "has_fields": [],
+      "id": "Length",
+      "inherited_fields": [],
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Length",
+      "is_enum": false,
+      "label": "Length",
+      "label_i18n": {
+        "": "Length"
+      },
+      "line": null,
+      "parents": [],
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Length",
+      "scope_note": "",
+      "source_file": "",
+      "variant_definitions_i18n": {},
+      "variant_labels_i18n": {},
+      "variants": []
+    }
+  ],
+  "datatypes": [],
+  "individuals": [
+    {
+      "id": "B11",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#B11",
+      "label": "B11",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.B11"
+    },
+    {
+      "id": "B10",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#B10",
+      "label": "B10",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.B10"
+    },
+    {
+      "id": "T3",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#T3",
+      "label": "T3",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.T3"
+    },
+    {
+      "id": "T2",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#T2",
+      "label": "T2",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.T2"
+    },
+    {
+      "id": "T1",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#T1",
+      "label": "T1",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.T1"
+    },
+    {
+      "id": "MOU",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#MOU",
+      "label": "MOU",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.MOU"
+    },
+    {
+      "id": "VER",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#VER",
+      "label": "VER",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.VER"
+    },
+    {
+      "id": "PLA",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#PLA",
+      "label": "PLA",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.PLA"
+    },
+    {
+      "id": "AER",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#AER",
+      "label": "AER",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.AER"
+    },
+    {
+      "id": "ZAC",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#ZAC",
+      "label": "ZAC",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.ZAC"
+    },
+    {
+      "id": "TEC",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#TEC",
+      "label": "TEC",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.TEC"
+    },
+    {
+      "id": "BEL",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#BEL",
+      "label": "BEL",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.BEL"
+    },
+    {
+      "id": "CHA",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#CHA",
+      "label": "CHA",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.CHA"
+    },
+    {
+      "id": "CIM",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#CIM",
+      "label": "CIM",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.CIM"
+    },
+    {
+      "id": "COL",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#COL",
+      "label": "COL",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.COL"
+    },
+    {
+      "id": "POR",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#POR",
+      "label": "POR",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.POR"
+    },
+    {
+      "id": "LYC",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#LYC",
+      "label": "LYC",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.LYC"
+    },
+    {
+      "id": "CAS",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#CAS",
+      "label": "CAS",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.CAS"
+    },
+    {
+      "id": "PAR",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#PAR",
+      "label": "PAR",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.PAR"
+    },
+    {
+      "id": "STA",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#STA",
+      "label": "STA",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.STA"
+    },
+    {
+      "id": "HOP",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#HOP",
+      "label": "HOP",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.HOP"
+    },
+    {
+      "id": "UNI",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#UNI",
+      "label": "UNI",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.UNI"
+    },
+    {
+      "id": "MUS",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#MUS",
+      "label": "MUS",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.MUS"
+    },
+    {
+      "id": "BIB",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#BIB",
+      "label": "BIB",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.BIB"
+    },
+    {
+      "id": "PON",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#PON",
+      "label": "PON",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.PON"
+    },
+    {
+      "id": "MAR",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#MAR",
+      "label": "MAR",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.MAR"
+    },
+    {
+      "id": "OPE",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#OPE",
+      "label": "OPE",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.OPE"
+    },
+    {
+      "id": "HDV",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#HDV",
+      "label": "HDV",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.HDV"
+    },
+    {
+      "id": "REP",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#REP",
+      "label": "REP",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.REP"
+    },
+    {
+      "id": "GAR",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#GAR",
+      "label": "GAR",
+      "label_i18n": {},
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.GAR"
+    },
+    {
+      "id": "Mode_BRT",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Mode_BRT",
+      "label": "Brt",
+      "label_i18n": {
+        "": "Brt"
+      },
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Mode_BRT"
+    },
+    {
+      "id": "Mode_BUS",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Mode_BUS",
+      "label": "Bus",
+      "label_i18n": {
+        "": "Bus"
+      },
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Mode_BUS"
+    },
+    {
+      "id": "Mode_TRAM",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#Mode_TRAM",
+      "label": "Tram",
+      "label_i18n": {
+        "": "Tram"
+      },
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.Mode_TRAM"
+    },
+    {
+      "id": "FareZone_Z3",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#FareZone_Z3",
+      "label": "Z3",
+      "label_i18n": {
+        "": "Z3"
+      },
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.FareZone_Z3"
+    },
+    {
+      "id": "FareZone_Z2",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#FareZone_Z2",
+      "label": "Z2",
+      "label_i18n": {
+        "": "Z2"
+      },
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.FareZone_Z2"
+    },
+    {
+      "id": "FareZone_Z1",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#FareZone_Z1",
+      "label": "Z1",
+      "label_i18n": {
+        "": "Z1"
+      },
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.FareZone_Z1"
+    }
+  ],
+  "package": "https://www.dolfin.fr/showcase/city-transit/network",
+  "properties": [
+    {
+      "col": null,
+      "definition": "On foot through one or more walkways.",
+      "definition_i18n": {
+        "": "On foot through one or more walkways."
+      },
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "reachable_from",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#reachable_from",
+      "label": "reachable_from",
+      "label_i18n": {
+        "": "reachable_from"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.reachable_from",
+      "range": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "A walkway between two nearby stops of different lines: both directions.",
+      "definition_i18n": {
+        "": "A walkway between two nearby stops of different lines: both directions."
+      },
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "connected_to",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#connected_to",
+      "label": "connected_to",
+      "label_i18n": {
+        "": "connected_to"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.connected_to",
+      "range": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "served_by",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#served_by",
+      "label": "served_by",
+      "label_i18n": {
+        "": "served_by"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.served_by",
+      "range": {
+        "id": "Line",
+        "label": "Line",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "The stops a line calls at, without order: what other packages query and check against. Written next to `stops` in every line below.",
+      "definition_i18n": {
+        "": "The stops a line calls at, without order: what other packages query and check against. Written next to `stops` in every line below."
+      },
+      "domain": {
+        "id": "Line",
+        "label": "Line",
+        "label_i18n": {
+          "": "Line"
+        }
+      },
+      "domains": [
+        {
+          "id": "Line",
+          "label": "Line",
+          "label_i18n": {
+            "": "Line"
+          }
+        }
+      ],
+      "id": "serves",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#serves",
+      "label": "serves",
+      "label_i18n": {
+        "": "serves"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.serves",
+      "range": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "The stops in running order, from one terminus to the other. Not filled in the facts: a `list of` value in a fact is emitted as one plain triple per stop, not as an rdf:List, and then fails sh:maxCount 1 (rust/BUGS.md, mountain-ultra A). `serves` lists the stops in running order instead.",
+      "definition_i18n": {
+        "": "The stops in running order, from one terminus to the other. Not filled in the facts: a `list of` value in a fact is emitted as one plain triple per stop, not as an rdf:List, and then fails sh:maxCount 1 (rust/BUGS.md, mountain-ultra A). `serves` lists the stops in running order instead."
+      },
+      "domain": {
+        "id": "Line",
+        "label": "Line",
+        "label_i18n": {
+          "": "Line"
+        }
+      },
+      "domains": [
+        {
+          "id": "Line",
+          "label": "Line",
+          "label_i18n": {
+            "": "Line"
+          }
+        }
+      ],
+      "id": "stops",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#stops",
+      "label": "stops",
+      "label_i18n": {
+        "": "stops"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.stops",
+      "range": {
+        "id": "List",
+        "label": "List",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Line",
+        "label": "Line",
+        "label_i18n": {
+          "": "Line"
+        }
+      },
+      "domains": [
+        {
+          "id": "Line",
+          "label": "Line",
+          "label_i18n": {
+            "": "Line"
+          }
+        }
+      ],
+      "id": "mode",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#mode",
+      "label": "mode",
+      "label_i18n": {
+        "": "mode"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.mode",
+      "range": {
+        "id": "Mode",
+        "label": "Mode",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "zone",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#zone",
+      "label": "zone",
+      "label_i18n": {
+        "": "zone"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.zone",
+      "range": {
+        "id": "FareZone",
+        "label": "FareZone",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Line",
+        "label": "Line",
+        "label_i18n": {
+          "": "Line"
+        }
+      },
+      "domains": [
+        {
+          "id": "Line",
+          "label": "Line",
+          "label_i18n": {
+            "": "Line"
+          }
+        }
+      ],
+      "id": "length",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#length",
+      "label": "length",
+      "label_i18n": {
+        "": "length"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.length",
+      "range": {
+        "id": "Length",
+        "label": "Length",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Line",
+        "label": "Line",
+        "label_i18n": {
+          "": "Line"
+        }
+      },
+      "domains": [
+        {
+          "id": "Line",
+          "label": "Line",
+          "label_i18n": {
+            "": "Line"
+          }
+        }
+      ],
+      "id": "code",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#code",
+      "label": "code",
+      "label_i18n": {
+        "": "code"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.code",
+      "range": {
+        "id": "string",
+        "label": "string",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "Step-free from the street to a low-floor vehicle.",
+      "definition_i18n": {
+        "": "Step-free from the street to a low-floor vehicle."
+      },
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "accessible",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#accessible",
+      "label": "accessible",
+      "label_i18n": {
+        "": "accessible"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.accessible",
+      "range": {
+        "id": "boolean",
+        "label": "boolean",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "long",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#long",
+      "label": "long",
+      "label_i18n": {
+        "": "long"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.long",
+      "range": {
+        "id": "float",
+        "label": "float",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "WGS 84, in degrees.",
+      "definition_i18n": {
+        "": "WGS 84, in degrees."
+      },
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "lat",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#lat",
+      "label": "lat",
+      "label_i18n": {
+        "": "lat"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.lat",
+      "range": {
+        "id": "float",
+        "label": "float",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "name",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#name",
+      "label": "name",
+      "label_i18n": {
+        "": "name"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.name",
+      "range": {
+        "id": "string",
+        "label": "string",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    },
+    {
+      "col": null,
+      "definition": "",
+      "definition_i18n": {},
+      "domain": {
+        "id": "Stop",
+        "label": "Stop",
+        "label_i18n": {
+          "": "Stop"
+        }
+      },
+      "domains": [
+        {
+          "id": "Stop",
+          "label": "Stop",
+          "label_i18n": {
+            "": "Stop"
+          }
+        }
+      ],
+      "id": "stop_code",
+      "iri": "https://www.dolfin.fr/showcase/city-transit/network/network#stop_code",
+      "label": "stop_code",
+      "label_i18n": {
+        "": "stop_code"
+      },
+      "line": null,
+      "qualified": "https://www.dolfin.fr/showcase/city-transit/network.stop_code",
+      "range": {
+        "id": "string",
+        "label": "string",
+        "label_i18n": {}
+      },
+      "source_file": ""
+    }
+  ],
+  "queries": [],
+  "rules": []
+}

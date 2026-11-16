@@ -1,0 +1,1446 @@
+# The Ultra des Trois Cols (fictional): the race model, the runners, the
+# timing-mat passages, the rules and the checks. The checkpoints are in
+# course.dlf. Every runner and time is invented.
+#
+# This file has no @timezone: the chips record UTC (`UTC` inline), the aid
+# station volunteers local time (`+02:00` inline). A date_time compares by
+# instant, so 13:30 UTC equals the 15:30 local cutoff.
+#
+# Facts are dated against now = 2026-07-12T12:00:00Z (validate/now).
+
+concept Checkpoint:
+  has key code: string
+  has name: one string
+  has distance_from_start: one length
+
+  # No `[ >= 0 ]`: a bound on a quantity field rejects every value
+  # (rust/BUGS.md, hospital-pharmacy A); see validate/known-bug/.
+  has altitude: one length
+  has cumulative_gain: one length
+  has cutoff: one date_time
+
+  # The course order. `previous` is the inverse, `after` the transitive
+  # "comes later on the course" (filled by the rules below).
+  has next: optional Checkpoint
+    inverse of previous
+  has after: Checkpoint
+    transitive
+
+concept Course:
+  has name: one string
+
+  # Emitted as rdfs:range rdf:List: one list node, the checkpoints in order.
+  has checkpoints: list of Checkpoint
+  has total_distance: one length
+
+concept GearItem:
+  one of:
+    HEADLAMP
+    SURVIVAL_BLANKET
+    WATER_1L
+    RAIN_JACKET
+    POLES
+
+# Age groups on race day: senior 20-39, master 1 40-49, master 2 50-59.
+concept Category:
+  has min_age: one duration
+  has max_age: one duration
+
+  one of:
+    SEN_H [min_age duration(20y), max_age duration(40y)]
+    SEN_F [min_age duration(20y), max_age duration(40y)]
+    M1_H [min_age duration(40y), max_age duration(50y)]
+    M1_F [min_age duration(40y), max_age duration(50y)]
+    M2_H [min_age duration(50y), max_age duration(60y)]
+    M2_F [min_age duration(50y), max_age duration(60y)]
+
+concept Runner:
+  has key bib: int
+  has first_name: one string
+  has category: one Category
+  has gear: set of GearItem
+  has birthdate: one date
+  has age: duration [ = now() - $birthdate ]
+
+  # Results, precomputed: rules have no arithmetic or aggregates, so the
+  # finish time and the speed are facts (the speed by quantity arithmetic).
+  has finish_time: optional duration
+  has avg_speed: optional speed
+
+  # The same speed as a plain number of km/h: `average` over a quantity
+  # field is unbound (rust/BUGS.md, mountain-ultra B).
+  has avg_speed_kmh: optional float
+
+  # The category must match the age (written with `$age`: a derived field in
+  # the property position reads a stored triple, rust/BUGS.md C).
+  check
+    [ category [ min_age [ <= $age ], max_age [ > $age ] ] ]
+
+# The three mandatory items, each one an owl:hasValue restriction.
+concept FullyEquipped:
+  equivalent to Runner
+    with gear: = HEADLAMP
+    with gear: = SURVIVAL_BLANKET
+    with gear: = WATER_1L
+
+# A timing-mat record. Two records for the same runner at the same
+# checkpoint are the same passage (owl:hasKey, owl:sameAs).
+concept Passage:
+  key:
+    has runner: Runner
+    has checkpoint: Checkpoint
+  has at: one date_time
+
+# A passage submitted for the official ranking: not after the cutoff (the
+# cutoff is inclusive). The facts are the raw timing log, late passages
+# included (the rules flag them); new data asserts this concept.
+concept RankedPassage:
+  sub Passage
+
+  check
+    [ $ at ?t, checkpoint [ cutoff [ >= ?t ] ] ]
+
+# Timed at the finish line. The OWL definition is not materialized by the
+# showcase harness (no OWL reasoning), so the rule `finisher` infers it too.
+concept Finisher:
+  equivalent to Runner
+    with ^runner: Passage
+      with checkpoint: = finish
+
+# Inferred by the rules below.
+concept DNFCutoff
+
+concept GearPenalty
+
+# Strictly after the cutoff: a passage exactly at the cutoff stays in.
+rule dnf_cutoff:
+  match:
+    ?p at ?t
+    ?p checkpoint [ cutoff [ < ?t ] ]
+    ?p runner ?r
+  then:
+    ?r a DNFCutoff
+
+rule finisher:
+  match:
+    ?p checkpoint finish
+    ?p runner ?r
+  then:
+    ?r a Finisher
+
+# Not FullyEquipped: no binding has all three items.
+rule missing_gear:
+  match:
+    ?r a Runner
+    none ?r:
+      ?r gear HEADLAMP
+      ?r gear SURVIVAL_BLANKET
+      ?r gear WATER_1L
+  then:
+    ?r a GearPenalty
+
+# `transitive` is an OWL characteristic; retox does no OWL reasoning, so the
+# chain is spelled out: the next checkpoint comes after, and so on.
+rule next_is_after:
+  match:
+    ?a next ?b
+  then:
+    ?b after ?a
+
+rule passed_after:
+  match:
+    ?a after ?b
+    ?b after ?c
+  then:
+    ?a after ?c
+
+# Runners: bib 101-120 finish, 121-126 stop at an aid station, 127-128 are
+# timed out at a cutoff, 129-130 did not start.
+
+fact r101 a Runner
+  bib 101
+  first_name "Kilian"
+  category SEN_H
+  birthdate date(March 12th 1994)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L
+  finish_time duration(9h 45min)
+  avg_speed quantity(78 km / 585 min as km/h)
+  avg_speed_kmh 8.0
+
+fact r102 a Runner
+  bib 102
+  first_name "Sophie"
+  category SEN_F
+  birthdate date(August 2nd 1996)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(12h 30min)
+  avg_speed quantity(78 km / 750 min as km/h)
+  avg_speed_kmh 6.24
+
+fact r103 a Runner
+  bib 103
+  first_name "Marco"
+  category M1_H
+  birthdate date(May 21st 1983)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, POLES
+  finish_time duration(10h)
+  avg_speed quantity(78 km / 600 min as km/h)
+  avg_speed_kmh 7.8
+
+fact r104 a Runner
+  bib 104
+  first_name "Léa"
+  category SEN_F
+  birthdate date(November 30th 1999)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(11h 33min 20s)
+  avg_speed quantity(78 km / 41600 s as km/h)
+  avg_speed_kmh 6.75
+
+fact r105 a Runner
+  bib 105
+  first_name "Hugo"
+  category SEN_H
+  birthdate date(January 15th 1991)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(10h 24min)
+  avg_speed quantity(78 km / 624 min as km/h)
+  avg_speed_kmh 7.5
+
+fact r106 a Runner
+  bib 106
+  first_name "Anna"
+  category M1_F
+  birthdate date(September 9th 1982)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(13h)
+  avg_speed quantity(78 km / 780 min as km/h)
+  avg_speed_kmh 6.0
+
+fact r107 a Runner
+  bib 107
+  first_name "Pierre"
+  category M2_H
+  birthdate date(April 3rd 1972)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(13h 52min)
+  avg_speed quantity(78 km / 832 min as km/h)
+  avg_speed_kmh 5.625
+
+fact r108 a Runner
+  bib 108
+  first_name "Giulia"
+  category M1_F
+  birthdate date(February 28th 1980)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(14h 26min 40s)
+  avg_speed quantity(78 km / 52000 s as km/h)
+  avg_speed_kmh 5.4
+
+fact r109 a Runner
+  bib 109
+  first_name "Thomas"
+  category M1_H
+  birthdate date(December 1st 1985)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(10h 40min)
+  avg_speed quantity(78 km / 640 min as km/h)
+  avg_speed_kmh 7.3125
+
+fact r110 a Runner
+  bib 110
+  first_name "Claire"
+  category M2_F
+  birthdate date(June 17th 1974)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(16h)
+  avg_speed quantity(78 km / 960 min as km/h)
+  avg_speed_kmh 4.875
+
+fact r111 a Runner
+  bib 111
+  first_name "Luca"
+  category SEN_H
+  birthdate date(July 7th 1997)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(10h 50min)
+  avg_speed quantity(78 km / 650 min as km/h)
+  avg_speed_kmh 7.2
+
+fact r112 a Runner
+  bib 112
+  first_name "Emma"
+  category SEN_F
+  birthdate date(October 10th 2001)
+  gear HEADLAMP, WATER_1L, RAIN_JACKET, POLES
+  finish_time duration(12h)
+  avg_speed quantity(78 km / 720 min as km/h)
+  avg_speed_kmh 6.5
+
+fact r113 a Runner
+  bib 113
+  first_name "Jean"
+  category M2_H
+  birthdate date(January 20th 1970)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(15h)
+  avg_speed quantity(78 km / 900 min as km/h)
+  avg_speed_kmh 5.2
+
+fact r114 a Runner
+  bib 114
+  first_name "Nadia"
+  category M2_F
+  birthdate date(March 5th 1968)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(16h 40min)
+  avg_speed quantity(78 km / 1000 min as km/h)
+  avg_speed_kmh 4.68
+
+fact r115 a Runner
+  bib 115
+  first_name "Paolo"
+  category M1_H
+  birthdate date(August 22nd 1979)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(12h 48min)
+  avg_speed quantity(78 km / 768 min as km/h)
+  avg_speed_kmh 6.09375
+
+fact r116 a Runner
+  bib 116
+  first_name "Inès"
+  category M1_F
+  birthdate date(April 14th 1984)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(15h 36min)
+  avg_speed quantity(78 km / 936 min as km/h)
+  avg_speed_kmh 5.0
+
+fact r117 a Runner
+  bib 117
+  first_name "Bernard"
+  category M2_H
+  birthdate date(September 30th 1967)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(16h 15min)
+  avg_speed quantity(78 km / 975 min as km/h)
+  avg_speed_kmh 4.8
+
+fact r118 a Runner
+  bib 118
+  first_name "Chiara"
+  category SEN_F
+  birthdate date(February 11th 1993)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(13h 20min)
+  avg_speed quantity(78 km / 800 min as km/h)
+  avg_speed_kmh 5.85
+
+fact r119 a Runner
+  bib 119
+  first_name "Mathieu"
+  category M1_H
+  birthdate date(May 5th 1981)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(16h 38min 24s)
+  avg_speed quantity(78 km / 59904 s as km/h)
+  avg_speed_kmh 4.6875
+
+fact r120 a Runner
+  bib 120
+  first_name "Monique"
+  category M2_F
+  birthdate date(November 8th 1966)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+  finish_time duration(17h 20min)
+  avg_speed quantity(78 km / 1040 min as km/h)
+  avg_speed_kmh 4.5
+
+fact r121 a Runner
+  bib 121
+  first_name "Yann"
+  category SEN_H
+  birthdate date(June 6th 1995)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r122 a Runner
+  bib 122
+  first_name "Sara"
+  category SEN_F
+  birthdate date(December 24th 1998)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r123 a Runner
+  bib 123
+  first_name "Olivier"
+  category M1_H
+  birthdate date(March 18th 1984)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r124 a Runner
+  bib 124
+  first_name "Marta"
+  category M1_F
+  birthdate date(July 29th 1981)
+  gear HEADLAMP, SURVIVAL_BLANKET, POLES
+
+fact r125 a Runner
+  bib 125
+  first_name "Gérard"
+  category M2_H
+  birthdate date(October 2nd 1969)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r126 a Runner
+  bib 126
+  first_name "Elena"
+  category M2_F
+  birthdate date(January 31st 1971)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r127 a Runner
+  bib 127
+  first_name "Rémi"
+  category M1_H
+  birthdate date(August 8th 1985)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r128 a Runner
+  bib 128
+  first_name "Julie"
+  category SEN_F
+  birthdate date(May 14th 1992)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r129 a Runner
+  bib 129
+  first_name "Antoine"
+  category SEN_H
+  birthdate date(April 1st 1990)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+fact r130 a Runner
+  bib 130
+  first_name "Heidi"
+  category M2_F
+  birthdate date(September 12th 1972)
+  gear HEADLAMP, SURVIVAL_BLANKET, WATER_1L, RAIN_JACKET
+
+# Passages, as the timing chips record them: in UTC (start 03:00 UTC = 05:00
+# in Bourg-Saint-Maurice).
+
+fact p101_cp1 a Passage
+  runner r101
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:03 UTC)
+
+fact p101_cp2 a Passage
+  runner r101
+  checkpoint cp2
+  at date_time(July 11th 2026, 05:52 UTC)
+
+fact p101_cp3 a Passage
+  runner r101
+  checkpoint cp3
+  at date_time(July 11th 2026, 06:36 UTC)
+
+fact p101_cp4 a Passage
+  runner r101
+  checkpoint cp4
+  at date_time(July 11th 2026, 08:44 UTC)
+
+fact p101_cp5 a Passage
+  runner r101
+  checkpoint cp5
+  at date_time(July 11th 2026, 09:04 UTC)
+
+fact p101_cp6 a Passage
+  runner r101
+  checkpoint cp6
+  at date_time(July 11th 2026, 09:35 UTC)
+
+fact p101_cp7 a Passage
+  runner r101
+  checkpoint cp7
+  at date_time(July 11th 2026, 10:44 UTC)
+
+fact p101_finish a Passage
+  runner r101
+  checkpoint finish
+  at date_time(July 11th 2026, 12:45 UTC)
+
+fact p102_cp1 a Passage
+  runner r102
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:38 UTC)
+
+fact p102_cp2 a Passage
+  runner r102
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:40 UTC)
+
+fact p102_cp3 a Passage
+  runner r102
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:37 UTC)
+
+fact p102_cp4 a Passage
+  runner r102
+  checkpoint cp4
+  at date_time(July 11th 2026, 10:20 UTC)
+
+fact p102_cp5 a Passage
+  runner r102
+  checkpoint cp5
+  at date_time(July 11th 2026, 10:47 UTC)
+
+fact p102_cp6 a Passage
+  runner r102
+  checkpoint cp6
+  at date_time(July 11th 2026, 11:26 UTC)
+
+fact p102_cp7 a Passage
+  runner r102
+  checkpoint cp7
+  at date_time(July 11th 2026, 12:55 UTC)
+
+fact p102_finish a Passage
+  runner r102
+  checkpoint finish
+  at date_time(July 11th 2026, 15:30 UTC)
+
+fact p103_cp1 a Passage
+  runner r103
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:06 UTC)
+
+fact p103_cp2 a Passage
+  runner r103
+  checkpoint cp2
+  at date_time(July 11th 2026, 05:56 UTC)
+
+fact p103_cp3 a Passage
+  runner r103
+  checkpoint cp3
+  at date_time(July 11th 2026, 06:41 UTC)
+
+fact p103_cp4 a Passage
+  runner r103
+  checkpoint cp4
+  at date_time(July 11th 2026, 08:52 UTC)
+
+fact p103_cp5 a Passage
+  runner r103
+  checkpoint cp5
+  at date_time(July 11th 2026, 09:14 UTC)
+
+fact p103_cp6 a Passage
+  runner r103
+  checkpoint cp6
+  at date_time(July 11th 2026, 09:45 UTC)
+
+fact p103_cp7 a Passage
+  runner r103
+  checkpoint cp7
+  at date_time(July 11th 2026, 10:56 UTC)
+
+fact p103_finish a Passage
+  runner r103
+  checkpoint finish
+  at date_time(July 11th 2026, 13:00 UTC)
+
+fact p104_cp1 a Passage
+  runner r104
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:26 UTC)
+
+fact p104_cp2 a Passage
+  runner r104
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:24 UTC)
+
+fact p104_cp3 a Passage
+  runner r104
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:16 UTC)
+
+fact p104_cp4 a Passage
+  runner r104
+  checkpoint cp4
+  at date_time(July 11th 2026, 09:47 UTC)
+
+fact p104_cp5 a Passage
+  runner r104
+  checkpoint cp5
+  at date_time(July 11th 2026, 10:12 UTC)
+
+fact p104_cp6 a Passage
+  runner r104
+  checkpoint cp6
+  at date_time(July 11th 2026, 10:48 UTC)
+
+fact p104_cp7 a Passage
+  runner r104
+  checkpoint cp7
+  at date_time(July 11th 2026, 12:10 UTC)
+
+fact p104_finish a Passage
+  runner r104
+  checkpoint finish
+  at date_time(July 11th 2026, 14:33:20 UTC)
+
+fact p105_cp1 a Passage
+  runner r105
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:11 UTC)
+
+fact p105_cp2 a Passage
+  runner r105
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:03 UTC)
+
+fact p105_cp3 a Passage
+  runner r105
+  checkpoint cp3
+  at date_time(July 11th 2026, 06:50 UTC)
+
+# Deliberate duplicate: the La Thuile volunteers also wrote Hugo down on
+# their paper sheet, in local time. Same runner, same checkpoint: the
+# Passage key (runner + checkpoint) makes it owl:sameAs p105_cp3.
+fact p105_cp3_sheet a Passage
+  runner r105
+  checkpoint cp3
+  at date_time(July 11th 2026, 08:50 +02:00)
+
+fact p105_cp4 a Passage
+  runner r105
+  checkpoint cp4
+  at date_time(July 11th 2026, 09:06 UTC)
+
+fact p105_cp5 a Passage
+  runner r105
+  checkpoint cp5
+  at date_time(July 11th 2026, 09:29 UTC)
+
+fact p105_cp6 a Passage
+  runner r105
+  checkpoint cp6
+  at date_time(July 11th 2026, 10:01 UTC)
+
+fact p105_cp7 a Passage
+  runner r105
+  checkpoint cp7
+  at date_time(July 11th 2026, 11:15 UTC)
+
+fact p105_finish a Passage
+  runner r105
+  checkpoint finish
+  at date_time(July 11th 2026, 13:24 UTC)
+
+fact p106_cp1 a Passage
+  runner r106
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:44 UTC)
+
+fact p106_cp2 a Passage
+  runner r106
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:49 UTC)
+
+fact p106_cp3 a Passage
+  runner r106
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:48 UTC)
+
+fact p106_cp4 a Passage
+  runner r106
+  checkpoint cp4
+  at date_time(July 11th 2026, 10:38 UTC)
+
+fact p106_cp5 a Passage
+  runner r106
+  checkpoint cp5
+  at date_time(July 11th 2026, 11:06 UTC)
+
+fact p106_cp6 a Passage
+  runner r106
+  checkpoint cp6
+  at date_time(July 11th 2026, 11:46 UTC)
+
+fact p106_cp7 a Passage
+  runner r106
+  checkpoint cp7
+  at date_time(July 11th 2026, 13:19 UTC)
+
+fact p106_finish a Passage
+  runner r106
+  checkpoint finish
+  at date_time(July 11th 2026, 16:00 UTC)
+
+fact p107_cp1 a Passage
+  runner r107
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:55 UTC)
+
+fact p107_cp2 a Passage
+  runner r107
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:04 UTC)
+
+fact p107_cp3 a Passage
+  runner r107
+  checkpoint cp3
+  at date_time(July 11th 2026, 08:07 UTC)
+
+fact p107_cp4 a Passage
+  runner r107
+  checkpoint cp4
+  at date_time(July 11th 2026, 11:09 UTC)
+
+fact p107_cp5 a Passage
+  runner r107
+  checkpoint cp5
+  at date_time(July 11th 2026, 11:38 UTC)
+
+fact p107_cp6 a Passage
+  runner r107
+  checkpoint cp6
+  at date_time(July 11th 2026, 12:21 UTC)
+
+fact p107_cp7 a Passage
+  runner r107
+  checkpoint cp7
+  at date_time(July 11th 2026, 14:00 UTC)
+
+fact p107_finish a Passage
+  runner r107
+  checkpoint finish
+  at date_time(July 11th 2026, 16:52 UTC)
+
+fact p108_cp1 a Passage
+  runner r108
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:02 UTC)
+
+fact p108_cp2 a Passage
+  runner r108
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:14 UTC)
+
+fact p108_cp3 a Passage
+  runner r108
+  checkpoint cp3
+  at date_time(July 11th 2026, 08:20 UTC)
+
+fact p108_cp4 a Passage
+  runner r108
+  checkpoint cp4
+  at date_time(July 11th 2026, 11:29 UTC)
+
+fact p108_cp5 a Passage
+  runner r108
+  checkpoint cp5
+  at date_time(July 11th 2026, 12:00 UTC)
+
+fact p108_cp6 a Passage
+  runner r108
+  checkpoint cp6
+  at date_time(July 11th 2026, 12:45 UTC)
+
+fact p108_cp7 a Passage
+  runner r108
+  checkpoint cp7
+  at date_time(July 11th 2026, 14:28 UTC)
+
+fact p108_finish a Passage
+  runner r108
+  checkpoint finish
+  at date_time(July 11th 2026, 17:26:40 UTC)
+
+fact p109_cp1 a Passage
+  runner r109
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:15 UTC)
+
+fact p109_cp2 a Passage
+  runner r109
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:08 UTC)
+
+fact p109_cp3 a Passage
+  runner r109
+  checkpoint cp3
+  at date_time(July 11th 2026, 06:56 UTC)
+
+fact p109_cp4 a Passage
+  runner r109
+  checkpoint cp4
+  at date_time(July 11th 2026, 09:16 UTC)
+
+fact p109_cp5 a Passage
+  runner r109
+  checkpoint cp5
+  at date_time(July 11th 2026, 09:39 UTC)
+
+fact p109_cp6 a Passage
+  runner r109
+  checkpoint cp6
+  at date_time(July 11th 2026, 10:12 UTC)
+
+fact p109_cp7 a Passage
+  runner r109
+  checkpoint cp7
+  at date_time(July 11th 2026, 11:28 UTC)
+
+fact p109_finish a Passage
+  runner r109
+  checkpoint finish
+  at date_time(July 11th 2026, 13:40 UTC)
+
+fact p110_cp1 a Passage
+  runner r110
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:22 UTC)
+
+fact p110_cp2 a Passage
+  runner r110
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:42 UTC)
+
+fact p110_cp3 a Passage
+  runner r110
+  checkpoint cp3
+  at date_time(July 11th 2026, 08:54 UTC)
+
+fact p110_cp4 a Passage
+  runner r110
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:24 UTC)
+
+fact p110_cp5 a Passage
+  runner r110
+  checkpoint cp5
+  at date_time(July 11th 2026, 12:58 UTC)
+
+fact p110_cp6 a Passage
+  runner r110
+  checkpoint cp6
+  at date_time(July 11th 2026, 13:48 UTC)
+
+fact p110_cp7 a Passage
+  runner r110
+  checkpoint cp7
+  at date_time(July 11th 2026, 15:42 UTC)
+
+fact p110_finish a Passage
+  runner r110
+  checkpoint finish
+  at date_time(July 11th 2026, 19:00 UTC)
+
+fact p111_cp1 a Passage
+  runner r111
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:17 UTC)
+
+fact p111_cp2 a Passage
+  runner r111
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:11 UTC)
+
+fact p111_cp3 a Passage
+  runner r111
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:00 UTC)
+
+fact p111_cp4 a Passage
+  runner r111
+  checkpoint cp4
+  at date_time(July 11th 2026, 09:22 UTC)
+
+fact p111_cp5 a Passage
+  runner r111
+  checkpoint cp5
+  at date_time(July 11th 2026, 09:45 UTC)
+
+fact p111_cp6 a Passage
+  runner r111
+  checkpoint cp6
+  at date_time(July 11th 2026, 10:18 UTC)
+
+fact p111_cp7 a Passage
+  runner r111
+  checkpoint cp7
+  at date_time(July 11th 2026, 11:36 UTC)
+
+fact p111_finish a Passage
+  runner r111
+  checkpoint finish
+  at date_time(July 11th 2026, 13:50 UTC)
+
+fact p112_cp1 a Passage
+  runner r112
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:31 UTC)
+
+fact p112_cp2 a Passage
+  runner r112
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:31 UTC)
+
+fact p112_cp3 a Passage
+  runner r112
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:26 UTC)
+
+fact p112_cp4 a Passage
+  runner r112
+  checkpoint cp4
+  at date_time(July 11th 2026, 10:03 UTC)
+
+fact p112_cp5 a Passage
+  runner r112
+  checkpoint cp5
+  at date_time(July 11th 2026, 10:29 UTC)
+
+fact p112_cp6 a Passage
+  runner r112
+  checkpoint cp6
+  at date_time(July 11th 2026, 11:06 UTC)
+
+fact p112_cp7 a Passage
+  runner r112
+  checkpoint cp7
+  at date_time(July 11th 2026, 12:31 UTC)
+
+fact p112_finish a Passage
+  runner r112
+  checkpoint finish
+  at date_time(July 11th 2026, 15:00 UTC)
+
+fact p113_cp1 a Passage
+  runner r113
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:09 UTC)
+
+fact p113_cp2 a Passage
+  runner r113
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:24 UTC)
+
+fact p113_cp3 a Passage
+  runner r113
+  checkpoint cp3
+  at date_time(July 11th 2026, 08:32 UTC)
+
+fact p113_cp4 a Passage
+  runner r113
+  checkpoint cp4
+  at date_time(July 11th 2026, 11:49 UTC)
+
+fact p113_cp5 a Passage
+  runner r113
+  checkpoint cp5
+  at date_time(July 11th 2026, 12:21 UTC)
+
+fact p113_cp6 a Passage
+  runner r113
+  checkpoint cp6
+  at date_time(July 11th 2026, 13:07 UTC)
+
+fact p113_cp7 a Passage
+  runner r113
+  checkpoint cp7
+  at date_time(July 11th 2026, 14:54 UTC)
+
+fact p113_finish a Passage
+  runner r113
+  checkpoint finish
+  at date_time(July 11th 2026, 18:00 UTC)
+
+fact p114_cp1 a Passage
+  runner r114
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:30 UTC)
+
+fact p114_cp2 a Passage
+  runner r114
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:54 UTC)
+
+fact p114_cp3 a Passage
+  runner r114
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:09 UTC)
+
+fact p114_cp4 a Passage
+  runner r114
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:47 UTC)
+
+fact p114_cp5 a Passage
+  runner r114
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:23 UTC)
+
+fact p114_cp6 a Passage
+  runner r114
+  checkpoint cp6
+  at date_time(July 11th 2026, 14:15 UTC)
+
+fact p114_cp7 a Passage
+  runner r114
+  checkpoint cp7
+  at date_time(July 11th 2026, 16:14 UTC)
+
+fact p114_finish a Passage
+  runner r114
+  checkpoint finish
+  at date_time(July 11th 2026, 19:40 UTC)
+
+fact p115_cp1 a Passage
+  runner r115
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:42 UTC)
+
+fact p115_cp2 a Passage
+  runner r115
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:46 UTC)
+
+fact p115_cp3 a Passage
+  runner r115
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:43 UTC)
+
+fact p115_cp4 a Passage
+  runner r115
+  checkpoint cp4
+  at date_time(July 11th 2026, 10:31 UTC)
+
+fact p115_cp5 a Passage
+  runner r115
+  checkpoint cp5
+  at date_time(July 11th 2026, 10:58 UTC)
+
+fact p115_cp6 a Passage
+  runner r115
+  checkpoint cp6
+  at date_time(July 11th 2026, 11:38 UTC)
+
+fact p115_cp7 a Passage
+  runner r115
+  checkpoint cp7
+  at date_time(July 11th 2026, 13:10 UTC)
+
+fact p115_finish a Passage
+  runner r115
+  checkpoint finish
+  at date_time(July 11th 2026, 15:48 UTC)
+
+fact p116_cp1 a Passage
+  runner r116
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:17 UTC)
+
+fact p116_cp2 a Passage
+  runner r116
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:35 UTC)
+
+fact p116_cp3 a Passage
+  runner r116
+  checkpoint cp3
+  at date_time(July 11th 2026, 08:45 UTC)
+
+fact p116_cp4 a Passage
+  runner r116
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:10 UTC)
+
+fact p116_cp5 a Passage
+  runner r116
+  checkpoint cp5
+  at date_time(July 11th 2026, 12:43 UTC)
+
+fact p116_cp6 a Passage
+  runner r116
+  checkpoint cp6
+  at date_time(July 11th 2026, 13:31 UTC)
+
+fact p116_cp7 a Passage
+  runner r116
+  checkpoint cp7
+  at date_time(July 11th 2026, 15:23 UTC)
+
+fact p116_finish a Passage
+  runner r116
+  checkpoint finish
+  at date_time(July 11th 2026, 18:36 UTC)
+
+fact p117_cp1 a Passage
+  runner r117
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:25 UTC)
+
+fact p117_cp2 a Passage
+  runner r117
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:46 UTC)
+
+fact p117_cp3 a Passage
+  runner r117
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:00 UTC)
+
+fact p117_cp4 a Passage
+  runner r117
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:33 UTC)
+
+fact p117_cp5 a Passage
+  runner r117
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:07 UTC)
+
+fact p117_cp6 a Passage
+  runner r117
+  checkpoint cp6
+  at date_time(July 11th 2026, 13:58 UTC)
+
+fact p117_cp7 a Passage
+  runner r117
+  checkpoint cp7
+  at date_time(July 11th 2026, 15:54 UTC)
+
+fact p117_finish a Passage
+  runner r117
+  checkpoint finish
+  at date_time(July 11th 2026, 19:15 UTC)
+
+fact p118_cp1 a Passage
+  runner r118
+  checkpoint cp1
+  at date_time(July 11th 2026, 05:48 UTC)
+
+fact p118_cp2 a Passage
+  runner r118
+  checkpoint cp2
+  at date_time(July 11th 2026, 06:55 UTC)
+
+fact p118_cp3 a Passage
+  runner r118
+  checkpoint cp3
+  at date_time(July 11th 2026, 07:55 UTC)
+
+fact p118_cp4 a Passage
+  runner r118
+  checkpoint cp4
+  at date_time(July 11th 2026, 10:50 UTC)
+
+fact p118_cp5 a Passage
+  runner r118
+  checkpoint cp5
+  at date_time(July 11th 2026, 11:18 UTC)
+
+fact p118_cp6 a Passage
+  runner r118
+  checkpoint cp6
+  at date_time(July 11th 2026, 12:00 UTC)
+
+fact p118_cp7 a Passage
+  runner r118
+  checkpoint cp7
+  at date_time(July 11th 2026, 13:35 UTC)
+
+fact p118_finish a Passage
+  runner r118
+  checkpoint finish
+  at date_time(July 11th 2026, 16:20 UTC)
+
+fact p119_cp1 a Passage
+  runner r119
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:30 UTC)
+
+fact p119_cp2 a Passage
+  runner r119
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:53 UTC)
+
+fact p119_cp3 a Passage
+  runner r119
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:08 UTC)
+
+fact p119_cp4 a Passage
+  runner r119
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:46 UTC)
+
+fact p119_cp5 a Passage
+  runner r119
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:22 UTC)
+
+fact p119_cp6 a Passage
+  runner r119
+  checkpoint cp6
+  at date_time(July 11th 2026, 14:14 UTC)
+
+fact p119_cp7 a Passage
+  runner r119
+  checkpoint cp7
+  at date_time(July 11th 2026, 16:12 UTC)
+
+fact p119_finish a Passage
+  runner r119
+  checkpoint finish
+  at date_time(July 11th 2026, 19:38:24 UTC)
+
+fact p120_cp1 a Passage
+  runner r120
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:39 UTC)
+
+fact p120_cp2 a Passage
+  runner r120
+  checkpoint cp2
+  at date_time(July 11th 2026, 08:05 UTC)
+
+fact p120_cp3 a Passage
+  runner r120
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:24 UTC)
+
+# Edge case 1: exactly at the Col de la Seigne cutoff (15:30 local = 13:30
+# UTC). Cutoffs are inclusive: not late, no violation, no DNFCutoff.
+fact p120_cp4 a Passage
+  runner r120
+  checkpoint cp4
+  at date_time(July 11th 2026, 13:30 UTC)
+
+fact p120_cp5 a Passage
+  runner r120
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:48 UTC)
+
+fact p120_cp6 a Passage
+  runner r120
+  checkpoint cp6
+  at date_time(July 11th 2026, 14:42 UTC)
+
+fact p120_cp7 a Passage
+  runner r120
+  checkpoint cp7
+  at date_time(July 11th 2026, 16:45 UTC)
+
+fact p120_finish a Passage
+  runner r120
+  checkpoint finish
+  at date_time(July 11th 2026, 20:20 UTC)
+
+fact p121_cp1 a Passage
+  runner r121
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:30 UTC)
+
+fact p121_cp2 a Passage
+  runner r121
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:54 UTC)
+
+fact p122_cp1 a Passage
+  runner r122
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:26 UTC)
+
+fact p122_cp2 a Passage
+  runner r122
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:48 UTC)
+
+fact p122_cp3 a Passage
+  runner r122
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:02 UTC)
+
+fact p123_cp1 a Passage
+  runner r123
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:32 UTC)
+
+fact p123_cp2 a Passage
+  runner r123
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:57 UTC)
+
+fact p123_cp3 a Passage
+  runner r123
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:13 UTC)
+
+fact p123_cp4 a Passage
+  runner r123
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:53 UTC)
+
+fact p124_cp1 a Passage
+  runner r124
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:35 UTC)
+
+fact p124_cp2 a Passage
+  runner r124
+  checkpoint cp2
+  at date_time(July 11th 2026, 08:00 UTC)
+
+fact p124_cp3 a Passage
+  runner r124
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:16 UTC)
+
+fact p124_cp4 a Passage
+  runner r124
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:59 UTC)
+
+fact p124_cp5 a Passage
+  runner r124
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:35 UTC)
+
+fact p125_cp1 a Passage
+  runner r125
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:37 UTC)
+
+fact p125_cp2 a Passage
+  runner r125
+  checkpoint cp2
+  at date_time(July 11th 2026, 08:02 UTC)
+
+fact p125_cp3 a Passage
+  runner r125
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:20 UTC)
+
+fact p125_cp4 a Passage
+  runner r125
+  checkpoint cp4
+  at date_time(July 11th 2026, 13:05 UTC)
+
+fact p125_cp5 a Passage
+  runner r125
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:42 UTC)
+
+fact p125_cp6 a Passage
+  runner r125
+  checkpoint cp6
+  at date_time(July 11th 2026, 14:35 UTC)
+
+fact p126_cp1 a Passage
+  runner r126
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:30 UTC)
+
+fact p126_cp2 a Passage
+  runner r126
+  checkpoint cp2
+  at date_time(July 11th 2026, 07:54 UTC)
+
+fact p126_cp3 a Passage
+  runner r126
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:09 UTC)
+
+fact p126_cp4 a Passage
+  runner r126
+  checkpoint cp4
+  at date_time(July 11th 2026, 12:47 UTC)
+
+fact p126_cp5 a Passage
+  runner r126
+  checkpoint cp5
+  at date_time(July 11th 2026, 13:23 UTC)
+
+fact p126_cp6 a Passage
+  runner r126
+  checkpoint cp6
+  at date_time(July 11th 2026, 14:15 UTC)
+
+fact p126_cp7 a Passage
+  runner r126
+  checkpoint cp7
+  at date_time(July 11th 2026, 16:14 UTC)
+
+fact p127_cp1 a Passage
+  runner r127
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:50 UTC)
+
+fact p127_cp2 a Passage
+  runner r127
+  checkpoint cp2
+  at date_time(July 11th 2026, 08:25 UTC)
+
+fact p127_cp3 a Passage
+  runner r127
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:55 UTC)
+
+fact p127_cp4 a Passage
+  runner r127
+  checkpoint cp4
+  at date_time(July 11th 2026, 13:25 UTC)
+
+fact p127_cp5 a Passage
+  runner r127
+  checkpoint cp5
+  at date_time(July 11th 2026, 14:25 UTC)
+
+# Edge case 2: two minutes over the Les Chapieux cutoff (17:30 local):
+# 15:32 UTC = 17:32 local. DNFCutoff.
+fact p127_cp6 a Passage
+  runner r127
+  checkpoint cp6
+  at date_time(July 11th 2026, 15:32 UTC)
+
+fact p128_cp1 a Passage
+  runner r128
+  checkpoint cp1
+  at date_time(July 11th 2026, 06:45 UTC)
+
+fact p128_cp2 a Passage
+  runner r128
+  checkpoint cp2
+  at date_time(July 11th 2026, 08:20 UTC)
+
+fact p128_cp3 a Passage
+  runner r128
+  checkpoint cp3
+  at date_time(July 11th 2026, 09:50 UTC)
+
+fact p128_cp4 a Passage
+  runner r128
+  checkpoint cp4
+  at date_time(July 11th 2026, 13:20 UTC)
+
+fact p128_cp5 a Passage
+  runner r128
+  checkpoint cp5
+  at date_time(July 11th 2026, 14:20 UTC)
+
+fact p128_cp6 a Passage
+  runner r128
+  checkpoint cp6
+  at date_time(July 11th 2026, 15:20 UTC)
+
+# Edge case 3: the chip says 18:40 UTC, which reads as "before 20:00" if
+# taken for local time, but is 20:40 in Europe/Paris: 40 minutes over the
+# Cormet de Roselend cutoff. DNFCutoff.
+fact p128_cp7 a Passage
+  runner r128
+  checkpoint cp7
+  at date_time(July 11th 2026, 18:40 UTC)

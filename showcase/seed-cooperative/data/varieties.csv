@@ -1,0 +1,23 @@
+code,species,name,origin_region,days_to_maturity,tag1,tag2
+TOM-CDB,tomate,Cœur de bœuf,Provence,85,heirloom,indeterminate
+TOM-NC,tomate,Noire de Crimée,Crimea,80,heirloom,
+TOM-CRIMEE,Tomate,Noire de Crimée,,,heirloom,
+TOM-RDB,tomate,Rose de Berne,Switzerland,75,heirloom,
+TOM-VRC,tomate,Verte du Vercors,Vercors,90,local,rare
+BEAN-COCO,haricot,Coco de Paimpol,Bretagne,70,dry,
+BEAN-LING,haricot,Lingot du Nord,Nord,95,dry,
+BEAN-SOIS,haricot,Soissons,Picardie,100,dry,climbing
+GAR-ROSE,ail,Rose de Lautrec,Tarn,240,heirloom,
+GAR-LAUTREC,Ail,Rose de Lautrec,,,heirloom,
+GAR-DROME,ail,Blanc de la Drôme,Drôme,250,,
+POT-VIT,pomme de terre,Vitelotte,Île-de-France,120,heirloom,
+POT-BDF,pomme de terre,Belle de Fontenay,Île-de-France,100,,
+POT-RAT,pomme de terre,Ratte,Ardèche,90,,
+LET-MERV,laitue,Merveille des quatre saisons,,60,,
+LET-FEU,laitue,Feuille de chêne blonde,,50,cut-and-come-again,
+LET-GBP,laitue,Grosse blonde paresseuse,,55,heirloom,
+SPE-OBK,épeautre,Oberkulmer Rotkorn,Switzerland,300,,
+SPE-VRC,épeautre,Épeautre du Vercors,Vercors,290,local,
+CAR-JDD,carotte,Jaune du Doubs,Doubs,110,heirloom,
+CAR-NAN,carotte,Nantaise améliorée,,75,,
+CAR-CHA,carotte,Chantenay à cœur rouge,,80,,

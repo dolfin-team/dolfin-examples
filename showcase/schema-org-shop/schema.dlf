@@ -1,0 +1,64 @@
+# A subset of schema.org (https://schema.org), the vocabulary search engines
+# read from product pages. `@iri_name` puts every term below in the real
+# schema.org namespace, so the emitted data is plain schema.org.
+@iri_name <https://schema.org/>
+
+concept Thing:
+  has name: one string
+  has description: optional string
+  has url: optional string
+  has image: string
+
+concept Organization:
+  sub Thing
+  has legalName: optional string
+  has address: optional PostalAddress
+
+concept Brand:
+  sub Thing
+
+concept PostalAddress:
+  has streetAddress: optional string
+  has postalCode: optional string
+  has addressLocality: one string
+  has addressCountry: one string
+
+concept Product:
+  sub Thing
+  has sku: one string
+  has gtin13: optional string
+  has brand: one Brand
+  has manufacturer: optional Organization
+  has category: one string
+  has color: optional string
+  has material: optional string
+  # schema.org types weight as a QuantitativeValue; Dolfin checks it is a mass.
+  has weight: optional mass
+  has offers: some Offer
+  has aggregateRating: optional AggregateRating
+  has isSimilarTo: Product
+
+concept Offer:
+  has price: one float
+  has priceCurrency: one string
+  has availability: one ItemAvailability
+  has itemCondition: one OfferItemCondition
+  has seller: one Organization
+
+concept AggregateRating:
+  has ratingValue: one float
+  has reviewCount: one int
+  has bestRating: optional float
+
+concept ItemAvailability:
+  one of:
+    InStock
+    OutOfStock
+    PreOrder
+    LimitedAvailability
+
+concept OfferItemCondition:
+  one of:
+    NewCondition
+    RefurbishedCondition
+    UsedCondition

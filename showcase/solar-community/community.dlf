@@ -1,0 +1,414 @@
+# Soleil du Diois (fictional): a citizen solar energy community in a Drôme
+# valley. Its sites share the output of rooftop PV on two low-voltage feeders;
+# each site's smart meter reports, every day, the energy it imported and
+# exported and the highest power it drew (readings.dlf).
+
+concept SiteKind:
+  one of:
+    HOUSEHOLD
+    SCHOOL
+    DAIRY
+
+concept Feeder:
+  has key code: string
+  has max_injection: power
+
+  one of:
+    DEPART_A [code "DEPART_A", max_injection quantity(60 kW)]
+    DEPART_B [code "DEPART_B", max_injection quantity(60 kW)]
+
+concept Site:
+  # A 14-digit delivery point number, as Enedis PDLs (invented).
+  has key pdl: string
+  has name: one string
+  has kind: one SiteKind
+  has feeder: one Feeder
+
+  # Enedis contracts are in kVA (apparent power). No `VA` unit is built in,
+  # and a comparison with a `unitdef kVA` unit compiles to a string compare
+  # (rust/BUGS.md, seed-cooperative D), so contracts are in kW: at a power
+  # factor of 1, 6 kVA draws 6 kW.
+  has contracted_power: one power
+
+concept Installation:
+  has site: one Site
+  has peak_power: one power
+  has commissioned: one date
+
+concept DailyReading:
+  key:
+    has site: Site
+    has day: date
+
+  has working_day: one boolean
+  # Not negative: see InvalidReading below.
+  has imported: one energy
+  has exported: one energy
+  has peak_draw: one power
+
+# What the rules below conclude. Plain concepts, not `sub Site`: a `Site`
+# subclass derived by a rule puts the `pdl` key rule in a later stratum,
+# which SHACL refuses (rust/BUGS.md, high-school).
+concept Producer
+
+concept OverContract
+
+concept CrowdedFeeder
+
+concept IdleInstallation
+
+concept SchoolOnHoliday
+
+# A reading the hub rejects: a negative energy. It cannot stand without the
+# operator's correction note. (A `[ >= 0 ]` bound on a quantity field rejects
+# every value, and a quantity `check` never fails: rust/BUGS.md,
+# hospital-pharmacy A and B. A rule compares quantities by magnitude.)
+concept InvalidReading:
+  has correction: one string
+
+# The month's imported energy of a site, computed by `monthly_import_total`.
+# A property, not a `has … energy`: a sum over mixed units is in the SI unit
+# kg.m2.s-2 (J), which has no `dq:` definition, so the energy check would
+# reject it (rust/BUGS.md, solar-community B).
+property monthly_import: Site -> float
+
+# Stratum 0: a plain rule. Every rule below counts or groups Producers, so it
+# runs after this one.
+rule producer:
+  match:
+    ?pv a Installation
+    ?pv site ?site
+  then:
+    ?site a Producer
+
+# The month's import of each site. Sites whose meter reports in one unit keep
+# it (a Wh meter sums to Wh); H07, whose meter changed from Wh to kWh on
+# 16 July, sums in J.
+rule monthly_import_total:
+  match:
+    ?site a Site
+    sum ?e as ?total
+      ?r site ?site
+      ?r imported ?e
+  then:
+    ?site monthly_import ?total
+
+# The highest daily peak above the contract. `?peak [ > ?contract ]` never
+# fires (rust/BUGS.md, solar-community A), so there is one rule per contract
+# level (6, 9 and 36 kVA), with literal thresholds. `>` is strict: H09 peaks at exactly 9 kW
+# on its 9 kVA contract and is not over it.
+rule over_contract_6kw:
+  match:
+    ?site contracted_power [ <= quantity(6 kW) ]
+    max ?p as ?peak
+      ?r site ?site
+      ?r peak_draw ?p
+    ?peak [ > quantity(6 kW) ]
+  then:
+    ?site a OverContract
+
+rule over_contract_9kw:
+  match:
+    ?site contracted_power [ > quantity(6 kW), <= quantity(9 kW) ]
+    max ?p as ?peak
+      ?r site ?site
+      ?r peak_draw ?p
+    ?peak [ > quantity(9 kW) ]
+  then:
+    ?site a OverContract
+
+rule over_contract_36kw:
+  match:
+    ?site contracted_power [ > quantity(9 kW), <= quantity(36 kW) ]
+    max ?p as ?peak
+      ?r site ?site
+      ?r peak_draw ?p
+    ?peak [ > quantity(36 kW) ]
+  then:
+    ?site a OverContract
+
+# Five producers or more on one feeder: on a sunny noon they all export at
+# once. DEPART_A has exactly 5 (>= 5 fires), DEPART_B 2.
+rule crowded_feeder:
+  match:
+    ?f a Feeder
+    count distinct ?site as ?n
+      ?site a Producer
+      ?site feeder ?f
+    ?n [ >= 5 ]
+  then:
+    ?f a CrowdedFeeder
+
+# A producer that exported nothing all month. A `sum` over no readings has no
+# value (syntax.md, "Aggregates in rules"), so the rule counts the readings
+# with an export instead: a count over an empty group is 0. Fires for H10
+# (inverter down, every export 0) and H11 (no reading at all yet).
+rule idle_installation:
+  match:
+    ?site a Producer
+    count ?r as ?n
+      ?r site ?site
+      ?r exported [ > quantity(0 W.h) ]
+    ?n [ = 0 ]
+  then:
+    ?site a IdleInstallation
+
+# A school whose average weekday import since Monday 6 July is under
+# 40 kWh: it is closed. The école (in MWh) closed on 4 July; the day-camp
+# (in kWh) is open all summer.
+rule low_average_school:
+  match:
+    ?site kind SCHOOL
+    average ?e as ?avg
+      ?r site ?site
+      ?r working_day true
+      ?r day [ >= date(July 6 2026) ]
+      ?r imported ?e
+    ?avg [ < quantity(40 kW.h) ]
+  then:
+    ?site a SchoolOnHoliday
+
+rule invalid_reading:
+  match:
+    ?r imported [ < quantity(0 W.h) ]
+  then:
+    ?r a InvalidReading
+
+rule invalid_export:
+  match:
+    ?r exported [ < quantity(0 W.h) ]
+  then:
+    ?r a InvalidReading
+
+# Stratification demo, not live. Add this rule, which makes every site of a
+# crowded feeder a Producer:
+#
+#   rule crowded_members:
+#     match:
+#       ?site feeder ?f
+#       ?f a CrowdedFeeder
+#     then:
+#       ?site a Producer
+#
+# crowded_feeder counts Producers to derive CrowdedFeeder, and
+# crowded_members derives Producers from CrowdedFeeder: a cycle through an
+# aggregate. `radeau build --emit shacl` (and `--emit n3-rules`) refuses it:
+#
+#   Error: Code generation error: Unstratifiable negation cycle through: rule crowded_feeder, rule crowded_members
+#
+# `radeau validate` gives `Error: SHACL emission failed: Unstratifiable
+# negation cycle through: rule crowded_feeder, rule crowded_members`.
+# `radeau check` exits 0 on it (rust/BUGS.md, solar-community D).
+
+fact site_26140000000101 a Site
+  pdl "26140000000101"
+  name "Foyer Achard"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(9 kW)
+
+fact site_26140000000102 a Site
+  pdl "26140000000102"
+  name "Foyer Blanc"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(6 kW)
+
+fact site_26140000000103 a Site
+  pdl "26140000000103"
+  name "Foyer Chabert"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(9 kW)
+
+fact site_26140000000104 a Site
+  pdl "26140000000104"
+  name "Foyer Daumas"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(6 kW)
+
+fact site_26140000000105 a Site
+  pdl "26140000000105"
+  name "Foyer Escoffier"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(6 kW)
+
+fact site_26140000000106 a Site
+  pdl "26140000000106"
+  name "Foyer Faure"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(9 kW)
+
+# Its Wh meter was replaced by a kWh one on 16 July: its monthly import mixes
+# both units and is summed in J.
+fact site_26140000000107 a Site
+  pdl "26140000000107"
+  name "Foyer Giraud"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(6 kW)
+
+# Peaks at 7.2 kW on 14 July on a 6 kVA contract: OverContract.
+fact site_26140000000108 a Site
+  pdl "26140000000108"
+  name "Foyer Hugues"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(6 kW)
+
+# Edge case: peaks at exactly 9.0 kW on 21 July, its 9 kVA contract. `>` is
+# strict, so it is not OverContract.
+fact site_26140000000109 a Site
+  pdl "26140000000109"
+  name "Foyer Imbert"
+  kind HOUSEHOLD
+  feeder DEPART_A
+  contracted_power quantity(9 kW)
+
+# The école reports in MWh. Closed from 4 July: SchoolOnHoliday.
+fact site_26140000000201 a Site
+  pdl "26140000000201"
+  name "École de Saint-Roman"
+  kind SCHOOL
+  feeder DEPART_A
+  contracted_power quantity(36 kW)
+
+# Peaks at 41.3 kW on 8 July (cheese-making) on a 36 kVA contract:
+# OverContract.
+fact site_26140000000301 a Site
+  pdl "26140000000301"
+  name "Fromagerie du Glandasse"
+  kind DAIRY
+  feeder DEPART_A
+  contracted_power quantity(36 kW)
+
+fact site_26140000000110 a Site
+  pdl "26140000000110"
+  name "Foyer Jouve"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000111 a Site
+  pdl "26140000000111"
+  name "Foyer Lagier"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(9 kW)
+
+fact site_26140000000112 a Site
+  pdl "26140000000112"
+  name "Foyer Maurel"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000113 a Site
+  pdl "26140000000113"
+  name "Foyer Nicolas"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000114 a Site
+  pdl "26140000000114"
+  name "Foyer Olivier"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(9 kW)
+
+fact site_26140000000115 a Site
+  pdl "26140000000115"
+  name "Foyer Peyron"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000116 a Site
+  pdl "26140000000116"
+  name "Foyer Roux"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000117 a Site
+  pdl "26140000000117"
+  name "Foyer Sauvan"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(9 kW)
+
+fact site_26140000000118 a Site
+  pdl "26140000000118"
+  name "Foyer Tardieu"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000119 a Site
+  pdl "26140000000119"
+  name "Foyer Vial"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(6 kW)
+
+fact site_26140000000120 a Site
+  pdl "26140000000120"
+  name "Foyer Arnaud"
+  kind HOUSEHOLD
+  feeder DEPART_B
+  contracted_power quantity(9 kW)
+
+# The summer day-camp, open on weekdays: not SchoolOnHoliday.
+fact site_26140000000202 a Site
+  pdl "26140000000202"
+  name "Centre de loisirs des Tilleuls"
+  kind SCHOOL
+  feeder DEPART_B
+  contracted_power quantity(9 kW)
+
+# Edge case: five installations on DEPART_A (H01, H02, H03, the école, the
+# dairy), exactly the `>= 5` of crowded_feeder: CrowdedFeeder. DEPART_B has
+# two (H10, H11) and is not.
+fact pv_h01 a Installation
+  site site_26140000000101
+  peak_power quantity(6 kW)
+  commissioned date(May 12 2023)
+
+fact pv_h02 a Installation
+  site site_26140000000102
+  peak_power quantity(3 kW)
+  commissioned date(May 12 2023)
+
+fact pv_h03 a Installation
+  site site_26140000000103
+  peak_power quantity(9 kW)
+  commissioned date(May 12 2023)
+
+fact pv_s01 a Installation
+  site site_26140000000201
+  peak_power quantity(36 kW)
+  commissioned date(May 12 2023)
+
+fact pv_d01 a Installation
+  site site_26140000000301
+  peak_power quantity(30 kW)
+  commissioned date(May 12 2023)
+
+# Edge case: the inverter has been down all month, every export reading is 0:
+# IdleInstallation.
+fact pv_h10 a Installation
+  site site_26140000000110
+  peak_power quantity(3 kW)
+  commissioned date(May 12 2023)
+
+# Edge case: commissioned on 20 July, its meter is not on the data hub yet,
+# so the site has no reading at all: IdleInstallation too (a count over no
+# readings is 0).
+fact pv_h11 a Installation
+  site site_26140000000111
+  peak_power quantity(6 kW)
+  commissioned date(July 20 2026)

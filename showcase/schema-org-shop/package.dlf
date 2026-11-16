@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/schema-org-shop>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "The schema.org Product / Offer / Organization core, written in Dolfin and emitted under https://schema.org/, with a small sample catalogue. Shop and products are fictional."

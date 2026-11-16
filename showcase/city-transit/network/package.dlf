@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/city-transit/network>:
+  dolfin_version "1"
+  version "2.1.0"
+  author "Dolfin"
+  description "Réseau Lumière (fictional), infrastructure side: the stops of a mid-size French city's tram and bus network, its five lines with their ordered stops, walking connections between stops and step-free access. Imported by the timetable package."

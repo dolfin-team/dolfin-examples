@@ -1,0 +1,95 @@
+# Lifecycle stage of a task.
+concept TaskStatus:
+  has key code: string
+
+  one of:
+    TODO [code "todo"]
+    IN_PROGRESS [code "in_progress"]
+    BLOCKED [code "blocked"]
+    DONE [code "done"]
+
+# How urgently a task needs attention.
+concept Priority:
+  one of:
+    Low
+    Medium
+    High
+    Critical
+
+# Local stand-in for the identity record. Once dolfin supports import,
+# this would be `import person.Person` instead of a local declaration.
+concept Person:
+  has key email: string
+  has firstName: one string
+  has lastName: one string
+
+# A body of work owned by an organisation, made up of tasks.
+concept Project:
+  has key name: string
+  has owner: one Person
+  has description: optional string
+  # deadline is a plain string here — swap for a proper date type once one is imported.
+  has deadline: optional string
+  has active: one boolean
+
+# A unit of work belonging to a project, optionally assigned to a person.
+concept Task:
+  has key title: string
+  has project: one Project
+  has status: one TaskStatus
+  has priority: one Priority
+  has assignee: optional Person
+  # blockedBy is repeatable because a task can wait on several others before it can start.
+  has blockedBy: Task
+  has dueDate: optional string
+
+concept OverdueTask
+concept UnassignedCriticalTask
+
+fact priya a Person
+  email "priya@example.com"
+  firstName "Priya"
+  lastName "Natarajan"
+
+fact sam a Person
+  email "sam@example.com"
+  firstName "Sam"
+  lastName "Okafor"
+
+fact platformRedesign a Project
+  name "Platform Redesign"
+  owner priya
+  description "Migrate the platform to the new service mesh"
+  deadline "2026-09-30"
+  active true
+
+fact fixLoginBug a Task
+  title "Fix login race condition"
+  project platformRedesign
+  status IN_PROGRESS
+  priority High
+  assignee sam
+  dueDate "2026-07-15"
+
+fact writeMigrationPlan a Task
+  title "Write service mesh migration plan"
+  project platformRedesign
+  status TODO
+  priority Critical
+  blockedBy fixLoginBug
+
+# Any critical task with nobody assigned yet is flagged for triage.
+rule flag_unassigned_critical:
+  match:
+    ?task a Task
+    ?task priority Critical
+    ?task assignee 0
+  then:
+    ?task a UnassignedCriticalTask
+
+# Return every task on active projects, grouped implicitly by project via the match.
+query active_project_tasks:
+  ?project a Project
+    active true
+  ?_task a Task
+    project ?project

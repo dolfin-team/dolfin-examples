@@ -1,0 +1,5 @@
+package project:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin Examples"
+  description "Standalone project/task tracking data model"

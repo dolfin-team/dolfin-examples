@@ -1,0 +1,14 @@
+@prefix pharmacy: <https://www.dolfin.fr/showcase/hospital-pharmacy/pharmacy#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# 30 administrations a day: above the [ <= 24 ] bound.
+pharmacy:rx_30 a pharmacy:Prescription ;
+  pharmacy:rxId "rx_30" ;
+  pharmacy:patient pharmacy:hugo ;
+  pharmacy:prescriber pharmacy:dr_yanis ;
+  pharmacy:drug pharmacy:paracetamol ;
+  pharmacy:dose "500"^^unit:mg ;
+  pharmacy:frequency_per_day "30"^^xsd:integer ;
+  pharmacy:start "2026-06-15"^^xsd:date ;
+  pharmacy:length "P3D"^^xsd:duration ;
+  pharmacy:route pharmacy:Route_ORAL .

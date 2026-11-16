@@ -1,0 +1,10 @@
+@prefix coop: <https://www.dolfin.fr/showcase/seed-cooperative/coop#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Next year's harvest, registered in June 2026.
+coop:lot_gv_2027_001 a coop:Lot ;
+  coop:lot_id "GV-2027-001" ;
+  coop:variety coop:variety_pot_rat ;
+  coop:holder coop:farm_82100445600017 ;
+  coop:harvest_year 2027 ;
+  coop:counted "20"^^unit:tuber .

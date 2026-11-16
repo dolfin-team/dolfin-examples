@@ -1,0 +1,14 @@
+@prefix pharmacy: <https://www.dolfin.fr/showcase/hospital-pharmacy/pharmacy#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A dose of 5 mL: a volume, not a mass.
+pharmacy:rx_ml a pharmacy:Prescription ;
+  pharmacy:rxId "rx_ml" ;
+  pharmacy:patient pharmacy:hugo ;
+  pharmacy:prescriber pharmacy:dr_yanis ;
+  pharmacy:drug pharmacy:paracetamol ;
+  pharmacy:dose "5"^^unit:mL ;
+  pharmacy:frequency_per_day "4"^^xsd:integer ;
+  pharmacy:start "2026-06-15"^^xsd:date ;
+  pharmacy:length "P3D"^^xsd:duration ;
+  pharmacy:route pharmacy:Route_ORAL .

@@ -1,0 +1,9 @@
+@prefix coop: <https://www.dolfin.fr/showcase/seed-cooperative/coop#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A lot found in the seed room with no farm on its label.
+coop:lot_gv_2026_003 a coop:Lot ;
+  coop:lot_id "GV-2026-003" ;
+  coop:variety coop:variety_bean_sois ;
+  coop:harvest_year 2025 ;
+  coop:mass "0.5"^^unit:kg .

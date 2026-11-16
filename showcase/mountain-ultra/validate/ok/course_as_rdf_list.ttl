@@ -1,0 +1,7 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# The ordered course, as a real rdf:List (a list value in a fact is not one
+# yet, rust/BUGS.md mountain-ultra A). Every element is a Checkpoint.
+course:trois_cols race:checkpoints ( course:cp1 course:cp2 course:cp3 course:cp4 course:cp5 course:cp6 course:cp7 course:finish ) .

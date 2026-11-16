@@ -1,0 +1,78 @@
+@timezone Europe/Paris
+
+# Field rangers walk transects with a handheld GPS. Its GPX export (read by
+# mappings.dlf) holds the ranger's own track and a waypoint per sighting.
+# Times written in this file are Europe/Paris local time (CEST, +02:00 in
+# July); the GPX and the collars write UTC.
+
+concept SightingKind:
+  one of:
+    SCAT
+    TRACKS
+    HOWL
+    VISUAL
+
+concept Ranger:
+  has key ranger_id: string
+  has name: one string
+
+# One walk, one GPX file.
+concept Transect:
+  has key code: string
+  has by: one Ranger
+  has started: one date_time
+  has ended: one date_time
+
+concept RangerPosition:
+  key:
+    has by: Ranger
+    has at: string
+  has lat: one float [ >= -90, <= 90 ]
+  has lon: one float [ >= -180, <= 180 ]
+  has elevation: one length
+
+# A waypoint. The search box (lat/lon +- 0.005 deg, about 500 m) and the
+# window (+- 120 min, in minutes since 1970-01-01T00:00Z) are precomputed by
+# the GPS export, since a rule cannot add numbers to a stored value.
+concept Sighting:
+  has key code: string
+  has kind: one SightingKind
+  has by: one Ranger
+  has at: one string
+  has lat: one float [ >= -90, <= 90 ]
+  has lon: one float [ >= -180, <= 180 ]
+  has min_lat: one float
+  has max_lat: one float
+  has min_lon: one float
+  has max_lon: one float
+  has window_start: one int
+  has window_end: one int
+  has confirms: tracking.Wolf
+
+# A collar fix inside the sighting's box and window: the sign was probably
+# left by that wolf.
+rule confirmed_sighting:
+  match:
+    ?s min_lat ?lat_lo
+    ?s max_lat ?lat_hi
+    ?s min_lon ?lon_lo
+    ?s max_lon ?lon_hi
+    ?s window_start ?from
+    ?s window_end ?until
+    ?f tracking.t_min [ >= ?from, <= ?until ]
+    ?f tracking.lat [ >= ?lat_lo, <= ?lat_hi ]
+    ?f tracking.lon [ >= ?lon_lo, <= ?lon_hi ]
+    ?f tracking.collar ?wolf
+  then:
+    ?s confirms ?wolf
+
+fact R_LB a Ranger
+  ranger_id "R-LB"
+  name "Léa Barral"
+
+# 07:00 to 13:00 local: the GPX track runs from 05:00Z to 11:00Z.
+fact transect_2026_07_12 a Transect
+  code "CB-2026-07-12"
+  by R_LB
+  started date_time(July 12th 2026, 07:00)
+  ended date_time(July 12th 2026, 13:00)

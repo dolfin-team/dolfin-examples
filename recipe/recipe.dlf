@@ -1,0 +1,92 @@
+# Dietary properties a recipe can be tagged with.
+concept DietaryTag:
+  one of:
+    Vegan
+    Vegetarian
+    GlutenFree
+    DairyFree
+
+# A raw ingredient that can appear in any number of recipes.
+concept Ingredient:
+  has key name: string
+  has caloriesPerGram: optional float
+
+# One line of a recipe: an ingredient plus the amount needed.
+# Exactly one of massAmount/volumeAmount is set, depending on how the
+# ingredient is measured (flour by mass, milk by volume, ...) — both are
+# dimension-typed so `quantity(500 g)` and `quantity(2 cups)` are both
+# checked against the right physical dimension, and `quantity(500 mL)`
+# assigned to massAmount would be a compile-time dimension-mismatch error.
+concept RecipeIngredient:
+  has ingredient: one Ingredient
+  has massAmount: optional mass
+  has volumeAmount: optional volume
+  has note: optional string
+
+# A dish: a set of measured ingredients plus method.
+concept Recipe:
+  has key title: string
+  has servings: one int
+  # prepTime uses dolfin's duration() smart literal, e.g. duration(25 min).
+  has prepTime: optional string
+  has ovenTemperature: optional temperature
+  # ingredients is repeatable, one entry per RecipeIngredient line.
+  has ingredients: some RecipeIngredient
+  has dietaryTags: DietaryTag
+  has instructions: optional string
+
+concept LargeBatchRecipe
+
+fact flour a Ingredient
+  name "All-purpose flour"
+  caloriesPerGram 3.6
+
+fact milk a Ingredient
+  name "Whole milk"
+  caloriesPerGram 0.6
+
+fact egg a Ingredient
+  name "Egg"
+  caloriesPerGram 1.4
+
+fact pancakeBatter a Recipe
+  title "Classic Pancakes"
+  servings 4
+  ingredients [
+    a RecipeIngredient
+    ingredient flour
+    massAmount quantity(250 g)
+  ]
+  ingredients [
+    a RecipeIngredient
+    ingredient milk
+    volumeAmount quantity(300 mL)
+  ]
+  ingredients [
+    a RecipeIngredient
+    ingredient egg
+    note "2 large eggs, beaten"
+  ]
+  dietaryTags Vegetarian
+  instructions "Whisk dry ingredients, fold in wet, cook on a hot griddle."
+
+fact bananaBread a Recipe
+  title "Banana Bread"
+  servings 10
+  # 180 °C; Celsius needs offset support in dolfin-units, so kelvin for now.
+  ovenTemperature quantity(453.15 K)
+  ingredients [
+    a RecipeIngredient
+    ingredient flour
+    massAmount quantity(1 lb)
+  ]
+  dietaryTags DairyFree
+  instructions "Mash bananas, mix batter, bake until a skewer comes out clean."
+
+# Recipes serving 8 or more are flagged for the "batch cooking" collection.
+rule flag_large_batch:
+  match:
+    ?r a Recipe
+    ?r servings [ >= 8 ]
+  then:
+    ?r a LargeBatchRecipe

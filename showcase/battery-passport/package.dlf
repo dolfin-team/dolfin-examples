@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/battery-passport>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "Digital battery passport, modelled on the EU Battery Regulation (EU) 2023/1542, Annex XIII. Sample data only: manufacturers and batteries are fictional."

@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/world-mythologies>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "World mythologies and traditions: Greek, Norse, Hindu, Japanese and Maya figures on one shared model. Several of these are living traditions; entries are descriptive, drawn from the Theogony, Prose Edda, Puranas, Kojiki and Popol Vuh."

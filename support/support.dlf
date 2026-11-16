@@ -1,0 +1,110 @@
+# Urgency of a support ticket, driving the SLA clock.
+concept TicketPriority:
+  has key code: string
+
+  one of:
+    LOW [code "low"]
+    NORMAL [code "normal"]
+    HIGH [code "high"]
+    URGENT [code "urgent"]
+
+concept TicketStatus:
+  has key code: string
+
+  one of:
+    OPEN [code "open"]
+    IN_PROGRESS [code "in_progress"]
+    WAITING_ON_CUSTOMER [code "waiting_on_customer"]
+    RESOLVED [code "resolved"]
+    CLOSED [code "closed"]
+
+# A support agent who can be assigned tickets.
+concept Agent:
+  has key email: string
+  has name: one string
+  # activeTicketCount is maintained by the ticketing system, not derived here.
+  has activeTicketCount: one int
+
+# A customer-facing account raising tickets.
+concept Customer:
+  has key accountId: string
+  has companyName: one string
+  # tier drives which SLA thresholds apply to their tickets.
+  has tier: one string
+
+# A single support request and its resolution lifecycle.
+concept Ticket:
+  has key ticketNumber: string
+  has customer: one Customer
+  has subject: one string
+  has priority: one TicketPriority
+  has status: one TicketStatus
+  has assignedAgent: optional Agent
+  # hoursOpen is a simple stand-in for a real elapsed-time computation.
+  has hoursOpen: one int
+  has description: optional string
+
+concept SLABreach
+concept NeedsEscalation
+concept Unassigned
+
+fact maria a Agent
+  email "maria@example.com"
+  name "Maria Santos"
+  activeTicketCount 3
+
+fact acme a Customer
+  accountId "ACC-500"
+  companyName "Acme Corp"
+  tier "enterprise"
+
+fact loginOutage a Ticket
+  ticketNumber "TCK-9001"
+  customer acme
+  subject "Users cannot log in after 09:00 UTC"
+  priority URGENT
+  status OPEN
+  assignedAgent maria
+  hoursOpen 5
+  description "SSO callback returns a 500 for all enterprise tenants."
+
+fact minorTypo a Ticket
+  ticketNumber "TCK-9002"
+  customer acme
+  subject "Typo on the billing page"
+  priority LOW
+  status OPEN
+  hoursOpen 40
+
+# Urgent tickets open more than 2 hours breach SLA and need immediate escalation.
+rule flag_sla_breach:
+  match:
+    ?t a Ticket
+    ?t priority URGENT
+    ?t hoursOpen [ > 2 ]
+    ?t status OPEN
+  then:
+    ?t a SLABreach
+
+# High-priority tickets open more than 24 hours need escalation even if not urgent.
+rule flag_needs_escalation:
+  match:
+    ?t a Ticket
+    ?t priority HIGH
+    ?t hoursOpen [ > 24 ]
+  then:
+    ?t a NeedsEscalation
+
+# Any open ticket with nobody assigned yet.
+rule flag_unassigned:
+  match:
+    ?t a Ticket
+    ?t status OPEN
+    ?t assignedAgent 0
+  then:
+    ?t a Unassigned
+
+# All tickets currently in breach, with their customer.
+query breached_tickets:
+  ?_t a SLABreach
+    customer ?_customer

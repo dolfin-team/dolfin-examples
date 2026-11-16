@@ -1,0 +1,184 @@
+# Four GPS-collared wolves of two packs, and their collar fixes (read from
+# data/collars.csv by mappings.dlf). Collars report in UTC.
+#
+# Scripted in generate_fixes.py, caught by the rules at the bottom:
+#   F23  4 nights in ALP_CABANE, 5 reliable night fixes  -> AlpageRaider
+#   M17  1 night in ALP_CABANE, 2 night fixes            -> under the threshold of 3
+#   M31  3 night fixes in ALP_LAUSES, before its season  -> not raids
+
+concept Sex:
+  one of:
+    FEMALE
+    MALE
+
+concept Pack:
+  has key code: string
+  has label: one string
+
+  one of:
+    NORD_VALLON [code "NORD_VALLON", label "Meute du Nord-Vallon"]
+    CRETE_BLANCHE [code "CRETE_BLANCHE", label "Meute de la Crête Blanche"]
+
+# The team uses field names (F23 is the 23rd female collared), not human names.
+concept Wolf:
+  has key collar_id: string
+  has name: one string
+  has sex: one Sex
+  has pack: one Pack
+  has collared_on: one date
+
+  # Filled by the rule `elevation_range`.
+  has lowest: optional length
+  has highest: optional length
+
+# One GPS fix. A collar that loses its link uploads its buffer again: the
+# same collar at the same instant is the same fix (owl:hasKey, owl:sameAs).
+concept Fix:
+  key:
+    has collar: Wolf
+    has at: string
+
+  # Minutes since 1970-01-01T00:00Z, for the time windows of rangers.Sighting.
+  has t_min: one int
+  has day: one date
+  has lat: one float [ >= -90, <= 90 ]
+  has lon: one float [ >= -180, <= 180 ]
+  has elevation: one length
+  has satellites: one int [ >= 0 ]
+  has hdop: one float [ >= 0 ]
+
+  # Local Europe/Paris hour outside 06:00-21:00, computed by the generator.
+  has is_night: one boolean
+  has in: zones.Zone
+
+  # No fix before the collar was fitted.
+  check
+    [ $ day ?d, collar [ collared_on [ <= ?d ] ] ]
+
+# Fewer than 4 satellites gives no 3D solution: the receiver cannot report a
+# good HDOP. A weak fix that claims one is corrupt collar data.
+concept WeakFix:
+  equivalent to Fix
+    [ satellites [ < 4 ] ]
+
+  check
+    [ hdop [ >= 2.0 ] ]
+
+# Inferred by the rules below.
+concept NightFix:
+  sub Fix
+
+concept UnreliableFix:
+  sub Fix
+
+# A reliable night fix in an alpage during its grazing season. Not `sub Fix`,
+# and the aggregate rules below assert classes only: see the README limitations
+# (retox stratification).
+concept RaidFix
+
+concept AlpageRaider
+
+concept ProblemPack
+
+rule in_zone:
+  match:
+    ?z zones.min_lat ?lat_lo
+    ?z zones.max_lat ?lat_hi
+    ?z zones.min_lon ?lon_lo
+    ?z zones.max_lon ?lon_hi
+    ?f lat [ >= ?lat_lo, <= ?lat_hi ]
+    ?f lon [ >= ?lon_lo, <= ?lon_hi ]
+  then:
+    ?f in ?z
+
+rule night_fix:
+  match:
+    ?f is_night true
+  then:
+    ?f a NightFix
+
+rule imprecise_fix:
+  match:
+    ?f hdop [ > 5.0 ]
+  then:
+    ?f a UnreliableFix
+
+rule weak_fix:
+  match:
+    ?f satellites [ < 4 ]
+  then:
+    ?f a UnreliableFix
+
+rule raid_fix:
+  match:
+    ?f a NightFix
+    ?f in ?z
+    ?z zones.kind zones.ALPAGE
+    ?z zones.grazing_from ?from
+    ?z zones.grazing_until ?until
+    ?f day [ >= ?from, <= ?until ]
+    none ?f:
+      ?f a UnreliableFix
+  then:
+    ?f a RaidFix
+
+rule alpage_raider:
+  match:
+    ?wolf a Wolf
+    count ?f as ?n
+      ?f a RaidFix
+      ?f collar ?wolf
+    ?n [ >= 3 ]
+  then:
+    ?wolf a AlpageRaider
+
+rule active_pack:
+  match:
+    ?pack a Pack
+    count distinct ?wolf as ?raiders
+      ?wolf a AlpageRaider
+      ?wolf pack ?pack
+    ?raiders [ >= 1 ]
+  then:
+    ?pack a ProblemPack
+
+rule elevation_range:
+  match:
+    ?wolf a Wolf
+    min ?e as ?low
+      ?f collar ?wolf
+      ?f elevation ?e
+    max ?e2 as ?high
+      ?f2 collar ?wolf
+      ?f2 elevation ?e2
+  then:
+    ?wolf lowest ?low
+    ?wolf highest ?high
+
+fact phv_0423 a Wolf
+  collar_id "PHV-0423"
+  name "F23"
+  sex FEMALE
+  pack NORD_VALLON
+  collared_on date(March 2nd 2026)
+
+fact phv_0417 a Wolf
+  collar_id "PHV-0417"
+  name "M17"
+  sex MALE
+  pack NORD_VALLON
+  collared_on date(November 20th 2025)
+
+fact phv_0531 a Wolf
+  collar_id "PHV-0531"
+  name "M31"
+  sex MALE
+  pack CRETE_BLANCHE
+  collared_on date(May 14th 2026)
+
+fact phv_0608 a Wolf
+  collar_id "PHV-0608"
+  name "F08"
+  sex FEMALE
+  pack CRETE_BLANCHE
+  collared_on date(June 28th 2026)

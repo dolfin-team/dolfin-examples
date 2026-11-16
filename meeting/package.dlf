@@ -1,0 +1,5 @@
+package meeting:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin Examples"
+  description "Standalone meeting/scheduling data model"

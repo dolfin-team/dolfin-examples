@@ -1,0 +1,611 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+@prefix : <https://www.dolfin.fr/showcase/city-transit/network#> .
+@prefix network: <https://www.dolfin.fr/showcase/city-transit/network/network#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+@prefix dq: <https://dolfin.dev/quantity#> .
+<https://www.dolfin.fr/showcase/city-transit/network> rdf:type owl:Ontology
+  ; rdfs:comment "Réseau Lumière (fictional), infrastructure side: the stops of a mid-size French city's tram and bus network, its five lines with their ordered stops, walking connections between stops and step-free access. Imported by the timetable package."
+  ; dc:creator "Dolfin"
+  ; owl:versionInfo "2.1.0" .
+
+<https://www.dolfin.fr/showcase/city-transit/network/network> rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network> .
+
+network:Length rdf:type rdfs:Class
+  ; skos:prefLabel "Length"
+  ; rdfs:label "Length"
+  ; rdfs:comment "A physical dimension (dolfin-units): a line length in km or m is dimension-checked."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:FareZone rdf:type rdfs:Class
+  ; skos:prefLabel "FareZone"
+  ; rdfs:label "FareZone"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:FareZone owl:equivalentClass [ rdf:type owl:Class ; owl:oneOf ( network:FareZone_Z1 network:FareZone_Z2 network:FareZone_Z3 ) ] .
+
+network:FareZone_Z1 rdf:type owl:NamedIndividual , network:FareZone
+  ; skos:prefLabel "Z1"
+  ; rdfs:label "Z1"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network> .
+network:FareZone_Z2 rdf:type owl:NamedIndividual , network:FareZone
+  ; skos:prefLabel "Z2"
+  ; rdfs:label "Z2"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network> .
+network:FareZone_Z3 rdf:type owl:NamedIndividual , network:FareZone
+  ; skos:prefLabel "Z3"
+  ; rdfs:label "Z3"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network> .
+
+network:Mode rdf:type rdfs:Class
+  ; skos:prefLabel "Mode"
+  ; rdfs:label "Mode"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:Mode owl:equivalentClass [ rdf:type owl:Class ; owl:oneOf ( network:Mode_TRAM network:Mode_BUS network:Mode_BRT ) ] .
+
+network:Mode_TRAM rdf:type owl:NamedIndividual , network:Mode
+  ; skos:prefLabel "Tram"
+  ; rdfs:label "Tram"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network> .
+network:Mode_BUS rdf:type owl:NamedIndividual , network:Mode
+  ; skos:prefLabel "Bus"
+  ; rdfs:label "Bus"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network> .
+network:Mode_BRT rdf:type owl:NamedIndividual , network:Mode
+  ; skos:prefLabel "Brt"
+  ; rdfs:label "Brt"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network> .
+
+network:Stop rdf:type rdfs:Class
+  ; owl:hasKey ( network:stop_code )
+  ; skos:prefLabel "Stop"
+  ; rdfs:label "Stop"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:stop_code rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range xsd:string
+  ; skos:prefLabel "stop_code"
+  ; rdfs:label "stop_code"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:name rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range xsd:string
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "name"
+  ; rdfs:label "name"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Stop owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:name ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:lat rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range xsd:double
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "lat"
+  ; rdfs:label "lat"
+  ; rdfs:comment "WGS 84, in degrees."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Stop owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:lat ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:long rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range xsd:double
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "long"
+  ; rdfs:label "long"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Stop owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:long ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:accessible rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range xsd:boolean
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "accessible"
+  ; rdfs:label "accessible"
+  ; rdfs:comment "Step-free from the street to a low-floor vehicle."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Stop owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:accessible ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:zone rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range network:FareZone
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "zone"
+  ; rdfs:label "zone"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Stop owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:zone ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:Line rdf:type rdfs:Class
+  ; owl:hasKey ( network:code )
+  ; skos:prefLabel "Line"
+  ; rdfs:label "Line"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:code rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Line
+  ; rdfs:range xsd:string
+  ; skos:prefLabel "code"
+  ; rdfs:label "code"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:mode rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Line
+  ; rdfs:range network:Mode
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "mode"
+  ; rdfs:label "mode"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Line owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:mode ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:stops rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Line
+  ; rdfs:range rdf:List
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "stops"
+  ; rdfs:label "stops"
+  ; rdfs:comment "The stops in running order, from one terminus to the other. Not filled in the facts: a `list of` value in a fact is emitted as one plain triple per stop, not as an rdf:List, and then fails sh:maxCount 1 (rust/BUGS.md, mountain-ultra A). `serves` lists the stops in running order instead."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:length rdf:type owl:DatatypeProperty
+  ; rdfs:domain network:Line
+  ; rdfs:range <http://qudt.org/vocab/quantitykind/Length>
+  ; rdf:type owl:FunctionalProperty
+  ; skos:prefLabel "length"
+  ; rdfs:label "length"
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:Line owl:equivalentClass [
+  rdf:type owl:Restriction
+  ; owl:onProperty network:length ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger
+  ]
+  .
+
+network:serves rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Line
+  ; rdfs:range network:Stop
+  ; skos:prefLabel "serves"
+  ; rdfs:label "serves"
+  ; rdfs:comment "The stops a line calls at, without order: what other packages query and check against. Written next to `stops` in every line below."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:served_by rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range network:Line
+  ; skos:prefLabel "served_by"
+  ; rdfs:label "served_by"
+  ; owl:inverseOf network:serves
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:connected_to rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range network:Stop
+  ; skos:prefLabel "connected_to"
+  ; rdfs:label "connected_to"
+  ; rdfs:comment "A walkway between two nearby stops of different lines: both directions."
+  ; rdf:type owl:SymmetricProperty
+  ; rdfs:subPropertyOf network:reachable_from
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:reachable_from rdf:type owl:ObjectProperty
+  ; rdfs:domain network:Stop
+  ; rdfs:range network:Stop
+  ; skos:prefLabel "reachable_from"
+  ; rdfs:label "reachable_from"
+  ; rdfs:comment "On foot through one or more walkways."
+  ; rdf:type owl:TransitiveProperty
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+
+network:GAR rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:comment "Stops. Walkways (`connected_to`) are written once, on one end: `symmetric` gives the other direction. Pont des Arts – Musée des Tisserands – Opéra – Hôtel de Ville form a chain, so under OWL reasoning (`transitive`) Pont des Arts is reachable from Hôtel de Ville; Bibliothèque – Marché Couvert links T1 and T3."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:GAR network:stop_code "GAR" .
+network:GAR network:name "Gare Centrale" .
+network:GAR network:lat "45.7598"^^xsd:float .
+network:GAR network:long "4.8261"^^xsd:float .
+network:GAR network:accessible "true"^^xsd:boolean .
+network:GAR network:zone network:FareZone_Z1 .
+
+network:REP rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:REP network:stop_code "REP" .
+network:REP network:name "République" .
+network:REP network:lat "45.7631"^^xsd:float .
+network:REP network:long "4.8352"^^xsd:float .
+network:REP network:accessible "true"^^xsd:boolean .
+network:REP network:zone network:FareZone_Z1 .
+
+network:HDV rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:HDV network:stop_code "HDV" .
+network:HDV network:name "Hôtel de Ville" .
+network:HDV network:lat "45.7672"^^xsd:float .
+network:HDV network:long "4.8336"^^xsd:float .
+network:HDV network:accessible "true"^^xsd:boolean .
+network:HDV network:zone network:FareZone_Z1 .
+
+network:OPE rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:OPE network:stop_code "OPE" .
+network:OPE network:name "Opéra" .
+network:OPE network:lat "45.7679"^^xsd:float .
+network:OPE network:long "4.8364"^^xsd:float .
+network:OPE network:accessible "false"^^xsd:boolean .
+network:OPE network:zone network:FareZone_Z1 .
+network:OPE network:connected_to network:HDV .
+
+network:MAR rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:MAR network:stop_code "MAR" .
+network:MAR network:name "Marché Couvert" .
+network:MAR network:lat "45.7705"^^xsd:float .
+network:MAR network:long "4.841"^^xsd:float .
+network:MAR network:accessible "true"^^xsd:boolean .
+network:MAR network:zone network:FareZone_Z1 .
+
+network:PON rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:PON network:stop_code "PON" .
+network:PON network:name "Pont des Arts" .
+network:PON network:lat "45.7611"^^xsd:float .
+network:PON network:long "4.8203"^^xsd:float .
+network:PON network:accessible "true"^^xsd:boolean .
+network:PON network:zone network:FareZone_Z1 .
+network:PON network:connected_to network:MUS .
+
+network:BIB rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:BIB network:stop_code "BIB" .
+network:BIB network:name "Bibliothèque" .
+network:BIB network:lat "45.7652"^^xsd:float .
+network:BIB network:long "4.8427"^^xsd:float .
+network:BIB network:accessible "true"^^xsd:boolean .
+network:BIB network:zone network:FareZone_Z1 .
+network:BIB network:connected_to network:MAR .
+
+network:MUS rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:MUS network:stop_code "MUS" .
+network:MUS network:name "Musée des Tisserands" .
+network:MUS network:lat "45.764"^^xsd:float .
+network:MUS network:long "4.8299"^^xsd:float .
+network:MUS network:accessible "true"^^xsd:boolean .
+network:MUS network:zone network:FareZone_Z1 .
+network:MUS network:connected_to network:OPE .
+
+network:UNI rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:UNI network:stop_code "UNI" .
+network:UNI network:name "Université" .
+network:UNI network:lat "45.7703"^^xsd:float .
+network:UNI network:long "4.8611"^^xsd:float .
+network:UNI network:accessible "true"^^xsd:boolean .
+network:UNI network:zone network:FareZone_Z2 .
+
+network:HOP rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:HOP network:stop_code "HOP" .
+network:HOP network:name "Hôpital Nord" .
+network:HOP network:lat "45.7801"^^xsd:float .
+network:HOP network:long "4.8683"^^xsd:float .
+network:HOP network:accessible "true"^^xsd:boolean .
+network:HOP network:zone network:FareZone_Z2 .
+
+network:STA rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:STA network:stop_code "STA" .
+network:STA network:name "Stade Lumière" .
+network:STA network:lat "45.7488"^^xsd:float .
+network:STA network:long "4.8502"^^xsd:float .
+network:STA network:accessible "true"^^xsd:boolean .
+network:STA network:zone network:FareZone_Z2 .
+
+network:PAR rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:PAR network:stop_code "PAR" .
+network:PAR network:name "Parc des Tilleuls" .
+network:PAR network:lat "45.7759"^^xsd:float .
+network:PAR network:long "4.8547"^^xsd:float .
+network:PAR network:accessible "true"^^xsd:boolean .
+network:PAR network:zone network:FareZone_Z2 .
+
+network:CAS rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:CAS network:stop_code "CAS" .
+network:CAS network:name "Caserne" .
+network:CAS network:lat "45.7547"^^xsd:float .
+network:CAS network:long "4.8424"^^xsd:float .
+network:CAS network:accessible "true"^^xsd:boolean .
+network:CAS network:zone network:FareZone_Z2 .
+
+network:LYC rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:LYC network:stop_code "LYC" .
+network:LYC network:name "Lycée Ampère" .
+network:LYC network:lat "45.7741"^^xsd:float .
+network:LYC network:long "4.859"^^xsd:float .
+network:LYC network:accessible "true"^^xsd:boolean .
+network:LYC network:zone network:FareZone_Z2 .
+
+network:POR rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:POR network:stop_code "POR" .
+network:POR network:name "Port Fluvial" .
+network:POR network:lat "45.755"^^xsd:float .
+network:POR network:long "4.8122"^^xsd:float .
+network:POR network:accessible "true"^^xsd:boolean .
+network:POR network:zone network:FareZone_Z2 .
+
+network:COL rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:COL network:stop_code "COL" .
+network:COL network:name "Colline Saint-Just" .
+network:COL network:lat "45.7577"^^xsd:float .
+network:COL network:long "4.8165"^^xsd:float .
+network:COL network:accessible "false"^^xsd:boolean .
+network:COL network:zone network:FareZone_Z2 .
+
+network:CIM rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:CIM network:stop_code "CIM" .
+network:CIM network:name "Cimetière Est" .
+network:CIM network:lat "45.779"^^xsd:float .
+network:CIM network:long "4.8551"^^xsd:float .
+network:CIM network:accessible "true"^^xsd:boolean .
+network:CIM network:zone network:FareZone_Z2 .
+
+network:CHA rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:CHA network:stop_code "CHA" .
+network:CHA network:name "Champ de Foire" .
+network:CHA network:lat "45.7752"^^xsd:float .
+network:CHA network:long "4.8466"^^xsd:float .
+network:CHA network:accessible "true"^^xsd:boolean .
+network:CHA network:zone network:FareZone_Z2 .
+
+network:BEL rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:BEL network:stop_code "BEL" .
+network:BEL network:name "Belvédère" .
+network:BEL network:lat "45.7536"^^xsd:float .
+network:BEL network:long "4.8089"^^xsd:float .
+network:BEL network:accessible "true"^^xsd:boolean .
+network:BEL network:zone network:FareZone_Z2 .
+
+network:TEC rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:TEC network:stop_code "TEC" .
+network:TEC network:name "Technopôle" .
+network:TEC network:lat "45.7902"^^xsd:float .
+network:TEC network:long "4.8812"^^xsd:float .
+network:TEC network:accessible "true"^^xsd:boolean .
+network:TEC network:zone network:FareZone_Z3 .
+
+network:ZAC rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:ZAC network:stop_code "ZAC" .
+network:ZAC network:name "ZAC des Sources" .
+network:ZAC network:lat "45.784"^^xsd:float .
+network:ZAC network:long "4.8402"^^xsd:float .
+network:ZAC network:accessible "true"^^xsd:boolean .
+network:ZAC network:zone network:FareZone_Z3 .
+
+network:AER rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:AER network:stop_code "AER" .
+network:AER network:name "Aérodrome" .
+network:AER network:lat "45.7921"^^xsd:float .
+network:AER network:long "4.8333"^^xsd:float .
+network:AER network:accessible "true"^^xsd:boolean .
+network:AER network:zone network:FareZone_Z3 .
+
+network:PLA rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:PLA network:stop_code "PLA" .
+network:PLA network:name "Plaine des Sports" .
+network:PLA network:lat "45.7402"^^xsd:float .
+network:PLA network:long "4.8571"^^xsd:float .
+network:PLA network:accessible "true"^^xsd:boolean .
+network:PLA network:zone network:FareZone_Z3 .
+
+network:VER rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:VER network:stop_code "VER" .
+network:VER network:name "Vergers" .
+network:VER network:lat "45.749"^^xsd:float .
+network:VER network:long "4.7988"^^xsd:float .
+network:VER network:accessible "false"^^xsd:boolean .
+network:VER network:zone network:FareZone_Z3 .
+
+network:MOU rdf:type owl:NamedIndividual
+  , network:Stop
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:MOU network:stop_code "MOU" .
+network:MOU network:name "Moulin Neuf" .
+network:MOU network:lat "45.8003"^^xsd:float .
+network:MOU network:long "4.829"^^xsd:float .
+network:MOU network:accessible "true"^^xsd:boolean .
+network:MOU network:zone network:FareZone_Z3 .
+
+network:T1 rdf:type owl:NamedIndividual
+  , network:Line
+  ; rdfs:comment "Lines. T1 runs Gare Centrale – Technopôle through the university, T2 Port Fluvial – Plaine des Sports (the north–south spine), T3 Musée des Tisserands – Cimetière Est, bus 10 Gare Centrale up the hill to Vergers, bus 11 Université – Moulin Neuf (the outer ring). Interchanges, stops on two lines or more: GAR (T1, T2, B10), HDV (T2, T3, B11), REP (T1, T3) and UNI (T1, B11)."
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:T1 network:code "T1" .
+network:T1 network:mode network:Mode_TRAM .
+network:T1 network:serves network:GAR .
+network:T1 network:serves network:REP .
+network:T1 network:serves network:BIB .
+network:T1 network:serves network:UNI .
+network:T1 network:serves network:HOP .
+network:T1 network:serves network:TEC .
+network:T1 network:length "9.4"^^<https://dolfin.dev/unit/km> .
+
+network:T2 rdf:type owl:NamedIndividual
+  , network:Line
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:T2 network:code "T2" .
+network:T2 network:mode network:Mode_TRAM .
+network:T2 network:serves network:POR .
+network:T2 network:serves network:PON .
+network:T2 network:serves network:GAR .
+network:T2 network:serves network:HDV .
+network:T2 network:serves network:CAS .
+network:T2 network:serves network:STA .
+network:T2 network:serves network:PLA .
+network:T2 network:length "8.1"^^<https://dolfin.dev/unit/km> .
+
+network:T3 rdf:type owl:NamedIndividual
+  , network:Line
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:T3 network:code "T3" .
+network:T3 network:mode network:Mode_TRAM .
+network:T3 network:serves network:MUS .
+network:T3 network:serves network:REP .
+network:T3 network:serves network:HDV .
+network:T3 network:serves network:MAR .
+network:T3 network:serves network:CHA .
+network:T3 network:serves network:CIM .
+network:T3 network:length "6.3"^^<https://dolfin.dev/unit/km> .
+
+network:B10 rdf:type owl:NamedIndividual
+  , network:Line
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:B10 network:code "B10" .
+network:B10 network:mode network:Mode_BUS .
+network:B10 network:serves network:GAR .
+network:B10 network:serves network:OPE .
+network:B10 network:serves network:COL .
+network:B10 network:serves network:BEL .
+network:B10 network:serves network:VER .
+network:B10 network:length "5.2"^^<https://dolfin.dev/unit/km> .
+
+network:B11 rdf:type owl:NamedIndividual
+  , network:Line
+  ; rdfs:isDefinedBy <https://www.dolfin.fr/showcase/city-transit/network/network>
+  .
+network:B11 network:code "B11" .
+network:B11 network:mode network:Mode_BUS .
+network:B11 network:serves network:UNI .
+network:B11 network:serves network:LYC .
+network:B11 network:serves network:PAR .
+network:B11 network:serves network:HDV .
+network:B11 network:serves network:ZAC .
+network:B11 network:serves network:AER .
+network:B11 network:serves network:MOU .
+network:B11 network:length "11.7"^^<https://dolfin.dev/unit/km> .
+
+
+# Quantity unit definitions
+<https://dolfin.dev/unit/km> dq:coefficient 1000 ; dq:dimension "L1" ; dq:symbol "km" .

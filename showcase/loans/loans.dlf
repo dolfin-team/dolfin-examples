@@ -1,0 +1,60 @@
+# Loans between friends: who lent how much to whom.
+
+concept Person:
+  has name: one string
+
+# The link concept of `lends`: each bracket on a `lends` edge is one Loan.
+concept Loan
+
+# Reified, named link (`via Loan`): one required and one optional annotation.
+property lends: any Person -> any Person via Loan
+  has amount: one float
+  has note: optional string
+  inverse of borrowsFrom
+
+# Inverse partner: same domain and range, swapped (both Person here). It shares
+# the link of `lends` and declares no `has` (S033). Facts are written on `lends`.
+property borrowsFrom: any Person -> any Person
+  inverse of lends
+
+# Reified, anonymous link (no `via`), keyed roles: at most one link per pair.
+property vouchesFor: any Person -> any Person
+  has since: optional date
+  has key vouchesFor_source: Person
+  has key vouchesFor_target: Person
+
+# Derived by the rule below: a plain property.
+property owes: Person -> Person
+
+rule owes_lender:
+  match:
+    ?lender lends ?borrower
+  then:
+    ?borrower owes ?lender
+
+# Derived from the link: the bracket reads the `amount` of each loan.
+property generousTo: Person -> Person
+
+rule generous_lender:
+  match:
+    ?lender lends ?borrower [amount [?x > 50.0]]
+  then:
+    ?lender generousTo ?borrower
+
+fact carol a Person
+  name "Carol"
+  vouchesFor bob
+
+fact bob a Person
+  name "Bob"
+  lends carol [amount 40.0, note "concert tickets"]
+
+fact alice a Person
+  name "Alice"
+  lends bob [amount 100.0, note "rent"]
+  lends bob [amount 25.0]
+  lends carol [
+    amount 60.0
+    note "bike repair"
+  ]
+  vouchesFor bob [since date(March 1 2024)]

@@ -1,0 +1,283 @@
+# The school office's files, built by `radeau export` (or downloaded from
+# Agrafe): the bulletins, the absentee list, the teachers' hours and a JSON
+# roster of the semester 1 results.
+
+# The semester 1 bulletin of the students on the standard plan. The average
+# is weighted by coefficient: each mark is joined with the coefficient points
+# of its UE (Ponderation), so a mark of a coefficient-3 UE counts three times.
+# The decision is the row of the decision table whose band holds the average
+# and whose UE outcome is the enrolment's.
+query bulletin_s1:
+  ?e a scolarite.Etudiant
+    numero ?num
+    nom ?nom
+    prenom ?prenom
+  none:
+    ?e a scolarite.EtudiantAmenage
+  ?_i a scolarite.Inscription
+    etudiant ?e
+    semestre scolarite.S1
+    bilanUE ?bilan
+  average ?v as ?moyenne
+    ?_n etudiant ?e
+      valeur ?v
+      ue ?_ue
+    ?_ue semestre scolarite.S1
+    ?_p a scolarite.Ponderation
+      ue ?_ue
+  ?_d a scolarite.Decision
+    libelle ?decision
+    moyenneMin ?min
+    moyenneMax ?max
+    bilan ?bilan
+  ?moyenne >= ?min
+  ?moyenne < ?max
+  return
+    ?num
+      order asc
+    ?nom
+    ?prenom
+    ?moyenne
+    ?decision
+
+query bulletin_s2:
+  ?e a scolarite.Etudiant
+    numero ?num
+    nom ?nom
+    prenom ?prenom
+  none:
+    ?e a scolarite.EtudiantAmenage
+  ?_i a scolarite.Inscription
+    etudiant ?e
+    semestre scolarite.S2
+    bilanUE ?bilan
+  average ?v as ?moyenne
+    ?_n etudiant ?e
+      valeur ?v
+      ue ?_ue
+    ?_ue semestre scolarite.S2
+    ?_p a scolarite.Ponderation
+      ue ?_ue
+  ?_d a scolarite.Decision
+    libelle ?decision
+    moyenneMin ?min
+    moyenneMax ?max
+    bilan ?bilan
+  ?moyenne >= ?min
+  ?moyenne < ?max
+  return
+    ?num
+      order asc
+    ?nom
+    ?prenom
+    ?moyenne
+    ?decision
+
+# Students on a two-year plan: their marks, UE by UE, with no decision. The
+# jury rules on their year when both halves are done.
+query amenagements:
+  ?e a scolarite.EtudiantAmenage
+    numero ?num
+    nom ?nom
+    prenom ?prenom
+  ?_n etudiant ?e
+    valeur ?note
+    ue [ code ?ue ]
+  return
+    ?num
+      order asc
+    ?ue
+      order asc
+    ?nom
+    ?prenom
+    ?note
+
+# Every session, its length written back in hours (the `quantity(h)` cast
+# reads the stored duration, PT4H, as 4).
+query seances:
+  ?_s a scolarite.Seance
+    idSeance ?id
+    jour ?jour
+    duree ?duree
+    enseignant [ nom ?nom ]
+    ue [ code ?code ]
+  return
+    ?id
+      order asc
+    ?jour
+    ?nom
+    ?code
+    ?duree
+
+# Hours taught per teacher and UE, next to the UE's planned hours.
+query service:
+  ?t a scolarite.Enseignant
+    nom ?nom
+    prenom ?prenom
+  ?ue a scolarite.UE
+    code ?code
+    intitule ?intitule
+    heuresPrevues ?prevues
+  sum ?h as ?realisees
+    ?_s enseignant ?t
+      ue ?ue
+      heures ?h
+  return
+    ?nom
+      order asc
+    ?prenom
+    ?code
+      order asc
+    ?intitule
+    ?prevues
+    ?realisees
+
+query depassements:
+  service as [
+    nom ?nom
+    prenom ?prenom
+    code ?code
+    prevues ?prevues
+    realisees ?realisees
+  ]
+  ?realisees > ?prevues
+  return
+    ?nom
+    ?prenom
+    ?code
+      order asc
+    ?prevues
+    ?realisees
+
+query sous_service:
+  service as [
+    nom ?nom
+    prenom ?prenom
+    code ?code
+    prevues ?prevues
+    realisees ?realisees
+  ]
+  ?realisees < ?prevues
+  return
+    ?nom
+    ?prenom
+    ?code
+      order asc
+    ?prevues
+    ?realisees
+
+export
+  from query bulletin_s1
+  map:
+    "Numéro étudiant" as ?num
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "Moyenne" as ?moyenne as float
+    "Décision" as ?decision
+  to:
+    <export://bulletins.xlsx> as XLSX
+    sheet "Semestre 1"
+
+export
+  from query bulletin_s2
+  map:
+    "Numéro étudiant" as ?num
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "Moyenne" as ?moyenne as float
+    "Décision" as ?decision
+  to:
+    <export://bulletins.xlsx> as XLSX
+    sheet "Semestre 2"
+
+export
+  from query amenagements
+  map:
+    "Numéro étudiant" as ?num
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "UE" as ?ue
+    "Note" as ?note as float
+  to:
+    <export://bulletins.xlsx> as XLSX
+    sheet "Aménagements"
+
+# Absent on three distinct days or more (rule absences_repetees).
+export
+  from:
+    ?e a scolarite.AbsencesRepetees
+      numero ?num
+      nom ?nom
+      prenom ?prenom
+    count distinct ?d as ?jours
+      ?_a etudiant ?e
+        jour ?d
+  map:
+    "Numéro étudiant" as ?num
+      order asc
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "Jours d'absence" as ?jours as int
+  to:
+    <export://absences.csv> as CSV
+
+export
+  from query service
+  map:
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "UE" as ?code
+    "Intitulé" as ?intitule
+    "Heures prévues" as ?prevues as float
+    "Heures réalisées" as ?realisees as float
+  to:
+    <export://heures-enseignants.xlsx> as XLSX
+    sheet "Service"
+
+export
+  from query seances
+  map:
+    "Séance" as ?id
+    "Date" as ?jour as date
+    "Enseignant" as ?nom
+    "UE" as ?code
+    "Durée (h)" as ?duree as quantity(h)
+  to:
+    <export://heures-enseignants.xlsx> as XLSX
+    sheet "Séances"
+
+export
+  from query depassements
+  map:
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "UE" as ?code
+    "Heures prévues" as ?prevues as float
+    "Heures réalisées" as ?realisees as float
+  to:
+    <export://heures-enseignants.xlsx> as XLSX
+    sheet "Dépassements"
+
+export
+  from query sous_service
+  map:
+    "Nom" as ?nom
+    "Prénom" as ?prenom
+    "UE" as ?code
+    "Heures prévues" as ?prevues as float
+    "Heures réalisées" as ?realisees as float
+  to:
+    <export://heures-enseignants.xlsx> as XLSX
+    sheet "Sous-service"
+
+export
+  from query bulletin_s1
+  map:
+    "$.numero" as ?num
+    "$.identite.nom" as ?nom
+    "$.identite.prenom" as ?prenom
+    "$.semestre1.moyenne" as ?moyenne as float
+    "$.semestre1.decision" as ?decision
+  to:
+    <export://resultats-s1.json> as JSONPath
+    for each "$.etudiants[*]"

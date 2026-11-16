@@ -1,0 +1,11 @@
+@prefix c: <https://www.dolfin.fr/showcase/solar-community/community#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix cunit: <https://www.dolfin.fr/showcase/solar-community/unit/> .
+# A reading the hub could not attach to a delivery point.
+c:reading_unknownd2026-08-01 a c:DailyReading ;
+  c:day "2026-08-01"^^xsd:date ;
+  c:working_day false ;
+  c:imported "7.42"^^cunit:h.kW ;
+  c:exported "0"^^cunit:h.kW ;
+  c:peak_draw "3.1"^^unit:KiloW .

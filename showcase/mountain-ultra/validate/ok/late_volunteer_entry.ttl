@@ -1,0 +1,11 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# The Col de la Seigne volunteers hand in their paper sheet the next day: Sara
+# (bib 122) passed there at 14:40 local, before the 15:30 cutoff. Submitted
+# for the ranking, so typed RankedPassage; it conforms.
+race:p122_cp4 a race:RankedPassage ;
+  race:runner race:r122 ;
+  race:checkpoint course:cp4 ;
+  race:at "2026-07-11T14:40:00+02:00"^^xsd:dateTime .

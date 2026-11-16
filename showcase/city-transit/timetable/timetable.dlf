@@ -1,0 +1,160 @@
+# Réseau Lumière (fictional), operations side. This package is the
+# operations team's: service journeys and their passing times, vehicle types
+# and disruptions. Stops and lines belong to the infrastructure team's network
+# package, imported at version 2.1.0 (package.dlf, lock in .dolfin/imports/):
+# `net:` names below must be defined by that import, and the Turtle refers to
+# them by IRI without copying them.
+#
+# Facts are dated against now = 2026-06-23T07:45:00Z (validate/now), a
+# Tuesday morning: of the four disruptions at the end, only D-0412 is active.
+prefix fr.dolfin.showcase.city_transit.network.network as net
+
+# A misspelt imported name, `has stop: one net:Stopp` in PassingTime below,
+# passes `radeau check` (exit 0, "✓ No linting issues found": rust/BUGS.md),
+# and fails `radeau build`:
+#   Error: Code generation error: Unresolved type reference: https://www.dolfin.fr/showcase/city-transit/network/network#Stopp
+# Imported names are written `net:Stop`: the dotted `net.Stop` builds, but
+# `radeau check` reports `error[S001]: type `net.Stop` is not declared`.
+
+concept DayType:
+  one of:
+    WEEKDAY
+    SATURDAY
+    SUNDAY
+
+# Low-floor vehicles are boarded step-free, so they only run where every stop
+# is `accessible` (check on LowFloorJourney). The standard bus is the old
+# high-floor fleet.
+concept VehicleType:
+  has capacity: one int
+  has length: one length
+  has max_speed: one speed
+  has low_floor: one boolean
+
+  one of:
+    CITADIS_302 [capacity 200, length quantity(32 m), max_speed quantity(70 km/h), low_floor true]
+    CITADIS_402 [capacity 300, length quantity(43 m), max_speed quantity(70 km/h), low_floor true]
+    ARTICULATED_BUS [capacity 150, length quantity(18 m), max_speed quantity(80 km/h), low_floor true]
+    STANDARD_BUS [capacity 95, length quantity(12 m), max_speed quantity(80 km/h), low_floor false]
+
+# One call of a journey at a stop. `journey` points back to the journey (the
+# mapping writes both directions): a condition only walks forward from its
+# focus node, so the cross-package check below starts from the passing time.
+concept PassingTime:
+  has journey: one ServiceJourney
+  has stop: one net:Stop
+  has departure: one time
+
+  # Time spent at the stop before `departure`.
+  has dwell: optional duration [ >= duration(0s), <= duration(5min) ]
+
+  # Cross-package: the stop is one the journey's line serves (`net:serves`,
+  # asserted by the network package).
+  check
+    [ $ stop ?s, journey [ line [ some net:serves [ = ?s ] ] ] ]
+
+concept ServiceJourney:
+  has key journey_id: string
+  has line: one net:Line
+  has vehicle: one VehicleType
+  has passing_times: some PassingTime
+  has day_type: one DayType
+
+# A journey run by a low-floor vehicle: inferred from the vehicle type, and
+# checked to call at step-free stops only.
+concept LowFloorJourney:
+  equivalent to ServiceJourney
+    [ vehicle [ low_floor [ = true ] ] ]
+
+  check
+    [ all passing_times [ stop [ net:accessible [ = true ] ] ] ]
+
+concept Cause:
+  one of:
+    WORKS
+    ACCIDENT
+    STRIKE
+    EVENT
+    WEATHER
+
+concept Disruption:
+  has key id: string
+  has affects: some net:Stop
+  has from: one date_time
+  has until: optional date_time
+  has cause: one Cause
+
+# A disruption in force at now(): started, and either open-ended (until
+# further notice) or not over yet. Two concepts, one per case; each has its
+# rule below.
+concept OpenDisruption:
+  equivalent to Disruption
+    [ from [ <= now() ], none until ]
+
+concept CurrentDisruption:
+  equivalent to Disruption
+    [ from [ <= now() ], some until [ >= now() ] ]
+
+# Inferred by the rules below.
+concept DisruptedJourney
+
+concept Interchange
+
+# A journey calling at a stop that an active disruption affects, open-ended
+# or bounded.
+rule affected_journey:
+  match:
+    ?j passing_times [ stop ?s ]
+    ?d a OpenDisruption
+    ?d affects ?s
+  then:
+    ?j a DisruptedJourney
+
+rule affected_journey_bounded:
+  match:
+    ?j passing_times [ stop ?s ]
+    ?d a CurrentDisruption
+    ?d affects ?s
+  then:
+    ?j a DisruptedJourney
+
+# A stop served by two different lines. Written with two lines `?l1`, `?l2`
+# and `?l2 net:code [ != ?c1 ]`, it never matches: `!=` against a variable
+# compiles to math:notEqualTo, which only compares numbers (rust/BUGS.md).
+rule interchange:
+  match:
+    ?s a net:Stop
+    at least 2 ?l:
+      ?l net:serves ?s
+  then:
+    ?s a Interchange
+
+# Roadworks at Hôtel de Ville, until further notice: active since the 22nd.
+fact d0412 a Disruption
+  id "D-0412"
+  affects net:HDV
+  from date_time(2026-06-22 05:00 UTC as y-m-d)
+  cause WORKS
+
+# A match at the stadium on Saturday: not started yet.
+fact d0415 a Disruption
+  id "D-0415"
+  affects net:STA, net:PLA
+  from date_time(2026-06-27 18:00 UTC as y-m-d)
+  until date_time(2026-06-27 23:30 UTC as y-m-d)
+  cause EVENT
+
+# A collision on the bridge last week: over.
+fact d0398 a Disruption
+  id "D-0398"
+  affects net:PON
+  from date_time(2026-06-17 14:10 UTC as y-m-d)
+  until date_time(2026-06-17 16:40 UTC as y-m-d)
+  cause ACCIDENT
+
+# A storm warning at the airfield from Thursday, open-ended: not started yet.
+fact d0416 a Disruption
+  id "D-0416"
+  affects net:AER
+  from date_time(2026-06-25 00:00 UTC as y-m-d)
+  cause WEATHER

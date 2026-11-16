@@ -1,0 +1,25 @@
+@prefix coop: <https://www.dolfin.fr/showcase/seed-cooperative/coop#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A sixteenth farm joins, deposits a lot of tomato seed and receives a lot of
+# Coco de Paimpol beans, paid in graines.
+coop:farm_82101645600017 a coop:Farm ;
+  coop:siret "82101645600017" ;
+  coop:name "Ferme du Furon" ;
+  coop:commune "Sassenage" ;
+  coop:joined "2026-05-30"^^xsd:date .
+coop:lot_gv_2026_001 a coop:Lot ;
+  coop:lot_id "GV-2026-001" ;
+  coop:variety coop:variety_tom_cdb ;
+  coop:holder coop:farm_82101645600017 ;
+  coop:harvest_year 2026 ;
+  coop:counted "5"^^unit:packet ;
+  coop:counted_in coop:CountUnit_PACKET ;
+  coop:germination_rate "0.9"^^xsd:float .
+coop:exchange_e031 a coop:Exchange ;
+  coop:exchange_id "E031" ;
+  coop:exchanged_on "2026-06-10"^^xsd:date ;
+  coop:from coop:farm_82100245600017 ;
+  coop:to coop:farm_82101645600017 ;
+  coop:lot coop:lot_gv_2025_003 ;
+  coop:price "6"^^unit:graine .

@@ -1,0 +1,84 @@
+# Ultra des Trois Cols: showcase queries. They run on the built facts after
+# the rules (Finisher, DNFCutoff, GearPenalty, after) are materialized.
+
+# 1. The overall podium and beyond: the ten fastest finishers.
+query ranking_overall:
+  ?_r a race.Finisher
+    bib ?bib
+    first_name ?first_name
+    finish_time ?finish_time
+  return
+    ?bib
+    ?first_name
+    ?finish_time
+      order asc
+    limit 10
+
+# 2. Finishers per category.
+query ranking_by_category:
+  ?r a race.Finisher
+    category ?category
+  group by ?category
+    count ?r as ?finishers
+  return
+    ?category
+    ?finishers
+
+# 3. Average speed per category, in km/h. Over the plain number: the same
+# `average` over the quantity field `avg_speed` is unbound (rust/BUGS.md,
+# mountain-ultra B).
+query average_speed_by_category:
+  ?_r a race.Finisher
+    category ?category
+    avg_speed_kmh ?s
+  group by ?category
+    average ?s as ?speed
+  return
+    ?category
+    ?speed
+
+# 4. Runners timed out at a cutoff, and where: the checkpoint with no
+# passage of theirs further down the course.
+query dnf_at_checkpoint:
+  ?r a race.DNFCutoff
+    bib ?bib
+    first_name ?first_name
+  ?_p runner ?r
+    checkpoint ?cp
+  ?cp code ?code
+  none:
+    ?_q runner ?r
+      checkpoint [ after ?cp ]
+  return
+    ?bib
+    ?first_name
+    ?code
+
+# 5. The course profile, in course order. `order` on a quantity sorts the
+# literals as strings, not by magnitude (rust/BUGS.md, mountain-ultra D): the
+# result is right only because every distance has two integer digits.
+query checkpoint_profile:
+  ?_c a race.Checkpoint
+    code ?code
+    distance_from_start ?distance
+    altitude ?altitude
+    cumulative_gain ?gain
+  return
+    ?code
+    ?distance
+      order asc
+    ?altitude
+    ?gain
+
+# 6. The deliberate duplicate: Hugo's two La Thuile records, the chip's in
+# UTC and the paper sheet's in local time, one instant. The Passage key infers
+# owl:sameAs between them, so ?p is the merged passage: both time stamps come
+# back under its canonical IRI (the smaller one, p105_cp3).
+query merged_passages:
+  ?p a race.Passage
+    runner [ bib 105 ]
+    checkpoint cp3
+    at ?at
+  return
+    ?p
+    ?at

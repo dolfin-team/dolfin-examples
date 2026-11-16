@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/ev-charging>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "Public EV charging stations in the Rhône department (France), from the national IRVE dataset on data.gouv.fr (Licence Ouverte / Etalab 2.0). Read directly from the raw IRVE CSV and the geo.api.gouv.fr commune list by Dolfin mappings (see charging.dlf for the download commands)."

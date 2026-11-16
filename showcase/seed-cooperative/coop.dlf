@@ -1,0 +1,121 @@
+# Graines du Vercors (fictional): fifteen small farms of the Vercors massif
+# keep heirloom seed varieties and swap lots of them. A lot is weighed (grain
+# and beans, in kg or g) or counted (packets, bulbs, tubers: units.dlf); the
+# cooperative's credit is the graine.
+
+# The crops the cooperative keeps: a closed set, each member with its fixed
+# Latin name.
+concept Species:
+  has key latin_name: string
+
+  one of:
+    TOMATO [latin_name "Solanum lycopersicum"]
+    BEAN [latin_name "Phaseolus vulgaris"]
+    GARLIC [latin_name "Allium sativum"]
+    POTATO [latin_name "Solanum tuberosum"]
+    LETTUCE [latin_name "Lactuca sativa"]
+    SPELT [latin_name "Triticum spelta"]
+    CARROT [latin_name "Daucus carota"]
+
+# A variety is its species and its name: two records with the same pair are
+# the same variety (owl:sameAs), whatever code a farm filed it under.
+concept Variety:
+  key:
+    has species: Species
+    has name: string
+
+  # The catalogue codes it was filed under: two once the duplicates merge.
+  has code: set of string
+  has origin_region: optional string
+  has tags: set of string
+  has days_to_maturity: optional int [ >= 20, <= 365 ]
+
+# The unit a counted lot is in, as a member: a query cannot select lots by
+# the unit of their `counted` literal (rust/BUGS.md, seed-cooperative D).
+concept CountUnit:
+  one of:
+    PACKET
+    BULB
+    TUBER
+
+concept Farm:
+  has key siret: string
+  has name: one string
+  has commune: one string
+  has joined: one date
+
+concept Lot:
+  has key lot_id: string
+  has variety: one Variety
+  has holder: one Farm
+  has harvest_year: one int [ >= 1990 ]
+  has germination_rate: optional float [ >= 0, <= 1 ]
+
+  # Weighed lots: a dimension-typed field, so a lot given in metres is an
+  # error in a fact and a SHACL violation in data.
+  has mass: optional mass
+
+  # Set for counted lots, from the register's `unit` column.
+  has counted_in: optional CountUnit
+
+  # Not in the future. A literal year: `now()` is a date_time, and neither
+  # an int nor a date compares with it (rust/BUGS.md, seed-cooperative B).
+  check
+    [ harvest_year [ <= 2026 ] ]
+
+# Counted lots, in packet, bulb or tuber. A property, not a `has`: no field
+# type accepts a nominal quantity (rust/BUGS.md, seed-cooperative A), so this
+# has an OWL range and no SHACL shape.
+property counted: Lot -> float
+
+concept Exchange:
+  has key exchange_id: string
+  has from: one Farm
+  has to: one Farm
+  has lot: one Lot
+  has exchanged_on: one date
+
+  # A farm does not swap with itself.
+  check
+    [ $ from ?f, to [ != ?f ] ]
+
+# In graines; no price is a gift. A property for the same reason as `counted`.
+property price: Exchange -> float
+
+# Inferred by the rules below. RareVariety is not `sub Variety`: the key's
+# owl:sameAs rule would then depend on rare_variety's `none`, and retox
+# refuses to stratify that (rust/BUGS.md, high-school showcase).
+concept RareVariety
+
+concept UrgentRegeneration
+
+concept ActiveMember
+
+# Held by one farm only: no lot of the variety is held by another farm.
+# Rules have no aggregates; the `none` block says "no second holder". Rules
+# match each record: a variety filed under two codes is judged per code.
+rule rare_variety:
+  match:
+    ?l variety ?v
+    ?l holder ?f
+    none ?o:
+      ?o variety ?v
+      ?o holder [ != ?f ]
+  then:
+    ?v a RareVariety
+
+# A rare variety whose lot germinates poorly: regrow it before it is lost.
+rule seed_bank_candidate:
+  match:
+    ?l variety [ a RareVariety ]
+    ?l germination_rate [ < 0.6 ]
+  then:
+    ?l a UrgentRegeneration
+
+# Gave or received a lot in the twelve months before 2026-06-15.
+rule active_member:
+  match:
+    ?e from|to ?f
+    ?e exchanged_on [ >= date(June 15th 2025) ]
+  then:
+    ?f a ActiveMember

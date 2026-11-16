@@ -1,0 +1,9 @@
+# A seven-minute wait at Université: dwell is at most 5 minutes.
+@prefix tt: <https://www.dolfin.fr/showcase/city-transit/timetable/timetable#> .
+@prefix net: <https://www.dolfin.fr/showcase/city-transit/network/network#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tt:SJ-T1-92 a tt:ServiceJourney ; tt:journey_id "SJ-T1-92" ; tt:line net:T1 ; tt:vehicle tt:VehicleType_CITADIS_402 ; tt:day_type tt:DayType_WEEKDAY ;
+  tt:passing_times tt:SJ-T1-92-1, tt:SJ-T1-92-2 .
+tt:SJ-T1-92-1 a tt:PassingTime ; tt:journey tt:SJ-T1-92 ; tt:stop net:GAR ; tt:departure "21:10:00"^^xsd:time .
+tt:SJ-T1-92-2 a tt:PassingTime ; tt:journey tt:SJ-T1-92 ; tt:stop net:UNI ; tt:departure "21:24:00"^^xsd:time ; tt:dwell "PT7M"^^xsd:duration .

@@ -1,0 +1,103 @@
+# The kind of dwelling being sold or rented.
+concept PropertyType:
+  has key code: string
+
+  one of:
+    HOUSE [code "house"]
+    APARTMENT [code "apartment"]
+    CONDO [code "condo"]
+    TOWNHOUSE [code "townhouse"]
+
+# Where a listing sits in the sales pipeline.
+concept ListingStatus:
+  has key code: string
+
+  one of:
+    DRAFT [code "draft"]
+    ACTIVE [code "active"]
+    UNDER_OFFER [code "under_offer"]
+    SOLD [code "sold"]
+    WITHDRAWN [code "withdrawn"]
+
+# A licensed real-estate agent.
+concept Agent:
+  has key licenseNumber: string
+  has name: one string
+  has phone: optional string
+
+# A single piece of real estate.
+concept Property:
+  has key address: string
+  has propertyType: one PropertyType
+  has bedrooms: one int
+  has bathrooms: one float
+  has squareFeet: one int
+  has yearBuilt: optional int
+  has agent: one Agent
+
+# A property currently for sale or rent, with an asking price.
+concept Listing:
+  has forProperty: one Property
+  has status: one ListingStatus
+  has askingPriceCents: one int
+  has listedDate: one string
+
+# A buyer's bid on a listing.
+concept Offer:
+  has listing: one Listing
+  has buyerName: one string
+  has offerPriceCents: one int
+  has offerDate: one string
+  has accepted: one boolean
+
+concept LuxuryProperty
+concept StaleListing
+
+fact janAgent a Agent
+  licenseNumber "LIC-4471"
+  name "Jan Bergström"
+  phone "+46-70-000-0000"
+
+fact riverHouse a Property
+  address "12 River Walk, Portland"
+  propertyType HOUSE
+  bedrooms 4
+  bathrooms 2.5
+  squareFeet 2600
+  yearBuilt 1998
+  agent janAgent
+
+fact riverHouseListing a Listing
+  forProperty riverHouse
+  status ACTIVE
+  askingPriceCents 87500000
+  listedDate "2026-05-01"
+
+fact firstOffer a Offer
+  listing riverHouseListing
+  buyerName "Morgan Reyes"
+  offerPriceCents 85000000
+  offerDate "2026-06-10"
+  accepted false
+
+# Properties over 3000 square feet are tagged for the luxury collection.
+rule flag_luxury:
+  match:
+    ?p a Property
+    ?p squareFeet [ > 3000 ]
+  then:
+    ?p a LuxuryProperty
+
+# Active listings still unsold get flagged for a price-review workflow.
+rule flag_stale_listing:
+  match:
+    ?l a Listing
+    ?l status ACTIVE
+  then:
+    ?l a StaleListing
+
+# Every accepted offer, with its listing.
+query accepted_offers:
+  ?_o a Offer
+    accepted true
+    listing ?_listing

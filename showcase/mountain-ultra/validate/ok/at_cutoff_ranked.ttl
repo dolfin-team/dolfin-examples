@@ -1,0 +1,8 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Edge case 1 submitted for the ranking: Monique (bib 120) at the Col de la
+# Seigne at 13:30 UTC, which is exactly the 15:30 local cutoff. The cutoff is
+# inclusive (cutoff >= at), so it conforms.
+race:p120_cp4 a race:RankedPassage .

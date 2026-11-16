@@ -1,0 +1,10 @@
+@prefix pharmacy: <https://www.dolfin.fr/showcase/hospital-pharmacy/pharmacy#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Batch P-2312 expired on 2026-05-31, dispensed on 2026-06-15.
+pharmacy:disp_expired a pharmacy:SafeDispensing ;
+  pharmacy:dispensingId "D-EXP" ;
+  pharmacy:prescription pharmacy:rx08 ;
+  pharmacy:batch pharmacy:batch_P2312 ;
+  pharmacy:at "2026-06-15T10:00:00"^^xsd:dateTime ;
+  pharmacy:day "2026-06-15"^^xsd:date .

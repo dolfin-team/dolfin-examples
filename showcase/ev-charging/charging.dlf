@@ -1,0 +1,222 @@
+# Public EV charging in France, after the national IRVE schema
+# (Infrastructures de Recharge pour Véhicules Électriques, schema.data.gouv.fr).
+#
+# Everything below is read straight from two open-data files, with no script:
+#
+#   curl -L -o irve.csv "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
+#   curl -o communes-69.json "https://geo.api.gouv.fr/departements/69/communes?fields=code,nom,codesPostaux"
+#
+# irve.csv is the whole of France (Licence Ouverte / Etalab 2.0); the mapping
+# keeps the Rhône (69). Contact e-mails and phone numbers are never read.
+
+prefix <https://www.dolfin.fr/showcase/ev-charging/charging#> as ev
+
+concept Operator:
+  has key name: string
+
+concept Commune:
+  has key inseeCode: string
+  has name: one string
+  has postalCode: string
+
+# Lyon's nine districts have INSEE codes of their own (69381-69389), which
+# operators often give instead of Lyon's (69123).
+concept MunicipalDistrict:
+  has key code: string
+  has partOf: one Commune
+
+concept SiteType:
+  one of:
+    OnStreet
+    PublicCarPark
+    PrivateCarParkOpenToPublic
+    CustomerCarPark
+    FastChargingHub
+
+concept Connector:
+  one of:
+    Type2
+    CCS
+    CHAdeMO
+    DomesticEF
+    OtherConnector
+
+concept ChargePoint:
+  has key pointId: string
+  has power: one power
+  has connectors: Connector
+
+concept Station:
+  has key stationId: string
+  has name: one string
+  has operator: one Operator
+
+  # As the operator wrote it: an INSEE code, a Lyon district code or a postal code
+  has communeCode: one string
+
+  # The dataset's own consolidated commune name, when it could verify the code
+  has communeName: optional string
+
+  # Derived by the commune_by_* rules below
+  has commune: optional Commune
+  has address: optional string
+  has siteType: optional SiteType
+  has latitude: optional float
+  has longitude: optional float
+  has openAllHours: one boolean
+  has freeToUse: one boolean
+  has commissionedOn: optional date
+  has chargePoints: some ChargePoint
+
+mapping from <package://communes-69.json> as JSONPath
+  for each "$[*]"
+  map:
+    "$.code"            as ?code
+    "$.nom"             as ?name
+    "$.codesPostaux[0]" as ?pc1
+    "$.codesPostaux[1]" as ?pc2
+  to:
+    fact ev:commune_{?code} a Commune
+      inseeCode {?code}
+      name {?name}
+      postalCode {?pc1}, {?pc2}
+
+# One row per charge point. A station appears once per charge point, and its
+# rows add up to one Station fact.
+mapping from <package://irve.csv> as CSV
+  map:
+    id_station_itinerance  as ?station
+    nom_station            as ?name
+    nom_operateur          as ?operator
+    code_insee_commune     as ?insee
+    consolidated_commune   as ?communeName
+    adresse_station        as ?address
+    implantation_station   as ?site
+    consolidated_latitude  as ?lat
+    consolidated_longitude as ?long
+    horaires               as ?hours
+    gratuit                as ?free
+    date_mise_en_service   as ?commissioned
+    id_pdc_itinerance      as ?point
+    puissance_nominale     as ?kw
+    prise_type_2           as ?type2
+    prise_type_combo_ccs   as ?ccs
+    prise_type_chademo     as ?chademo
+    prise_type_ef          as ?ef
+    prise_type_autre       as ?other
+  where:
+    ?insee [ starts with "69" ]
+    ?station [ != "", != "Non concerné" ]
+    ?point [ != "", != "Non concerné" ]
+    # No operator often means a home charger; Pascal Chene is a private person.
+    ?operator [ != "", != "Pascal Chene" ]
+  to:
+    fact ev:op_{slug(?operator)} a Operator
+      name {?operator}
+    fact ev:st_{slug(?station)} a Station
+      stationId {?station}
+      name {?name}
+      operator ev:op_{slug(?operator)}
+      communeCode {?insee}
+      communeName {?communeName}
+      address {?address}
+      siteType case ?site:
+        "Voirie" -> OnStreet
+        "Parking public" -> PublicCarPark
+        "Parking privé à usage public" -> PrivateCarParkOpenToPublic
+        "Parking privé ŕ usage public" -> PrivateCarParkOpenToPublic
+        "Parking privé réservé à la clientèle" -> CustomerCarPark
+        "Station dédiée à la recharge rapide" -> FastChargingHub
+      latitude {?lat} as float
+      longitude {?long} as float
+      openAllHours case ?hours:
+        "24/7" -> true
+        "Mo-Su 00:00-00:00" -> true
+        else -> false
+      freeToUse case ?free:
+        "true" -> true
+        "1" -> true
+        else -> false
+      commissionedOn {?commissioned} as date
+      chargePoints ev:cp_{slug(?point)}
+    fact ev:cp_{slug(?point)} a ChargePoint
+      pointId {?point}
+      power {?kw} as quantity(kW)
+      connectors case ?type2:
+        "true" -> Type2
+        "1" -> Type2
+      connectors case ?ccs:
+        "true" -> CCS
+        "1" -> CCS
+      connectors case ?chademo:
+        "true" -> CHAdeMO
+        "1" -> CHAdeMO
+      connectors case ?ef:
+        "true" -> DomesticEF
+        "1" -> DomesticEF
+      connectors case ?other:
+        "true" -> OtherConnector
+        "1" -> OtherConnector
+
+fact lyon_1 a MunicipalDistrict
+  code "69381"
+  partOf ev:commune_69123
+
+fact lyon_2 a MunicipalDistrict
+  code "69382"
+  partOf ev:commune_69123
+
+fact lyon_3 a MunicipalDistrict
+  code "69383"
+  partOf ev:commune_69123
+
+fact lyon_4 a MunicipalDistrict
+  code "69384"
+  partOf ev:commune_69123
+
+fact lyon_5 a MunicipalDistrict
+  code "69385"
+  partOf ev:commune_69123
+
+fact lyon_6 a MunicipalDistrict
+  code "69386"
+  partOf ev:commune_69123
+
+fact lyon_7 a MunicipalDistrict
+  code "69387"
+  partOf ev:commune_69123
+
+fact lyon_8 a MunicipalDistrict
+  code "69388"
+  partOf ev:commune_69123
+
+fact lyon_9 a MunicipalDistrict
+  code "69389"
+  partOf ev:commune_69123
+
+# The dataset verified the code: its commune name is the official one.
+rule commune_by_name:
+  match:
+    ?s communeName ?n
+    ?m a Commune
+    ?m name ?n
+  then:
+    ?s commune ?m
+
+rule commune_by_district:
+  match:
+    ?s communeCode ?c
+    ?d code ?c
+    ?d partOf ?m
+  then:
+    ?s commune ?m
+
+# Unverified rows where the operator typed a postal code.
+rule commune_by_postal_code:
+  match:
+    ?s communeCode ?c
+    ?m postalCode ?c
+    none ?n:
+      ?s communeName ?n
+  then:
+    ?s commune ?m

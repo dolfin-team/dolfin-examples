@@ -1,0 +1,73 @@
+# The park's zones, as bounding boxes (WGS84 degrees). A fix is in a zone when
+# min_lat <= lat <= max_lat and min_lon <= lon <= max_lon: four comparisons
+# between variables (rule `in_zone` in tracking.dlf). No polygons: see the
+# README, "Why no GeoSPARQL".
+
+concept ZoneKind:
+  one of:
+    ALPAGE
+    CORE_RESERVE
+    VILLAGE
+
+concept Zone:
+  has key code: string
+  has label: one string
+  has kind: one ZoneKind
+  has min_lat: one float [ >= -90, <= 90 ]
+  has max_lat: one float [ >= -90, <= 90 ]
+  has min_lon: one float [ >= -180, <= 180 ]
+  has max_lon: one float [ >= -180, <= 180 ]
+
+  # The sheep are up on an alpage from grazing_from to grazing_until.
+  has grazing_from: optional date
+  has grazing_until: optional date
+
+fact ALP_CABANE a Zone
+  code "ALP_CABANE"
+  label "Alpage de la Cabane"
+  kind ALPAGE
+  min_lat 44.270
+  max_lat 44.285
+  min_lon 7.040
+  max_lon 7.060
+  grazing_from date(June 15th 2026)
+  grazing_until date(September 30th 2026)
+
+# Its flock comes up late: M31's visits on 9-10 July are out of season.
+fact ALP_LAUSES a Zone
+  code "ALP_LAUSES"
+  label "Alpage des Lauses"
+  kind ALPAGE
+  min_lat 44.155
+  max_lat 44.165
+  min_lon 7.170
+  max_lon 7.185
+  grazing_from date(July 15th 2026)
+  grazing_until date(September 15th 2026)
+
+fact RES_VALLON_SOMBRE a Zone
+  code "RES_VALLON_SOMBRE"
+  label "Réserve intégrale du Vallon Sombre"
+  kind CORE_RESERVE
+  min_lat 44.180
+  max_lat 44.240
+  min_lon 6.950
+  max_lon 7.020
+
+fact VIL_SAINT_OURS a Zone
+  code "VIL_SAINT_OURS"
+  label "Saint-Ours"
+  kind VILLAGE
+  min_lat 44.335
+  max_lat 44.345
+  min_lon 6.990
+  max_lon 7.005
+
+fact VIL_LE_PRA a Zone
+  code "VIL_LE_PRA"
+  label "Le Pra"
+  kind VILLAGE
+  min_lat 44.100
+  max_lat 44.108
+  min_lon 7.235
+  max_lon 7.250

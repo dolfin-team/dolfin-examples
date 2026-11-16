@@ -1,0 +1,60 @@
+# Loans — showcase queries (Dolfin version of queries.md).
+
+# 1. Who lent to whom, over the asserted `lends` edge (two loans to Bob, one row).
+query lenders:
+  a loans.Person
+    name ?lender
+    lends [
+      name ?borrower
+    ]
+  return
+    ?lender
+      order asc
+    ?borrower
+      order asc
+
+# 2. Who owes whom: rule `owes_lender`.
+query debts:
+  a loans.Person
+    name ?debtor
+    owes [
+      name ?creditor
+    ]
+  return
+    ?debtor
+      order asc
+    ?creditor
+      order asc
+
+# 3. Loan amounts, read off the `Loan` links.
+query loan_amounts:
+  a loans.Loan
+    amount ?amount
+  return
+    ?amount
+      order desc
+
+# 4. Each loan by pair: the bracket reads the link's `amount`.
+query loans_by_pair:
+  ?a a loans.Person
+    name ?lender
+    lends ?b [amount ?amount]
+  ?b name ?borrower
+  return
+    ?lender
+    ?borrower
+    ?amount
+      order desc
+
+# 5. Who lent more than 50 to whom: rule `generous_lender`.
+query generous:
+  a loans.Person
+    name ?lender
+    generousTo [
+      name ?borrower
+    ]
+  return
+    ?lender
+      order asc
+    ?borrower
+      order asc

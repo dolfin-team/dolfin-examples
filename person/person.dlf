@@ -1,0 +1,40 @@
+# Preferred way to reach a person.
+concept ContactMethod:
+  has key code: string
+
+  one of:
+    EMAIL [code "email"]
+    PHONE [code "phone"]
+    CHAT [code "chat"]
+
+# A human being known to the system — the shared identity concept every
+# other example package (team, project, meeting) would `import` once
+# dolfin supports it, instead of redeclaring its own Person.
+concept Person:
+  has key email: string
+  has firstName: one string
+  has lastName: one string
+  has phone: optional string
+  has preferredContact: one ContactMethod
+  has timezone: optional string
+
+fact priya a Person
+  email "priya@example.com"
+  firstName "Priya"
+  lastName "Natarajan"
+  preferredContact CHAT
+  timezone "Europe/Paris"
+
+fact sam a Person
+  email "sam@example.com"
+  firstName "Sam"
+  lastName "Okafor"
+  preferredContact EMAIL
+  timezone "America/New_York"
+
+fact lea a Person
+  email "lea@example.com"
+  firstName "Léa"
+  lastName "Fontaine"
+  preferredContact EMAIL
+  timezone "Europe/Paris"

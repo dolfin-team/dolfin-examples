@@ -1,0 +1,5 @@
+package person:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin Examples"
+  description "Standalone person/identity data model — intended to be import-ed by other packages once dolfin supports import"

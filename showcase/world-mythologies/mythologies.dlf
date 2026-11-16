@@ -1,0 +1,874 @@
+# World mythologies and traditions — one shared model, one section per tradition.
+#
+# Several of these traditions are living religions (Hindu, Shinto, Maya
+# spirituality, modern Heathenry and Hellenism). Entries are descriptive and
+# follow the classic written sources named on each Tradition.
+
+concept Tradition:
+  has key name: string
+  has region: one string
+  has mainSources: some string
+
+concept Domain:
+  one of:
+    Sky
+    Thunder
+    Storm
+    Rain
+    Sea
+    Sun
+    Moon
+    Earth
+    Harvest
+    Prosperity
+    War
+    Wisdom
+    Love
+    Death
+    Underworld
+    Creation
+    Destruction
+    Preservation
+    Fire
+    Trickery
+    Craft
+    Hunt
+    Healing
+    Hearth
+
+concept Figure:
+  has key name: string
+  has tradition: one Tradition
+  has domain: Domain
+  has alsoKnownAs: string
+  has summary: optional string
+
+concept Deity:
+  sub Figure
+
+concept Hero:
+  sub Figure
+
+concept Creature:
+  sub Figure
+
+concept Realm:
+  has key name: string
+  has tradition: one Tradition
+
+concept Artifact:
+  has key name: string
+  has wieldedBy: one Figure
+
+property parentOf: Figure -> Figure
+property spouseOf: Figure -> Figure
+property avatarOf: Figure -> Figure
+property dwellsIn: Figure -> Realm
+property ancestorOf: Figure -> Figure
+
+# Genealogy is transitive: a parent's ancestors are ancestors too.
+rule parent_is_ancestor:
+  match:
+    ?a parentOf ?b
+  then:
+    ?a ancestorOf ?b
+
+rule ancestor_chain:
+  match:
+    ?a ancestorOf ?b
+    ?b ancestorOf ?c
+  then:
+    ?a ancestorOf ?c
+
+
+# ── Greek ───────────────────────────────────────────────────────
+
+fact greek a Tradition
+  name "Greek"
+  region "Ancient Greece"
+  mainSources "Hesiod, Theogony", "Homer, Iliad and Odyssey"
+
+fact olympus a Realm
+  name "Mount Olympus"
+  tradition greek
+
+fact greek_underworld a Realm
+  name "The Underworld"
+  tradition greek
+
+fact gaia a Deity
+  name "Gaia"
+  tradition greek
+  domain Earth, Creation
+  summary "Primordial Earth, mother of the Titans."
+  parentOf uranus, cronus, rhea
+
+fact uranus a Deity
+  name "Uranus"
+  tradition greek
+  domain Sky
+  summary "Primordial Sky."
+  spouseOf gaia
+  parentOf cronus, rhea, aphrodite
+
+fact cronus a Deity
+  name "Cronus"
+  tradition greek
+  domain Harvest
+  alsoKnownAs "Saturn"
+  summary "Titan who ruled before Zeus."
+  spouseOf rhea
+  parentOf zeus, hera, poseidon, hades, demeter, hestia
+
+fact rhea a Deity
+  name "Rhea"
+  tradition greek
+  domain Earth
+  summary "Titaness, mother of the Olympian elders."
+  parentOf zeus, hera, poseidon, hades, demeter, hestia
+
+fact zeus a Deity
+  name "Zeus"
+  tradition greek
+  domain Sky, Thunder
+  alsoKnownAs "Jupiter"
+  summary "King of the Olympian gods."
+  spouseOf hera
+  dwellsIn olympus
+  parentOf persephone, athena, apollo, artemis, ares, hermes, heracles, perseus
+
+fact hera a Deity
+  name "Hera"
+  tradition greek
+  domain Love
+  alsoKnownAs "Juno"
+  summary "Queen of the gods, goddess of marriage."
+  dwellsIn olympus
+  parentOf ares, hephaestus
+
+fact poseidon a Deity
+  name "Poseidon"
+  tradition greek
+  domain Sea, Storm
+  alsoKnownAs "Neptune"
+  summary "God of the sea and earthquakes."
+
+fact hades a Deity
+  name "Hades"
+  tradition greek
+  domain Death, Underworld
+  alsoKnownAs "Pluto"
+  summary "Ruler of the underworld."
+  spouseOf persephone
+  dwellsIn greek_underworld
+
+fact demeter a Deity
+  name "Demeter"
+  tradition greek
+  domain Harvest
+  alsoKnownAs "Ceres"
+  summary "Goddess of grain and agriculture."
+  dwellsIn olympus
+  parentOf persephone
+
+fact hestia a Deity
+  name "Hestia"
+  tradition greek
+  domain Hearth
+  alsoKnownAs "Vesta"
+  summary "Goddess of the hearth."
+  dwellsIn olympus
+
+fact persephone a Deity
+  name "Persephone"
+  tradition greek
+  domain Harvest, Underworld
+  alsoKnownAs "Proserpina"
+  summary "Queen of the underworld; her return brings spring."
+  dwellsIn greek_underworld
+
+fact athena a Deity
+  name "Athena"
+  tradition greek
+  domain Wisdom, War, Craft
+  alsoKnownAs "Minerva"
+  summary "Goddess of wisdom and strategy."
+  dwellsIn olympus
+
+fact leto a Deity
+  name "Leto"
+  tradition greek
+  alsoKnownAs "Latona"
+  summary "Titaness, mother of Apollo and Artemis."
+  parentOf apollo, artemis
+
+fact apollo a Deity
+  name "Apollo"
+  tradition greek
+  domain Sun, Healing
+  summary "God of light, music, prophecy and healing."
+  dwellsIn olympus
+
+fact artemis a Deity
+  name "Artemis"
+  tradition greek
+  domain Moon, Hunt
+  alsoKnownAs "Diana"
+  summary "Goddess of the hunt and the wild."
+  dwellsIn olympus
+
+fact ares a Deity
+  name "Ares"
+  tradition greek
+  domain War
+  alsoKnownAs "Mars"
+  summary "God of war."
+  dwellsIn olympus
+
+fact hephaestus a Deity
+  name "Hephaestus"
+  tradition greek
+  domain Fire, Craft
+  alsoKnownAs "Vulcan"
+  summary "Smith of the gods."
+  spouseOf aphrodite
+  dwellsIn olympus
+
+fact aphrodite a Deity
+  name "Aphrodite"
+  tradition greek
+  domain Love
+  alsoKnownAs "Venus"
+  summary "Goddess of love and beauty."
+  dwellsIn olympus
+
+fact hermes a Deity
+  name "Hermes"
+  tradition greek
+  domain Trickery
+  alsoKnownAs "Mercury"
+  summary "Messenger of the gods, guide of souls."
+  dwellsIn olympus
+
+fact heracles a Hero
+  name "Heracles"
+  tradition greek
+  alsoKnownAs "Hercules"
+  summary "Hero of the Twelve Labours."
+
+fact perseus a Hero
+  name "Perseus"
+  tradition greek
+  summary "Slayer of Medusa."
+
+fact medusa a Creature
+  name "Medusa"
+  tradition greek
+  summary "Gorgon whose gaze turned onlookers to stone."
+
+fact cerberus a Creature
+  name "Cerberus"
+  tradition greek
+  domain Underworld
+  summary "Many-headed hound guarding the underworld."
+  dwellsIn greek_underworld
+
+fact thunderbolt a Artifact
+  name "Thunderbolt of Zeus"
+  wieldedBy zeus
+
+fact trident a Artifact
+  name "Trident of Poseidon"
+  wieldedBy poseidon
+
+
+# ── Norse ───────────────────────────────────────────────────────
+
+fact norse a Tradition
+  name "Norse"
+  region "Scandinavia and Iceland"
+  mainSources "Snorri Sturluson, Prose Edda", "Poetic Edda"
+
+fact asgard a Realm
+  name "Asgard"
+  tradition norse
+
+fact helheim a Realm
+  name "Helheim"
+  tradition norse
+
+fact ymir a Creature
+  name "Ymir"
+  tradition norse
+  domain Creation
+  summary "Primordial giant from whose body the world was made."
+
+fact buri a Deity
+  name "Búri"
+  tradition norse
+  summary "First of the gods, freed from the ice by the cow Auðumbla."
+  parentOf borr
+
+fact borr a Deity
+  name "Borr"
+  tradition norse
+  summary "Son of Búri, father of Odin."
+  spouseOf bestla
+  parentOf odin
+
+fact bestla a Deity
+  name "Bestla"
+  tradition norse
+  summary "Giantess, mother of Odin."
+  parentOf odin
+
+fact odin a Deity
+  name "Odin"
+  tradition norse
+  domain Wisdom, War, Death
+  alsoKnownAs "Wodan"
+  alsoKnownAs "Woden"
+  summary "Chief of the Æsir."
+  spouseOf frigg
+  dwellsIn asgard
+  parentOf thor, baldr
+
+fact frigg a Deity
+  name "Frigg"
+  tradition norse
+  domain Love
+  summary "Queen of the Æsir, goddess of foresight."
+  dwellsIn asgard
+  parentOf baldr
+
+fact jord a Deity
+  name "Jörð"
+  tradition norse
+  domain Earth
+  summary "Personified Earth, mother of Thor."
+  parentOf thor
+
+fact thor a Deity
+  name "Thor"
+  tradition norse
+  domain Thunder, Storm
+  alsoKnownAs "Donar"
+  alsoKnownAs "Thunor"
+  summary "Protector of gods and humans."
+  spouseOf sif
+  dwellsIn asgard
+
+fact sif a Deity
+  name "Sif"
+  tradition norse
+  domain Harvest
+  summary "Golden-haired wife of Thor."
+  dwellsIn asgard
+
+fact baldr a Deity
+  name "Baldr"
+  tradition norse
+  domain Sun
+  summary "Shining god whose death foreshadows Ragnarök."
+  dwellsIn asgard
+
+fact loki a Deity
+  name "Loki"
+  tradition norse
+  domain Trickery, Fire
+  summary "Shape-shifting trickster."
+  dwellsIn asgard
+  parentOf fenrir, jormungandr, hel
+
+fact angrboda a Deity
+  name "Angrboða"
+  tradition norse
+  summary "Giantess, mother of Loki's monstrous children."
+  parentOf fenrir, jormungandr, hel
+
+fact fenrir a Creature
+  name "Fenrir"
+  tradition norse
+  domain Destruction
+  summary "Giant wolf bound by the gods."
+
+fact jormungandr a Creature
+  name "Jörmungandr"
+  tradition norse
+  domain Sea
+  alsoKnownAs "Midgard Serpent"
+  summary "Serpent encircling the world."
+
+fact hel a Deity
+  name "Hel"
+  tradition norse
+  domain Death, Underworld
+  summary "Ruler of the realm of the dead."
+  dwellsIn helheim
+
+fact njord a Deity
+  name "Njörðr"
+  tradition norse
+  domain Sea, Prosperity
+  summary "Vanir god of the sea and wealth."
+  parentOf freyr, freyja
+
+fact freyr a Deity
+  name "Freyr"
+  tradition norse
+  domain Harvest, Prosperity, Sun
+  summary "Vanir god of fertility and good harvests."
+  dwellsIn asgard
+
+fact freyja a Deity
+  name "Freyja"
+  tradition norse
+  domain Love, War, Death
+  summary "Vanir goddess who receives half the fallen."
+  dwellsIn asgard
+
+fact tyr a Deity
+  name "Týr"
+  tradition norse
+  domain War
+  alsoKnownAs "Tiw"
+  summary "God of war and justice."
+  dwellsIn asgard
+
+fact sigurd a Hero
+  name "Sigurd"
+  tradition norse
+  alsoKnownAs "Siegfried"
+  summary "Dragon-slaying hero of the Völsunga saga."
+
+fact mjolnir a Artifact
+  name "Mjölnir"
+  wieldedBy thor
+
+fact gungnir a Artifact
+  name "Gungnir"
+  wieldedBy odin
+
+
+# ── Hindu ───────────────────────────────────────────────────────
+
+fact hindu a Tradition
+  name "Hindu"
+  region "Indian subcontinent"
+  mainSources "Rigveda", "Mahabharata", "Ramayana", "Puranas"
+
+fact vaikuntha a Realm
+  name "Vaikuntha"
+  tradition hindu
+
+fact kailash a Realm
+  name "Mount Kailash"
+  tradition hindu
+
+fact brahmaloka a Realm
+  name "Brahmaloka"
+  tradition hindu
+
+fact brahma a Deity
+  name "Brahma"
+  tradition hindu
+  domain Creation
+  summary "Creator in the Trimurti."
+  spouseOf saraswati
+  dwellsIn brahmaloka
+
+fact vishnu a Deity
+  name "Vishnu"
+  tradition hindu
+  domain Preservation
+  alsoKnownAs "Narayana"
+  summary "Preserver in the Trimurti."
+  spouseOf lakshmi
+  dwellsIn vaikuntha
+
+fact shiva a Deity
+  name "Shiva"
+  tradition hindu
+  domain Destruction
+  alsoKnownAs "Mahadeva"
+  summary "Destroyer and transformer in the Trimurti."
+  spouseOf parvati
+  dwellsIn kailash
+  parentOf ganesha, kartikeya
+
+fact saraswati a Deity
+  name "Saraswati"
+  tradition hindu
+  domain Wisdom
+  summary "Goddess of knowledge, music and learning."
+  dwellsIn brahmaloka
+
+fact lakshmi a Deity
+  name "Lakshmi"
+  tradition hindu
+  domain Prosperity
+  alsoKnownAs "Shri"
+  summary "Goddess of wealth and good fortune."
+  dwellsIn vaikuntha
+
+fact parvati a Deity
+  name "Parvati"
+  tradition hindu
+  domain Love
+  alsoKnownAs "Uma"
+  alsoKnownAs "Gauri"
+  summary "Goddess of devotion; also revered as Durga."
+  dwellsIn kailash
+  parentOf ganesha, kartikeya
+
+fact ganesha a Deity
+  name "Ganesha"
+  tradition hindu
+  domain Wisdom
+  alsoKnownAs "Ganapati"
+  alsoKnownAs "Vinayaka"
+  summary "Remover of obstacles."
+  dwellsIn kailash
+
+fact kartikeya a Deity
+  name "Kartikeya"
+  tradition hindu
+  domain War
+  alsoKnownAs "Skanda"
+  alsoKnownAs "Murugan"
+  summary "Commander of the divine army."
+  dwellsIn kailash
+
+fact indra a Deity
+  name "Indra"
+  tradition hindu
+  domain Sky, Thunder, Rain
+  summary "King of the Devas in the Vedas."
+  parentOf arjuna
+
+fact agni a Deity
+  name "Agni"
+  tradition hindu
+  domain Fire
+  summary "Vedic god of fire and sacrifice."
+
+fact surya a Deity
+  name "Surya"
+  tradition hindu
+  domain Sun
+  summary "The Sun."
+  parentOf yama
+
+fact yama a Deity
+  name "Yama"
+  tradition hindu
+  domain Death, Underworld
+  summary "Lord of death and justice."
+
+fact rama a Deity
+  name "Rama"
+  tradition hindu
+  summary "Prince of Ayodhya, hero of the Ramayana."
+  spouseOf sita
+  avatarOf vishnu
+
+fact sita a Deity
+  name "Sita"
+  tradition hindu
+  summary "Heroine of the Ramayana."
+
+fact krishna a Deity
+  name "Krishna"
+  tradition hindu
+  domain Love
+  summary "Central figure of the Bhagavad Gita."
+  avatarOf vishnu
+
+fact hanuman a Deity
+  name "Hanuman"
+  tradition hindu
+  domain Wisdom
+  summary "Devoted companion of Rama."
+
+fact arjuna a Hero
+  name "Arjuna"
+  tradition hindu
+  summary "Archer-hero of the Mahabharata."
+
+fact garuda a Creature
+  name "Garuda"
+  tradition hindu
+  domain Sky
+  summary "Divine eagle, mount of Vishnu."
+  dwellsIn vaikuntha
+
+fact sudarshana a Artifact
+  name "Sudarshana Chakra"
+  wieldedBy vishnu
+
+fact trishula a Artifact
+  name "Trishula"
+  wieldedBy shiva
+
+fact vajra a Artifact
+  name "Vajra"
+  wieldedBy indra
+
+fact gandiva a Artifact
+  name "Gandiva"
+  wieldedBy arjuna
+
+
+# ── Japanese (Shinto) ───────────────────────────────────────────
+
+fact shinto a Tradition
+  name "Japanese (Shinto)"
+  region "Japan"
+  mainSources "Kojiki", "Nihon Shoki"
+
+fact takamagahara a Realm
+  name "Takamagahara"
+  tradition shinto
+
+fact yomi a Realm
+  name "Yomi"
+  tradition shinto
+
+fact izanagi a Deity
+  name "Izanagi"
+  tradition shinto
+  domain Creation
+  summary "Creator kami who shaped the islands of Japan."
+  spouseOf izanami
+  dwellsIn takamagahara
+  parentOf amaterasu, tsukuyomi, susanoo, kagutsuchi
+
+fact izanami a Deity
+  name "Izanami"
+  tradition shinto
+  domain Creation, Death
+  summary "Creator kami who later ruled Yomi."
+  dwellsIn yomi
+  parentOf kagutsuchi
+
+fact amaterasu a Deity
+  name "Amaterasu"
+  tradition shinto
+  domain Sun
+  alsoKnownAs "Amaterasu Ōmikami"
+  summary "Kami of the sun, enshrined at Ise."
+  dwellsIn takamagahara
+  parentOf oshihomimi
+
+fact tsukuyomi a Deity
+  name "Tsukuyomi"
+  tradition shinto
+  domain Moon
+  summary "Kami of the moon."
+  dwellsIn takamagahara
+
+fact susanoo a Deity
+  name "Susanoo"
+  tradition shinto
+  domain Storm, Sea
+  alsoKnownAs "Susanoo-no-Mikoto"
+  summary "Kami of storms, slayer of Yamata no Orochi."
+  spouseOf kushinada
+  parentOf inari
+
+fact kushinada a Deity
+  name "Kushinadahime"
+  tradition shinto
+  domain Harvest
+  summary "Rice-field princess saved by Susanoo."
+
+fact kagutsuchi a Deity
+  name "Kagutsuchi"
+  tradition shinto
+  domain Fire
+  summary "Kami of fire."
+
+fact oshihomimi a Deity
+  name "Ame-no-Oshihomimi"
+  tradition shinto
+  summary "Child of Amaterasu, father of Ninigi."
+  dwellsIn takamagahara
+  parentOf ninigi
+
+fact ninigi a Deity
+  name "Ninigi"
+  tradition shinto
+  domain Harvest
+  alsoKnownAs "Ninigi-no-Mikoto"
+  summary "Descended from heaven to the islands with the sacred regalia."
+
+fact inari a Deity
+  name "Inari"
+  tradition shinto
+  domain Harvest, Prosperity
+  alsoKnownAs "Ukanomitama"
+  summary "Kami of rice and prosperity."
+
+fact okuninushi a Deity
+  name "Ōkuninushi"
+  tradition shinto
+  domain Healing
+  summary "Kami of nation-building and medicine, enshrined at Izumo."
+
+fact hachiman a Deity
+  name "Hachiman"
+  tradition shinto
+  domain War
+  summary "Kami of archery and protection."
+
+fact raijin a Deity
+  name "Raijin"
+  tradition shinto
+  domain Thunder
+  summary "Kami of thunder."
+
+fact orochi a Creature
+  name "Yamata no Orochi"
+  tradition shinto
+  domain Destruction
+  summary "Eight-headed serpent."
+
+fact kusanagi a Artifact
+  name "Kusanagi-no-Tsurugi"
+  wieldedBy susanoo
+
+fact yata a Artifact
+  name "Yata no Kagami"
+  wieldedBy amaterasu
+
+
+# ── Maya ────────────────────────────────────────────────────────
+
+fact maya a Tradition
+  name "Maya"
+  region "Mesoamerica"
+  mainSources "Popol Vuh (K'iche')", "Classic Maya inscriptions"
+
+fact xibalba a Realm
+  name "Xibalba"
+  tradition maya
+
+fact tepeu a Deity
+  name "Tepeu"
+  tradition maya
+  domain Creation
+  summary "One of the Framers who shaped the world."
+
+fact qukumatz a Deity
+  name "Q'ukumatz"
+  tradition maya
+  domain Creation, Sea
+  alsoKnownAs "Gucumatz"
+  summary "Feathered serpent, a Framer of the world."
+
+fact huracan a Deity
+  name "Juraqan"
+  tradition maya
+  domain Storm, Creation
+  alsoKnownAs "Huracan"
+  alsoKnownAs "Heart of Sky"
+  summary "Storm god, Heart of Sky."
+
+fact xpiyacoc a Deity
+  name "Xpiyacoc"
+  tradition maya
+  summary "Elder grandfather, a diviner."
+  spouseOf xmucane
+  parentOf hunhunahpu, vucubhunahpu
+
+fact xmucane a Deity
+  name "Xmucane"
+  tradition maya
+  domain Harvest
+  summary "Elder grandmother who ground the maize for humankind."
+  parentOf hunhunahpu, vucubhunahpu
+
+fact hunhunahpu a Deity
+  name "Hun Hunahpu"
+  tradition maya
+  domain Harvest
+  alsoKnownAs "One Hunahpu"
+  summary "Maize god, father of the Hero Twins."
+  spouseOf xquic
+  parentOf hunahpu, xbalanque
+
+fact vucubhunahpu a Deity
+  name "Vucub Hunahpu"
+  tradition maya
+  alsoKnownAs "Seven Hunahpu"
+  summary "Brother of Hun Hunahpu."
+
+fact xquic a Deity
+  name "Xquic"
+  tradition maya
+  alsoKnownAs "Blood Moon"
+  summary "Daughter of a lord of Xibalba, mother of the Hero Twins."
+  parentOf hunahpu, xbalanque
+
+fact cuchumaquic a Deity
+  name "Cuchumaquic"
+  tradition maya
+  domain Death, Underworld
+  alsoKnownAs "Blood Gatherer"
+  summary "A lord of Xibalba."
+  dwellsIn xibalba
+  parentOf xquic
+
+fact hunahpu a Hero
+  name "Hunahpu"
+  tradition maya
+  domain Sun
+  summary "Hero Twin who defeated the lords of Xibalba."
+
+fact xbalanque a Hero
+  name "Xbalanque"
+  tradition maya
+  domain Moon
+  summary "Hero Twin who defeated the lords of Xibalba."
+
+fact huncame a Deity
+  name "Hun Came"
+  tradition maya
+  domain Death, Underworld
+  alsoKnownAs "One Death"
+  summary "Chief lord of Xibalba."
+  dwellsIn xibalba
+
+fact vucubcame a Deity
+  name "Vucub Came"
+  tradition maya
+  domain Death, Underworld
+  alsoKnownAs "Seven Death"
+  summary "Chief lord of Xibalba."
+  dwellsIn xibalba
+
+fact vucubcaquix a Creature
+  name "Vucub Caquix"
+  tradition maya
+  alsoKnownAs "Seven Macaw"
+  summary "Boastful bird who claimed to be the sun."
+  parentOf zipacna
+
+fact zipacna a Creature
+  name "Zipacna"
+  tradition maya
+  domain Earth
+  summary "Giant, son of Vucub Caquix."
+
+fact chaak a Deity
+  name "Chaak"
+  tradition maya
+  domain Rain, Storm
+  alsoKnownAs "Chac"
+  summary "Rain god of the Classic Maya."
+
+fact ixchel a Deity
+  name "Ix Chel"
+  tradition maya
+  domain Moon, Healing
+  summary "Goddess of the moon, weaving and childbirth."

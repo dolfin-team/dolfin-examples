@@ -1,0 +1,175 @@
+# The school office of a fictional university licence (first year).
+#
+# MCC (modalités de contrôle des connaissances), kept simple:
+#   - a UE is validated with a mark >= 10;
+#   - a semester is validated when its average, weighted by the UEs'
+#     coefficients, is >= 10, even with a UE below 10 (compensation within
+#     the semester);
+#   - three absences or more, on distinct days, flag the student.
+# The averages are computed by the queries in exports.dlf; the rules below
+# only count (see README.md, "Why the averages are queries").
+
+concept Semestre:
+  one of:
+    S1
+    S2
+
+# How the student takes the year: in one year, or spread over two
+# ("aménagement d'études"). A two-year student takes only some UEs this
+# year, so their semester is not judged by the standard rules.
+concept PlanAnnee:
+  one of:
+    Annuel
+    DeuxAns
+
+concept Etudiant:
+  has numero: one string
+  has nom: one string
+  has prenom: one string
+  has naissance: one date
+  has planAnnee: one PlanAnnee
+
+concept Enseignant:
+  has idEnseignant: one string
+  has nom: one string
+  has prenom: one string
+  has statut: one string
+
+concept UE:
+  has code: one string
+  has intitule: one string
+  has semestre: one Semestre
+  # Planned hours, as a number of hours: see Seance.heures.
+  has heuresPrevues: one float
+  has ects: one int
+  has coefficient: one int
+  has responsable: one Enseignant
+
+# One coefficient point of a UE: a UE of coefficient 3 has three. Joining a
+# mark with the points of its UE repeats it 3 times, so a plain average over
+# the joined rows is the average weighted by coefficient (there is no
+# arithmetic in queries).
+concept Ponderation:
+  has ue: one UE
+  has part: one int
+
+concept Note:
+  has etudiant: one Etudiant
+  has ue: one UE
+  has valeur: one float [ >= 0.0, <= 20.0 ]
+
+# A student's enrolment in one semester.
+concept Inscription:
+  has etudiant: one Etudiant
+  has semestre: one Semestre
+  has bilanUE: optional BilanUE
+
+# What the UE marks of an enrolment say before the average is looked at.
+concept BilanUE:
+  one of:
+    ToutesValidees
+    AvecUENonValidee
+
+# The decision table of the bulletin: a band of averages, and the UE
+# outcomes it applies to.
+concept Decision:
+  has libelle: one string
+  has moyenneMin: one float
+  has moyenneMax: one float
+  has bilan: some BilanUE
+
+concept Seance:
+  has idSeance: one string
+  has enseignant: one Enseignant
+  has ue: one UE
+  has jour: one date
+  has duree: one duration
+  # The same length as a number of hours. A query `sum` of durations has no
+  # value (SPARQL's SUM starts from the integer 0 and cannot add a
+  # duration to it, rust/BUGS.md), so the hours taught are summed from this.
+  has heures: one float
+
+concept Absence:
+  has idAbsence: one string
+  has etudiant: one Etudiant
+  has jour: one date
+  has demiJournee: one string
+
+# Inferred by the rules below.
+concept NoteInsuffisante:
+  sub Note
+
+concept EtudiantAmenage:
+  sub Etudiant
+
+concept AbsencesRepetees:
+  sub Etudiant
+
+fact admis a Decision
+  libelle "Admis"
+  moyenneMin 10.0
+  moyenneMax 20.5
+  bilan ToutesValidees
+
+fact admisCompensation a Decision
+  libelle "Admis par compensation"
+  moyenneMin 10.0
+  moyenneMax 20.5
+  bilan AvecUENonValidee
+
+fact ajourne a Decision
+  libelle "Ajourné"
+  moyenneMin 0.0
+  moyenneMax 10.0
+  bilan ToutesValidees, AvecUENonValidee
+
+# A UE below 10 is not validated.
+rule note_insuffisante:
+  match:
+    ?n valeur [ < 10.0 ]
+  then:
+    ?n a NoteInsuffisante
+
+rule etudiant_amenage:
+  match:
+    ?e planAnnee DeuxAns
+  then:
+    ?e a EtudiantAmenage
+
+rule toutes_validees:
+  match:
+    ?i a Inscription
+    ?i etudiant ?e
+    ?i semestre ?s
+    count distinct ?n as ?k
+      ?n a NoteInsuffisante
+      ?n etudiant ?e
+      ?n ue [ semestre ?s ]
+    ?k [ = 0 ]
+  then:
+    ?i bilanUE ToutesValidees
+
+rule avec_ue_non_validee:
+  match:
+    ?i a Inscription
+    ?i etudiant ?e
+    ?i semestre ?s
+    count distinct ?n as ?k
+      ?n a NoteInsuffisante
+      ?n etudiant ?e
+      ?n ue [ semestre ?s ]
+    ?k [ >= 1 ]
+  then:
+    ?i bilanUE AvecUENonValidee
+
+# Absent on three distinct days or more (two half-days of the same day count
+# once).
+rule absences_repetees:
+  match:
+    ?e a Etudiant
+    count distinct ?d as ?jours
+      ?a etudiant ?e
+      ?a jour ?d
+    ?jours [ >= 3 ]
+  then:
+    ?e a AbsencesRepetees

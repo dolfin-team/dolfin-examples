@@ -1,0 +1,363 @@
+# Sample catalogue. Every organization, brand and product here is fictional.
+# Terms are qualified with `schema.` so they resolve to https://schema.org/.
+
+fact atelier a schema.Organization
+  schema.name "Atelier Nautile"
+  schema.legalName "Atelier Nautile SAS"
+  schema.address [
+    schema.addressLocality "Nantes"
+    schema.addressCountry "FR"
+  ]
+
+fact hygge a schema.Organization
+  schema.name "Hygge Supply"
+  schema.legalName "Hygge Supply ApS"
+  schema.address [
+    schema.addressLocality "Aarhus"
+    schema.addressCountry "DK"
+  ]
+
+fact rivabike a schema.Organization
+  schema.name "Riva Bikes"
+  schema.legalName "Riva Bikes S.r.l."
+  schema.address [
+    schema.addressLocality "Bergamo"
+    schema.addressCountry "IT"
+  ]
+
+fact nautile a schema.Brand
+  schema.name "Nautile"
+
+fact fjeld a schema.Brand
+  schema.name "Fjeld"
+
+fact riva a schema.Brand
+  schema.name "Riva"
+
+fact terra a schema.Brand
+  schema.name "Terra Kitchen"
+
+fact lamp a schema.Product
+  schema.name "Nautile desk lamp"
+  schema.sku "NAU-LAMP-01"
+  schema.gtin13 "3760123450011"
+  schema.brand nautile
+  schema.manufacturer atelier
+  schema.category "Home > Lighting"
+  schema.color "Brass"
+  schema.material "Brass"
+  schema.weight quantity(1.2 kg)
+  schema.offers [
+    schema.price 89.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller atelier
+  ]
+  schema.offers [
+    schema.price 59.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.RefurbishedCondition
+    schema.seller atelier
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.6
+    schema.reviewCount 128
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo floorlamp
+
+fact floorlamp a schema.Product
+  schema.name "Nautile floor lamp"
+  schema.sku "NAU-LAMP-02"
+  schema.gtin13 "3760123450028"
+  schema.brand nautile
+  schema.manufacturer atelier
+  schema.category "Home > Lighting"
+  schema.color "Black"
+  schema.material "Steel"
+  schema.weight quantity(4.8 kg)
+  schema.offers [
+    schema.price 179.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.PreOrder
+    schema.itemCondition schema.NewCondition
+    schema.seller atelier
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.3
+    schema.reviewCount 57
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo lamp
+
+fact chair a schema.Product
+  schema.name "Nautile oak chair"
+  schema.sku "NAU-CHR-01"
+  schema.gtin13 "3760123450035"
+  schema.brand nautile
+  schema.manufacturer atelier
+  schema.category "Home > Furniture"
+  schema.color "Natural"
+  schema.material "Oak"
+  schema.weight quantity(5.5 kg)
+  schema.offers [
+    schema.price 245.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller atelier
+  ]
+  schema.offers [
+    schema.price 229.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.LimitedAvailability
+    schema.itemCondition schema.NewCondition
+    schema.seller hygge
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.8
+    schema.reviewCount 212
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo stool
+
+fact stool a schema.Product
+  schema.name "Fjeld bar stool"
+  schema.sku "FJD-STL-03"
+  schema.gtin13 "5701234560031"
+  schema.brand fjeld
+  schema.manufacturer hygge
+  schema.category "Home > Furniture"
+  schema.color "Walnut"
+  schema.material "Walnut"
+  schema.weight quantity(4.1 kg)
+  schema.offers [
+    schema.price 149.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller hygge
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.1
+    schema.reviewCount 64
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo chair
+
+fact throw a schema.Product
+  schema.name "Fjeld wool throw"
+  schema.sku "FJD-THR-01"
+  schema.gtin13 "5701234560017"
+  schema.brand fjeld
+  schema.manufacturer hygge
+  schema.category "Home > Textiles"
+  schema.color "Grey"
+  schema.material "Wool"
+  schema.weight quantity(0.9 kg)
+  schema.offers [
+    schema.price 79.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller hygge
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.7
+    schema.reviewCount 340
+    schema.bestRating 5.0
+  ]
+
+fact mug a schema.Product
+  schema.name "Fjeld stoneware mug"
+  schema.sku "FJD-MUG-02"
+  schema.gtin13 "5701234560024"
+  schema.brand fjeld
+  schema.manufacturer hygge
+  schema.category "Kitchen > Tableware"
+  schema.color "Sand"
+  schema.material "Stoneware"
+  schema.weight quantity(0.35 kg)
+  schema.offers [
+    schema.price 18.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller hygge
+  ]
+  schema.offers [
+    schema.price 18.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.OutOfStock
+    schema.itemCondition schema.NewCondition
+    schema.seller atelier
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.4
+    schema.reviewCount 510
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo bowl
+
+fact bowl a schema.Product
+  schema.name "Terra ceramic bowl"
+  schema.sku "TER-BWL-01"
+  schema.gtin13 "8001234560019"
+  schema.brand terra
+  schema.manufacturer hygge
+  schema.category "Kitchen > Tableware"
+  schema.color "White"
+  schema.material "Ceramic"
+  schema.weight quantity(0.5 kg)
+  schema.offers [
+    schema.price 24.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller hygge
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.2
+    schema.reviewCount 96
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo mug
+
+fact pan a schema.Product
+  schema.name "Terra cast-iron pan"
+  schema.sku "TER-PAN-28"
+  schema.gtin13 "8001234560026"
+  schema.brand terra
+  schema.category "Kitchen > Cookware"
+  schema.color "Black"
+  schema.material "Cast iron"
+  schema.weight quantity(2.9 kg)
+  schema.offers [
+    schema.price 65.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller atelier
+  ]
+  schema.offers [
+    schema.price 49.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.UsedCondition
+    schema.seller rivabike
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.9
+    schema.reviewCount 1203
+    schema.bestRating 5.0
+  ]
+
+fact citybike a schema.Product
+  schema.name "Riva city bike"
+  schema.sku "RIV-CTY-54"
+  schema.gtin13 "8051234560016"
+  schema.brand riva
+  schema.manufacturer rivabike
+  schema.category "Sports > Cycling"
+  schema.color "Olive"
+  schema.material "Aluminium"
+  schema.weight quantity(14.5 kg)
+  schema.offers [
+    schema.price 690.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller rivabike
+  ]
+  schema.offers [
+    schema.price 520.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.RefurbishedCondition
+    schema.seller rivabike
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.5
+    schema.reviewCount 88
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo ebike
+
+fact ebike a schema.Product
+  schema.name "Riva e-bike"
+  schema.sku "RIV-EBK-54"
+  schema.gtin13 "8051234560023"
+  schema.brand riva
+  schema.manufacturer rivabike
+  schema.category "Sports > Cycling"
+  schema.color "Graphite"
+  schema.material "Aluminium"
+  schema.weight quantity(22.8 kg)
+  schema.offers [
+    schema.price 2190.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.LimitedAvailability
+    schema.itemCondition schema.NewCondition
+    schema.seller rivabike
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.6
+    schema.reviewCount 143
+    schema.bestRating 5.0
+  ]
+  schema.isSimilarTo citybike
+
+fact helmet a schema.Product
+  schema.name "Riva urban helmet"
+  schema.sku "RIV-HLM-M"
+  schema.gtin13 "8051234560030"
+  schema.brand riva
+  schema.manufacturer rivabike
+  schema.category "Sports > Cycling"
+  schema.color "White"
+  schema.material "Polycarbonate"
+  schema.weight quantity(0.38 kg)
+  schema.offers [
+    schema.price 59.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller rivabike
+  ]
+  schema.offers [
+    schema.price 55.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.InStock
+    schema.itemCondition schema.NewCondition
+    schema.seller hygge
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.0
+    schema.reviewCount 301
+    schema.bestRating 5.0
+  ]
+
+fact pannier a schema.Product
+  schema.name "Riva canvas pannier"
+  schema.sku "RIV-PAN-20"
+  schema.gtin13 "8051234560047"
+  schema.brand riva
+  schema.manufacturer rivabike
+  schema.category "Sports > Cycling"
+  schema.color "Khaki"
+  schema.material "Waxed canvas"
+  schema.weight quantity(1.1 kg)
+  schema.offers [
+    schema.price 95.0
+    schema.priceCurrency "EUR"
+    schema.availability schema.OutOfStock
+    schema.itemCondition schema.NewCondition
+    schema.seller rivabike
+  ]
+  schema.aggregateRating [
+    schema.ratingValue 4.3
+    schema.reviewCount 45
+    schema.bestRating 5.0
+  ]

@@ -1,0 +1,9 @@
+# Bus 10 run with a low-floor articulated bus: it calls at Opéra, which is not step-free.
+@prefix tt: <https://www.dolfin.fr/showcase/city-transit/timetable/timetable#> .
+@prefix net: <https://www.dolfin.fr/showcase/city-transit/network/network#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tt:SJ-B10-94 a tt:ServiceJourney ; tt:journey_id "SJ-B10-94" ; tt:line net:B10 ; tt:vehicle tt:VehicleType_ARTICULATED_BUS ; tt:day_type tt:DayType_WEEKDAY ;
+  tt:passing_times tt:SJ-B10-94-1, tt:SJ-B10-94-2 .
+tt:SJ-B10-94-1 a tt:PassingTime ; tt:journey tt:SJ-B10-94 ; tt:stop net:GAR ; tt:departure "21:10:00"^^xsd:time .
+tt:SJ-B10-94-2 a tt:PassingTime ; tt:journey tt:SJ-B10-94 ; tt:stop net:OPE ; tt:departure "21:15:00"^^xsd:time .

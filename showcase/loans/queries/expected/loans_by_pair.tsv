@@ -1,0 +1,5 @@
+lender	borrower	amount
+Alice	Bob	100
+Alice	Carol	60
+Bob	Carol	40
+Alice	Bob	25

@@ -1,0 +1,79 @@
+# The community's monthly figures. The same aggregate lines as in the rules
+# of community.dlf, here in queries.
+
+# Energy per feeder over the month.
+query feeder_totals:
+  ?r a community.DailyReading
+    site [ feeder [ code ?feeder ] ]
+    exported ?exp
+    imported ?imp
+  group by ?feeder
+    sum ?exp as ?exported
+    sum ?imp as ?imported
+
+# The five sites that imported the most, from the `monthly_import` the rule
+# `monthly_import_total` materialises.
+query top_consumers:
+  ?_s a community.Site
+    name ?name
+    monthly_import ?total
+  return
+    ?name
+    ?total
+      order desc
+    limit 5
+
+# The whole community in one row: what it exported and what it imported.
+query self_consumption:
+  sum ?exp as ?exported
+    ?_r exported ?exp
+  sum ?imp as ?imported
+    ?_r2 imported ?imp
+  return
+    ?exported
+    ?imported
+
+# Sites over their contract, with their highest daily peak.
+query over_contract_sites:
+  ?s a community.OverContract
+    name ?name
+  max ?p as ?peak
+    ?r site ?s
+    ?r peak_draw ?p
+  return
+    ?name
+      order asc
+    ?peak
+
+# Feeders with at least 3 producers.
+query producers_per_feeder:
+  ?site a community.Producer
+    feeder [ code ?feeder ]
+  group by ?feeder
+    count distinct ?site as ?producers
+    ?producers >= 3
+
+# Feeders the `crowded_feeder` rule flagged. A `count distinct` rule is also
+# an N3 rule, so retox (and an Agrafe deployment) infers this one.
+query crowded_feeders:
+  ?f a community.CrowdedFeeder
+    code ?feeder
+  return
+    ?feeder
+
+# Sites that imported more than 10 kWh, day by day (the threshold compares
+# across Wh, kWh and MWh meters). A plain `count`: a `sum` over energy gives a
+# unit-typed literal (none at all in mixed units), which the charts do not
+# read as a number. A date key and one count: the SPARQL panel shows a line
+# chart (no calendar heatmap, which needs a span of 60 days or more).
+query heavy_importers_per_day:
+  ?_r a community.DailyReading
+    day ?day
+    site ?site
+    imported [ > quantity(10 kW.h) ]
+  group by ?day
+    count distinct ?site as ?sites
+  return
+    ?day
+      order asc
+    ?sites

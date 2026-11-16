@@ -1,0 +1,14 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A checkpoint below sea level. Conforms today: altitude has no [ >= 0 ]
+# bound, because a bound on a quantity field rejects every value
+# (rust/BUGS.md, hospital-pharmacy A). Move to bad/ once that is fixed.
+course:cp_low a race:Checkpoint ;
+  race:code "CPL" ;
+  race:name "Lac du Lou" ;
+  race:distance_from_start "50"^^unit:km ;
+  race:altitude "-12"^^unit:m ;
+  race:cumulative_gain "3100"^^unit:m ;
+  race:cutoff "2026-07-11T17:00:00+02:00"^^xsd:dateTime .

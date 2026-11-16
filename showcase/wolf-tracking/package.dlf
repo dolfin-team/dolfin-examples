@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/wolf-tracking>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "GPS wolf tracking in the fictional Parc des Hautes Vallées: four collared wolves from two packs, a CSV collar export and a ranger's GPX 1.1 track. Positions have range-constrained latitudes and longitudes and a length elevation; zones are bounding boxes. Rules place fixes in zones, flag night and imprecise fixes, count night raids on the summer alpages and match ranger sightings to collar fixes in a space and time window."

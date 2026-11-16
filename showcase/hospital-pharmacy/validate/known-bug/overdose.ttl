@@ -1,0 +1,14 @@
+@prefix pharmacy: <https://www.dolfin.fr/showcase/hospital-pharmacy/pharmacy#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# 1500 mg of paracetamol, above its 1 g maximum single dose.
+pharmacy:rx_overdose a pharmacy:SafePrescription ;
+  pharmacy:rxId "rx_overdose" ;
+  pharmacy:patient pharmacy:hugo ;
+  pharmacy:prescriber pharmacy:dr_yanis ;
+  pharmacy:drug pharmacy:paracetamol ;
+  pharmacy:dose "1500"^^unit:mg ;
+  pharmacy:frequency_per_day "3"^^xsd:integer ;
+  pharmacy:start "2026-06-15"^^xsd:date ;
+  pharmacy:length "P3D"^^xsd:duration ;
+  pharmacy:route pharmacy:Route_ORAL .

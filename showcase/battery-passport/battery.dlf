@@ -1,0 +1,587 @@
+# Digital battery passport — the data a manufacturer must publish for every
+# EV, industrial (> 2 kWh) and light-means-of-transport battery placed on the
+# EU market from February 2027 (Regulation (EU) 2023/1542, Art. 77, Annex XIII).
+
+concept BatteryCategory:
+  one of:
+    ElectricVehicle
+    Industrial
+    LightMeansOfTransport
+
+concept Chemistry:
+  has key code: string
+
+  one of:
+    NMC [code "NMC"]
+    NCA [code "NCA"]
+    LFP [code "LFP"]
+    SodiumIon [code "Na-ion"]
+
+concept Country:
+  has key isoCode: string
+  has name: one string
+
+concept Manufacturer:
+  has key name: string
+  has country: one Country
+
+concept ManufacturingPlant:
+  has key name: string
+  has operatedBy: one Manufacturer
+  has country: one Country
+
+# Share of a critical raw material recovered from recycling (Art. 8).
+concept RecycledContent:
+  has material: one CriticalMaterial
+  has sharePercent: one float
+
+concept CriticalMaterial:
+  one of:
+    Cobalt
+    Lithium
+    Nickel
+    Lead
+
+# Carbon footprint over the life cycle, excluding use phase (Art. 7).
+concept CarbonFootprint:
+  has total: one mass
+  has perKWh: one float
+  has performanceClass: one FootprintClass
+
+concept FootprintClass:
+  one of:
+    ClassA
+    ClassB
+    ClassC
+    ClassD
+    ClassE
+
+concept BatteryModel:
+  has key modelId: string
+  has category: one BatteryCategory
+  has chemistry: one Chemistry
+  has manufacturer: one Manufacturer
+  has ratedEnergy: one energy
+  has peakPower: optional power
+  has mass: one mass
+  has nominalVoltageV: one float
+  has expectedCycleLife: one int
+  has carbonFootprint: one CarbonFootprint
+  has recycledContent: RecycledContent
+  has containsHazardousSubstance: string
+
+# One physical battery, identified by its unique passport ID (QR code).
+concept Battery:
+  has key passportId: string
+  has model: one BatteryModel
+  has plant: one ManufacturingPlant
+  has manufacturedOn: one date
+  has stateOfHealthPercent: optional float
+  has status: one BatteryStatus
+
+concept BatteryStatus:
+  one of:
+    Original
+    Repurposed
+    Remanufactured
+    Waste
+
+# Flags computed by the rules below.
+concept SecondLifeCandidate
+concept LowCarbonModel
+
+# A used EV battery still above 70 % state of health is worth repurposing
+# (e.g. as stationary storage) rather than recycling.
+rule second_life_candidate:
+  match:
+    ?b a Battery
+    ?b model [ category ElectricVehicle ]
+    ?b status Original
+    ?b stateOfHealthPercent [ >= 70.0, < 85.0 ]
+  then:
+    ?b a SecondLifeCandidate
+
+rule low_carbon_model:
+  match:
+    ?m a BatteryModel
+    ?m carbonFootprint [ perKWh [ <= 60.0 ] ]
+  then:
+    ?m a LowCarbonModel
+
+# Sample data. Every manufacturer, plant and battery below is fictional.
+
+fact country_FR a Country
+  isoCode "FR"
+  name "France"
+
+fact country_DE a Country
+  isoCode "DE"
+  name "Germany"
+
+fact country_PL a Country
+  isoCode "PL"
+  name "Poland"
+
+fact country_SE a Country
+  isoCode "SE"
+  name "Sweden"
+
+fact country_HU a Country
+  isoCode "HU"
+  name "Hungary"
+
+fact country_CN a Country
+  isoCode "CN"
+  name "China"
+
+fact voltara a Manufacturer
+  name "Voltara Cells"
+  country country_FR
+
+fact nordcell a Manufacturer
+  name "Nordcell AB"
+  country country_SE
+
+fact kraftwerk a Manufacturer
+  name "Kraftzelle GmbH"
+  country country_DE
+
+fact lumen a Manufacturer
+  name "Lumen Energy Co."
+  country country_CN
+
+fact plant_dunkirk a ManufacturingPlant
+  name "Voltara Dunkirk Gigafactory"
+  operatedBy voltara
+  country country_FR
+
+fact plant_skelleftea a ManufacturingPlant
+  name "Nordcell North"
+  operatedBy nordcell
+  country country_SE
+
+fact plant_wroclaw a ManufacturingPlant
+  name "Kraftzelle Wrocław"
+  operatedBy kraftwerk
+  country country_PL
+
+fact plant_debrecen a ManufacturingPlant
+  name "Lumen Debrecen"
+  operatedBy lumen
+  country country_HU
+
+fact plant_ningde a ManufacturingPlant
+  name "Lumen Ningde"
+  operatedBy lumen
+  country country_CN
+
+fact model_vc_ev75 a BatteryModel
+  modelId "VC-EV75"
+  category ElectricVehicle
+  chemistry NMC
+  manufacturer voltara
+  ratedEnergy quantity(75 kW.h)
+  peakPower quantity(210 kW)
+  mass quantity(480 kg)
+  nominalVoltageV 400.0
+  expectedCycleLife 1800
+  carbonFootprint [
+    total quantity(4350 kg)
+    perKWh 58.0
+    performanceClass ClassA
+  ]
+  recycledContent [
+    material Cobalt
+    sharePercent 18.0
+  ]
+  recycledContent [
+    material Lithium
+    sharePercent 7.0
+  ]
+  recycledContent [
+    material Nickel
+    sharePercent 8.0
+  ]
+  containsHazardousSubstance "Electrolyte LiPF6"
+
+fact model_vc_ev52 a BatteryModel
+  modelId "VC-EV52"
+  category ElectricVehicle
+  chemistry LFP
+  manufacturer voltara
+  ratedEnergy quantity(52 kW.h)
+  peakPower quantity(150 kW)
+  mass quantity(390 kg)
+  nominalVoltageV 350.0
+  expectedCycleLife 4000
+  carbonFootprint [
+    total quantity(2548 kg)
+    perKWh 49.0
+    performanceClass ClassA
+  ]
+  recycledContent [
+    material Lithium
+    sharePercent 6.0
+  ]
+
+fact model_nc_ev100 a BatteryModel
+  modelId "NC-EV100"
+  category ElectricVehicle
+  chemistry NMC
+  manufacturer nordcell
+  ratedEnergy quantity(100 kW.h)
+  peakPower quantity(300 kW)
+  mass quantity(610 kg)
+  nominalVoltageV 800.0
+  expectedCycleLife 2000
+  carbonFootprint [
+    total quantity(4200 kg)
+    perKWh 42.0
+    performanceClass ClassA
+  ]
+  recycledContent [
+    material Cobalt
+    sharePercent 22.0
+  ]
+  recycledContent [
+    material Lithium
+    sharePercent 9.0
+  ]
+  recycledContent [
+    material Nickel
+    sharePercent 12.0
+  ]
+  containsHazardousSubstance "Electrolyte LiPF6"
+
+fact model_nc_ess280 a BatteryModel
+  modelId "NC-ESS280"
+  category Industrial
+  chemistry LFP
+  manufacturer nordcell
+  ratedEnergy quantity(280 kW.h)
+  peakPower quantity(140 kW)
+  mass quantity(2300 kg)
+  nominalVoltageV 768.0
+  expectedCycleLife 6000
+  carbonFootprint [
+    total quantity(12600 kg)
+    perKWh 45.0
+    performanceClass ClassA
+  ]
+  recycledContent [
+    material Lithium
+    sharePercent 8.0
+  ]
+
+fact model_kz_ev64 a BatteryModel
+  modelId "KZ-EV64"
+  category ElectricVehicle
+  chemistry NCA
+  manufacturer kraftwerk
+  ratedEnergy quantity(64 kW.h)
+  peakPower quantity(180 kW)
+  mass quantity(420 kg)
+  nominalVoltageV 400.0
+  expectedCycleLife 1500
+  carbonFootprint [
+    total quantity(4992 kg)
+    perKWh 78.0
+    performanceClass ClassC
+  ]
+  recycledContent [
+    material Cobalt
+    sharePercent 12.0
+  ]
+  recycledContent [
+    material Nickel
+    sharePercent 5.0
+  ]
+  containsHazardousSubstance "Electrolyte LiPF6"
+
+fact model_kz_lmt1 a BatteryModel
+  modelId "KZ-LMT1"
+  category LightMeansOfTransport
+  chemistry NMC
+  manufacturer kraftwerk
+  ratedEnergy quantity(0.75 kW.h)
+  peakPower quantity(1.2 kW)
+  mass quantity(4.1 kg)
+  nominalVoltageV 48.0
+  expectedCycleLife 900
+  carbonFootprint [
+    total quantity(63.8 kg)
+    perKWh 85.0
+    performanceClass ClassD
+  ]
+  recycledContent [
+    material Cobalt
+    sharePercent 4.0
+  ]
+
+fact model_le_ev60 a BatteryModel
+  modelId "LE-EV60"
+  category ElectricVehicle
+  chemistry LFP
+  manufacturer lumen
+  ratedEnergy quantity(60 kW.h)
+  peakPower quantity(160 kW)
+  mass quantity(420 kg)
+  nominalVoltageV 380.0
+  expectedCycleLife 3500
+  carbonFootprint [
+    total quantity(4260 kg)
+    perKWh 71.0
+    performanceClass ClassB
+  ]
+  recycledContent [
+    material Lithium
+    sharePercent 3.0
+  ]
+
+fact model_le_sib40 a BatteryModel
+  modelId "LE-SIB40"
+  category ElectricVehicle
+  chemistry SodiumIon
+  manufacturer lumen
+  ratedEnergy quantity(40 kW.h)
+  peakPower quantity(110 kW)
+  mass quantity(310 kg)
+  nominalVoltageV 350.0
+  expectedCycleLife 3000
+  carbonFootprint [
+    total quantity(2200 kg)
+    perKWh 55.0
+    performanceClass ClassA
+  ]
+
+fact model_le_lmt2 a BatteryModel
+  modelId "LE-LMT2"
+  category LightMeansOfTransport
+  chemistry LFP
+  manufacturer lumen
+  ratedEnergy quantity(1.1 kW.h)
+  peakPower quantity(1.5 kW)
+  mass quantity(6.8 kg)
+  nominalVoltageV 48.0
+  expectedCycleLife 2000
+  carbonFootprint [
+    total quantity(101.2 kg)
+    perKWh 92.0
+    performanceClass ClassE
+  ]
+
+fact battery_001 a Battery
+  passportId "EU-BP-VC-EV75-01001"
+  model model_vc_ev75
+  plant plant_dunkirk
+  manufacturedOn date(July 21 2027)
+  stateOfHealthPercent 97.1
+  status Original
+
+fact battery_002 a Battery
+  passportId "EU-BP-VC-EV75-01002"
+  model model_vc_ev75
+  plant plant_dunkirk
+  manufacturedOn date(October 2 2028)
+  stateOfHealthPercent 65.5
+  status Waste
+
+fact battery_003 a Battery
+  passportId "EU-BP-VC-EV75-01003"
+  model model_vc_ev75
+  plant plant_dunkirk
+  manufacturedOn date(July 3 2027)
+  stateOfHealthPercent 65.2
+  status Original
+
+fact battery_004 a Battery
+  passportId "EU-BP-VC-EV52-01004"
+  model model_vc_ev52
+  plant plant_dunkirk
+  manufacturedOn date(October 4 2027)
+  stateOfHealthPercent 77.7
+  status Waste
+
+fact battery_005 a Battery
+  passportId "EU-BP-VC-EV52-01005"
+  model model_vc_ev52
+  plant plant_dunkirk
+  manufacturedOn date(April 2 2028)
+  stateOfHealthPercent 63.8
+  status Repurposed
+
+fact battery_006 a Battery
+  passportId "EU-BP-VC-EV52-01006"
+  model model_vc_ev52
+  plant plant_dunkirk
+  manufacturedOn date(September 4 2028)
+  stateOfHealthPercent 77.5
+  status Original
+
+fact battery_007 a Battery
+  passportId "EU-BP-NC-EV100-01007"
+  model model_nc_ev100
+  plant plant_skelleftea
+  manufacturedOn date(March 4 2028)
+  stateOfHealthPercent 92.2
+  status Waste
+
+fact battery_008 a Battery
+  passportId "EU-BP-NC-EV100-01008"
+  model model_nc_ev100
+  plant plant_skelleftea
+  manufacturedOn date(December 3 2028)
+  stateOfHealthPercent 65.6
+  status Original
+
+fact battery_009 a Battery
+  passportId "EU-BP-NC-EV100-01009"
+  model model_nc_ev100
+  plant plant_skelleftea
+  manufacturedOn date(September 14 2027)
+  stateOfHealthPercent 80.4
+  status Original
+
+fact battery_010 a Battery
+  passportId "EU-BP-NC-ESS280-01010"
+  model model_nc_ess280
+  plant plant_skelleftea
+  manufacturedOn date(April 26 2027)
+  stateOfHealthPercent 75.4
+  status Remanufactured
+
+fact battery_011 a Battery
+  passportId "EU-BP-NC-ESS280-01011"
+  model model_nc_ess280
+  plant plant_skelleftea
+  manufacturedOn date(September 16 2027)
+  stateOfHealthPercent 83.3
+  status Original
+
+fact battery_012 a Battery
+  passportId "EU-BP-NC-ESS280-01012"
+  model model_nc_ess280
+  plant plant_skelleftea
+  manufacturedOn date(February 4 2028)
+  stateOfHealthPercent 84.5
+  status Original
+
+fact battery_013 a Battery
+  passportId "EU-BP-KZ-EV64-01013"
+  model model_kz_ev64
+  plant plant_wroclaw
+  manufacturedOn date(March 16 2027)
+  stateOfHealthPercent 90.0
+  status Original
+
+fact battery_014 a Battery
+  passportId "EU-BP-KZ-EV64-01014"
+  model model_kz_ev64
+  plant plant_wroclaw
+  manufacturedOn date(October 26 2027)
+  stateOfHealthPercent 90.3
+  status Original
+
+fact battery_015 a Battery
+  passportId "EU-BP-KZ-EV64-01015"
+  model model_kz_ev64
+  plant plant_wroclaw
+  manufacturedOn date(October 26 2027)
+  stateOfHealthPercent 84.0
+  status Original
+
+fact battery_016 a Battery
+  passportId "EU-BP-KZ-LMT1-01016"
+  model model_kz_lmt1
+  plant plant_wroclaw
+  manufacturedOn date(August 23 2028)
+  stateOfHealthPercent 97.0
+  status Original
+
+fact battery_017 a Battery
+  passportId "EU-BP-KZ-LMT1-01017"
+  model model_kz_lmt1
+  plant plant_wroclaw
+  manufacturedOn date(May 21 2028)
+  stateOfHealthPercent 89.1
+  status Original
+
+fact battery_018 a Battery
+  passportId "EU-BP-KZ-LMT1-01018"
+  model model_kz_lmt1
+  plant plant_wroclaw
+  manufacturedOn date(November 12 2027)
+  stateOfHealthPercent 88.5
+  status Original
+
+fact battery_019 a Battery
+  passportId "EU-BP-LE-EV60-01019"
+  model model_le_ev60
+  plant plant_debrecen
+  manufacturedOn date(February 16 2027)
+  stateOfHealthPercent 68.2
+  status Original
+
+fact battery_020 a Battery
+  passportId "EU-BP-LE-EV60-01020"
+  model model_le_ev60
+  plant plant_ningde
+  manufacturedOn date(April 13 2027)
+  stateOfHealthPercent 66.8
+  status Original
+
+fact battery_021 a Battery
+  passportId "EU-BP-LE-EV60-01021"
+  model model_le_ev60
+  plant plant_debrecen
+  manufacturedOn date(July 18 2027)
+  stateOfHealthPercent 68.2
+  status Original
+
+fact battery_022 a Battery
+  passportId "EU-BP-LE-SIB40-01022"
+  model model_le_sib40
+  plant plant_ningde
+  manufacturedOn date(May 23 2027)
+  stateOfHealthPercent 94.0
+  status Repurposed
+
+fact battery_023 a Battery
+  passportId "EU-BP-LE-SIB40-01023"
+  model model_le_sib40
+  plant plant_debrecen
+  manufacturedOn date(March 3 2027)
+  stateOfHealthPercent 97.4
+  status Repurposed
+
+fact battery_024 a Battery
+  passportId "EU-BP-LE-SIB40-01024"
+  model model_le_sib40
+  plant plant_debrecen
+  manufacturedOn date(January 16 2028)
+  stateOfHealthPercent 86.4
+  status Original
+
+fact battery_025 a Battery
+  passportId "EU-BP-LE-LMT2-01025"
+  model model_le_lmt2
+  plant plant_ningde
+  manufacturedOn date(March 14 2028)
+  stateOfHealthPercent 72.4
+  status Original
+
+fact battery_026 a Battery
+  passportId "EU-BP-LE-LMT2-01026"
+  model model_le_lmt2
+  plant plant_debrecen
+  manufacturedOn date(December 28 2028)
+  stateOfHealthPercent 97.3
+  status Original
+
+fact battery_027 a Battery
+  passportId "EU-BP-LE-LMT2-01027"
+  model model_le_lmt2
+  plant plant_ningde
+  manufacturedOn date(November 26 2028)
+  stateOfHealthPercent 95.3
+  status Remanufactured

@@ -1,0 +1,7 @@
+# A stop with a latitude above 90°: a typo for 45.7598.
+@prefix net: <https://www.dolfin.fr/showcase/city-transit/network/network#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+net:QUA a net:Stop ; net:stop_code "QUA" ; net:name "Quai Neuf" ;
+  net:lat "145.7598"^^xsd:float ; net:long "4.8261"^^xsd:float ;
+  net:accessible true ; net:zone net:FareZone_Z1 .

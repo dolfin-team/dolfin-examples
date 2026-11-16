@@ -1,0 +1,111 @@
+# Night fixes in an alpage, in time order: raids, imprecise fixes and
+# out-of-season visits alike (rule `raid_fix` sorts them out).
+query night_alpage_visits:
+  ?_f a tracking.NightFix
+    tracking.collar [ tracking.name ?wolf ]
+    tracking.at ?at
+    tracking.in ?_z
+  ?_z zones.kind zones.ALPAGE
+    zones.code ?zone
+  return
+    ?at
+      order asc
+    ?wolf
+      order asc
+    ?zone
+
+# The wolves the rule `alpage_raider` fired on, with their raid fixes.
+query alpage_raiders:
+  ?_w a tracking.AlpageRaider
+    tracking.name ?wolf
+  count ?_f as ?raid_fixes
+    ?_f a tracking.RaidFix
+    ?_f tracking.collar ?_w
+  return
+    ?wolf
+    ?raid_fixes
+
+# Uploads, fixes (distinct instants) and days with at least one fix. Fix is
+# keyed (collar + at), so the query sees F08's duplicate upload as one fix:
+# it counts once in uploads too.
+query fixes_per_wolf:
+  ?_f a tracking.Fix
+    tracking.collar [ tracking.name ?wolf ]
+    tracking.at ?_at
+    tracking.day ?_day
+  group by ?wolf
+    count ?_f as ?uploads
+    count distinct ?_at as ?fixes
+    count distinct ?_day as ?days
+  return
+    ?wolf
+    ?uploads
+    ?fixes
+    ?days
+
+# The materialized range of rule `elevation_range`.
+query elevation_profile:
+  ?_w a tracking.Wolf
+    tracking.name ?wolf
+    tracking.lowest ?lowest
+    tracking.highest ?highest
+  return
+    ?wolf
+    ?lowest
+    ?highest
+      order desc
+
+# Sightings no collar fix confirms.
+query unconfirmed_sightings:
+  ?_s a rangers.Sighting
+    rangers.code ?sighting
+    rangers.kind ?kind
+    rangers.at ?at
+  none:
+    ?_s rangers.confirms ?_w
+  return
+    ?sighting
+    ?kind
+    ?at
+
+# The first 20 points of the ranger's walk on 12 July, to plot. GPX times are
+# UTC text, so the day is a string range.
+query ranger_track:
+  ?_p a rangers.RangerPosition
+    rangers.at ?at
+    rangers.lat ?lat
+    rangers.lon ?lon
+  ?at >= "2026-07-12T"
+  ?at < "2026-07-13T"
+  return
+    ?at
+      order asc
+    ?lat
+    ?lon
+    limit 20
+
+# Night fixes per problem pack (rule `active_pack`).
+query pack_activity:
+  ?_p a tracking.ProblemPack
+    tracking.code ?pack
+  ?_f a tracking.NightFix
+    tracking.collar [ tracking.pack ?_p ]
+  group by ?pack
+    count distinct ?_f as ?night_fixes
+    ?night_fixes >= 1
+  return
+    ?pack
+    ?night_fixes
+
+# Fixes per day, all collars: a date key and a `count`, so the SPARQL panel
+# shows a line chart (5 days: too short for the calendar heatmap, 60 days or
+# more). F08's duplicate upload on 11 July is one fix (key collar + at).
+query fixes_per_day:
+  ?_f a tracking.Fix
+    tracking.day ?day
+  group by ?day
+    count distinct ?_f as ?fixes
+  return
+    ?day
+      order asc
+    ?fixes

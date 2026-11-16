@@ -1,0 +1,12 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A checkpoint whose distance from the start was typed in seconds.
+course:cp_bad a race:Checkpoint ;
+  race:code "CPX" ;
+  race:name "Col du Bonhomme" ;
+  race:distance_from_start "3600"^^unit:s ;
+  race:altitude "2329"^^unit:m ;
+  race:cumulative_gain "2900"^^unit:m ;
+  race:cutoff "2026-07-11T14:00:00+02:00"^^xsd:dateTime .

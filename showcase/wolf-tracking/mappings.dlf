@@ -1,0 +1,91 @@
+# The two data sources, both written by generate_fixes.py.
+
+prefix <https://www.dolfin.fr/showcase/wolf-tracking/tracking#> as trk
+prefix <https://www.dolfin.fr/showcase/wolf-tracking/rangers#> as rng
+
+# GPX 1.1 puts every element in a default namespace; the park's export adds
+# its own for the waypoint search box. Paths name both through these prefixes
+# (an unprefixed name would match any namespace).
+prefix <http://www.topografix.com/GPX/1/1> as gpx
+prefix <https://www.dolfin.fr/showcase/wolf-tracking/gpx/1> as phv
+
+# The collar export, one row per upload. The last row (U00242) is a second
+# upload of F08's fix of 11 July 10:00Z: a separate subject, merged with
+# U00223 by the Fix key (collar + at). Timestamps stay text: a mapping has
+# no `as date_time` cast (README, limitations).
+mapping from <package://data/collars.csv> as CSV
+  map:
+    upload_id     as ?upload
+    collar_id     as ?collar
+    timestamp_utc as ?at
+    t_min         as ?t
+    day           as ?day
+    lat           as ?lat
+    lon           as ?lon
+    elevation_m   as ?ele
+    satellites    as ?sats
+    hdop          as ?hdop
+    is_night      as ?night
+  to:
+    fact trk:fix_{?upload} a tracking.Fix
+      tracking.collar trk:{slug(?collar)}
+      tracking.at {?at}
+      tracking.t_min {?t} as int
+      tracking.day {?day} as date
+      tracking.lat {?lat} as float
+      tracking.lon {?lon} as float
+      tracking.elevation {?ele} as quantity(m)
+      tracking.satellites {?sats} as int
+      tracking.hdop {?hdop} as float
+      tracking.is_night {?night} as boolean
+
+# The ranger's own positions, one per track point. One GPX file is one
+# ranger's walk, so the ranger is a constant here.
+mapping from <package://data/ranger-2026-07-12.gpx> as XPath
+  for each "/gpx:gpx/gpx:trk/gpx:trkseg/gpx:trkpt"
+  map:
+    "@lat"     as ?lat
+    "@lon"     as ?lon
+    "gpx:ele"  as ?ele
+    "gpx:time" as ?at
+  to:
+    fact rng:pos_r_lb_{slug(?at)} a rangers.RangerPosition
+      rangers.by rng:R_LB
+      rangers.at {?at}
+      rangers.lat {?lat} as float
+      rangers.lon {?lon} as float
+      rangers.elevation {?ele} as quantity(m)
+
+# The sightings, one per waypoint, with the export's search box.
+mapping from <package://data/ranger-2026-07-12.gpx> as XPath
+  for each "/gpx:gpx/gpx:wpt"
+  map:
+    "gpx:name" as ?name
+    "gpx:type" as ?type
+    "gpx:time" as ?at
+    "@lat" as ?lat
+    "@lon" as ?lon
+    "gpx:extensions/phv:search/@min_lat" as ?min_lat
+    "gpx:extensions/phv:search/@max_lat" as ?max_lat
+    "gpx:extensions/phv:search/@min_lon" as ?min_lon
+    "gpx:extensions/phv:search/@max_lon" as ?max_lon
+    "gpx:extensions/phv:search/@window_start" as ?from
+    "gpx:extensions/phv:search/@window_end" as ?until
+  to:
+    fact rng:sighting_2026_07_12_{slug(?name)} a rangers.Sighting
+      rangers.code {?name}
+      rangers.kind case ?type:
+        "scat" -> rangers.SCAT
+        "tracks" -> rangers.TRACKS
+        "howl" -> rangers.HOWL
+        "visual" -> rangers.VISUAL
+      rangers.by rng:R_LB
+      rangers.at {?at}
+      rangers.lat {?lat} as float
+      rangers.lon {?lon} as float
+      rangers.min_lat {?min_lat} as float
+      rangers.max_lat {?max_lat} as float
+      rangers.min_lon {?min_lon} as float
+      rangers.max_lon {?max_lon} as float
+      rangers.window_start {?from} as int
+      rangers.window_end {?until} as int

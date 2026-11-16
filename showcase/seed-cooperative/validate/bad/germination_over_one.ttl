@@ -1,0 +1,12 @@
+@prefix coop: <https://www.dolfin.fr/showcase/seed-cooperative/coop#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# A germination test: 13 seeds in 100 came up, and the rate was typed 1.3
+# instead of 0.13.
+coop:lot_gv_2026_002 a coop:Lot ;
+  coop:lot_id "GV-2026-002" ;
+  coop:variety coop:variety_let_merv ;
+  coop:holder coop:farm_82100345600017 ;
+  coop:harvest_year 2026 ;
+  coop:counted "4"^^unit:packet ;
+  coop:germination_rate "1.3"^^xsd:float .

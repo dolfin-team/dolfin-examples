@@ -1,0 +1,7 @@
+code,intitule,semestre,heures,ects,coefficient,enseignant
+MATH1,Analyse et algèbre,S1,60,9,3,T01
+ALGO1,Algorithmique,S1,48,6,2,T02
+ANGL1,Anglais,S1,24,3,1,T03
+PROBA2,Probabilités,S2,48,9,3,T01
+BDD2,Bases de données,S2,40,6,2,T02
+COMM2,Communication,S2,20,3,1,T03

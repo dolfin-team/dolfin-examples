@@ -1,0 +1,42 @@
+# The cooperative's own units.
+#
+# Mixing two nominal units is a compile error. This fact, in a scratch file
+# with the unitdefs below and the Lot concept of coop.dlf:
+#
+#   fact l a coop.Lot
+#     counted quantity(3 packet + 2 bulb)
+#
+# gives, from `radeau check`:
+#
+#   error[S007]: invalid quantity literal: Incommensurable units: cannot add packet and bulb directly — cast with `as <family>` first
+#
+# With one family per unit the cast suggested there does not help:
+# quantity(3 packet + 2 bulb as packets) gives the same error. (With a shared
+# `seedlots` family it would build, as "5"^^<https://dolfin.dev/unit/seedlots>.)
+
+# The graine is the internal credit: 1 graine = 0.50 EUR. It is a derived
+# unit on the currency axis, like USD in examples/finance, so it converts:
+# quantity(10 graine as EUR) is 5 EUR.
+unitdef graine: scale 0.5 EUR
+
+# Seeds that are not weighed are counted, and what is counted depends on the
+# crop: small seeds in packets, garlic in bulbs, potatoes in tubers. These are
+# nominal units: they have no dimension and do not convert into each other.
+#
+# One family per unit, not one `seedlots` family for all three. Units of one
+# family can still be added with an explicit cast, `as <family>`, which
+# widens each operand by its `scale`: with a shared family,
+# quantity(3 packet + 2 bulb as seedlots) would be 5 "seedlots", a number that
+# means nothing (three packets of lettuce and two bulbs of garlic). With a
+# family each, no cast exists that adds them.
+unitdef family packets
+
+unitdef packet: nominal of packets scale 1
+
+unitdef family bulbs
+
+unitdef bulb: nominal of bulbs scale 1
+
+unitdef family tubers
+
+unitdef tuber: nominal of tubers scale 1

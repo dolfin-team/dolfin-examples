@@ -1,0 +1,822 @@
+# Hôpital Saint-Roch (fictional): the hospital pharmacy dispenses drugs to
+# the wards. A physician prescribes a drug, a dose per administration, a
+# frequency, a route, a start date and a duration; the pharmacist checks it
+# and dispenses it from a batch. Every person, value and lot is invented.
+#
+# Facts are dated against now = 2026-06-15T12:00:00Z (validate/now); ages hold until 2030.
+
+concept Ward:
+  has key code: string
+
+  # Age from which a patient of this ward is dosed as an adult.
+  has adult_age: one duration
+
+  one of:
+    PEDIATRICS [code "PED", adult_age duration(18y)]
+    CARDIOLOGY [code "CARD", adult_age duration(18y)]
+    ONCOLOGY [code "ONCO", adult_age duration(18y)]
+    ER [code "ER", adult_age duration(18y)]
+
+concept DosageForm:
+  one of:
+    Tablet
+    Capsule
+    Injection
+
+concept Route:
+  one of:
+    ORAL
+    IV
+    IM
+    SC
+
+concept Physician:
+  has key rpps: string
+  has firstName: one string
+
+concept Patient:
+  has key mrn: string
+  has firstName: one string
+  has birthdate: one date
+  has age: duration [ = now() - $birthdate ]
+  has weight: one mass
+  has ward: one Ward
+
+# A child: inferred from the derived age, never asserted. Written as
+# `[ some age [ < duration(18y) ] ]` it never matches (rust/BUGS.md): a
+# derived field is only computed as `$age`, so the bound sits on the ward.
+concept PediatricPatient:
+  equivalent to Patient
+    [ ward [ adult_age [ > $age ] ] ]
+
+concept Drug:
+  has key atc: string
+  has name: one string
+  has max_single_dose: one mass
+
+  # In mg per kg of body weight. dolfin-units has no mass-per-mass dimension
+  # (it would be dimensionless), so this is a plain number.
+  has pediatric_max_per_kg: optional float
+  has form: one DosageForm
+
+  # Of the ready-to-use solution, for injectables.
+  has concentration: optional density
+
+concept Batch:
+  has key lot: string
+  has drug: one Drug
+  has expiry: one date
+
+  # Active substance on hand. No `[ >= 0 ]` here: a bound on a quantity
+  # field rejects every value (rust/BUGS.md); the pack count carries it.
+  has quantity_on_hand: one mass
+  has packs_on_hand: one int [ >= 0 ]
+
+concept Prescription:
+  has key rxId: string
+  has patient: one Patient
+  has prescriber: one Physician
+  has drug: one Drug
+  has dose: one mass
+  has frequency_per_day: one int [ >= 1, <= 24 ]
+  has start: one date
+  has length: one duration
+  has route: one Route
+
+  # Volume to infuse, for IV prescriptions.
+  has volume: optional volume
+
+# A prescription sent to the pharmacy for dispensing: the dose may not exceed
+# the drug's maximum single dose. The facts below are the ward's record,
+# mistakes included (the rules flag them); new data asserts this concept.
+concept SafePrescription:
+  sub Prescription
+
+  check
+    [ $ dose ?d, drug [ max_single_dose [ >= ?d ] ] ]
+
+concept Dispensing:
+  has key dispensingId: string
+  has prescription: one Prescription
+  has batch: one Batch
+  has at: one date_time
+
+  # The day of `at`: a date never compares with a date_time (rust/BUGS.md).
+  has day: one date
+
+# A dispensing about to be done: the batch must not be expired on that day.
+concept SafeDispensing:
+  sub Dispensing
+
+  check
+    [ $ day ?d, batch [ expiry [ >= ?d ] ] ]
+
+# Inferred by the rules below.
+concept OverdoseAlert
+
+concept ExpiredDispensing
+
+concept NeedsPharmacistReview
+
+# A dose above the drug's maximum single dose. Unit-aware: 1500 mg > 1 g.
+rule flag_overdose:
+  match:
+    ?rx dose ?d
+    ?rx drug [ max_single_dose [ < ?d ] ]
+  then:
+    ?rx a OverdoseAlert
+
+# A batch dispensed after its expiry date.
+rule flag_expired_dispensing:
+  match:
+    ?disp day ?d
+    ?disp batch [ expiry [ < ?d ] ]
+  then:
+    ?disp a ExpiredDispensing
+
+# A child prescribed a drug with no pediatric dosing (mg/kg) on file.
+rule flag_unchecked_pediatric:
+  match:
+    ?rx patient [ a PediatricPatient ]
+    ?rx drug ?drug
+    none ?perKg:
+      ?drug pediatric_max_per_kg ?perKg
+  then:
+    ?rx a NeedsPharmacistReview
+
+# Physicians
+
+fact dr_claire a Physician
+  rpps "10000000001"
+  firstName "Claire"
+
+fact dr_yanis a Physician
+  rpps "10000000002"
+  firstName "Yanis"
+
+fact dr_sophie a Physician
+  rpps "10000000003"
+  firstName "Sophie"
+
+# Patients. Pediatric until 2030 (Inès turns 18 then): Léa, Noah, Inès.
+
+fact lea a Patient
+  mrn "SR-0001"
+  firstName "Léa"
+  birthdate date(March 3rd 2018)
+  weight quantity(24 kg)
+  ward PEDIATRICS
+
+fact noah a Patient
+  mrn "SR-0002"
+  firstName "Noah"
+  birthdate date(September 10th 2021)
+  weight quantity(17 kg)
+  ward PEDIATRICS
+
+# 14 at validate/now, turns 18 on 2030-06-20: pediatric at any clock before.
+fact ines a Patient
+  mrn "SR-0003"
+  firstName "Inès"
+  birthdate date(June 20th 2012)
+  weight quantity(55 kg)
+  ward PEDIATRICS
+
+# Turned 18 on 2026-06-10: an adult at validate/now and any later clock.
+fact malik a Patient
+  mrn "SR-0004"
+  firstName "Malik"
+  birthdate date(June 10th 2008)
+  weight quantity(70 kg)
+  ward ER
+
+fact jeanne a Patient
+  mrn "SR-0005"
+  firstName "Jeanne"
+  birthdate date(February 11th 1947)
+  weight quantity(58 kg)
+  ward CARDIOLOGY
+
+fact hugo a Patient
+  mrn "SR-0006"
+  firstName "Hugo"
+  birthdate date(November 30th 1985)
+  weight quantity(82 kg)
+  ward ER
+
+fact camille a Patient
+  mrn "SR-0007"
+  firstName "Camille"
+  birthdate date(April 2nd 1962)
+  weight quantity(66000 g)
+  ward ONCOLOGY
+
+fact yasmine a Patient
+  mrn "SR-0008"
+  firstName "Yasmine"
+  birthdate date(July 19th 1990)
+  weight quantity(61 kg)
+  ward ONCOLOGY
+
+# Drugs: real ATC codes, maximum single doses in g or mg (compared by mass).
+# No pediatric_max_per_kg: morphine, enoxaparin, dexamethasone, amiodarone.
+
+fact paracetamol a Drug
+  atc "N02BE01"
+  name "paracetamol"
+  max_single_dose quantity(1 g)
+  pediatric_max_per_kg 15.0
+  form Tablet
+
+fact amoxicillin a Drug
+  atc "J01CA04"
+  name "amoxicillin"
+  max_single_dose quantity(1 g)
+  pediatric_max_per_kg 30.0
+  form Capsule
+
+fact ibuprofen a Drug
+  atc "M01AE01"
+  name "ibuprofen"
+  max_single_dose quantity(400 mg)
+  pediatric_max_per_kg 10.0
+  form Tablet
+
+fact morphine a Drug
+  atc "N02AA01"
+  name "morphine"
+  max_single_dose quantity(10 mg)
+  form Injection
+  concentration quantity(1 mg/mL)
+
+fact furosemide a Drug
+  atc "C03CA01"
+  name "furosemide"
+  max_single_dose quantity(80 mg)
+  pediatric_max_per_kg 2.0
+  form Tablet
+
+fact enoxaparin a Drug
+  atc "B01AB05"
+  name "enoxaparin"
+  max_single_dose quantity(100 mg)
+  form Injection
+  concentration quantity(100 mg/mL)
+
+fact vancomycin a Drug
+  atc "J01XA01"
+  name "vancomycin"
+  max_single_dose quantity(2 g)
+  pediatric_max_per_kg 15.0
+  form Injection
+  concentration quantity(5 mg/mL)
+
+fact ondansetron a Drug
+  atc "A04AA01"
+  name "ondansetron"
+  max_single_dose quantity(8 mg)
+  pediatric_max_per_kg 0.15
+  form Injection
+  concentration quantity(2 mg/mL)
+
+fact dexamethasone a Drug
+  atc "H02AB02"
+  name "dexamethasone"
+  max_single_dose quantity(20 mg)
+  form Tablet
+
+fact amiodarone a Drug
+  atc "C01BD01"
+  name "amiodarone"
+  max_single_dose quantity(400 mg)
+  form Tablet
+
+# Batches: active substance on hand. Expired at now: P-2312 and E-2406.
+# Expiring within 90 days (by 2026-09-13): P-2504, M-2404, A-2402, V-2407.
+
+fact batch_P2401 a Batch
+  lot "P-2401"
+  drug paracetamol
+  expiry date(March 31st 2027)
+  quantity_on_hand quantity(250 g)
+  packs_on_hand 50
+
+# Expired on 2026-05-31.
+fact batch_P2312 a Batch
+  lot "P-2312"
+  drug paracetamol
+  expiry date(May 31st 2026)
+  quantity_on_hand quantity(50 g)
+  packs_on_hand 10
+
+fact batch_P2504 a Batch
+  lot "P-2504"
+  drug paracetamol
+  expiry date(June 30th 2026)
+  quantity_on_hand quantity(0.1 kg)
+  packs_on_hand 20
+
+fact batch_A2402 a Batch
+  lot "A-2402"
+  drug amoxicillin
+  expiry date(August 31st 2026)
+  quantity_on_hand quantity(300 g)
+  packs_on_hand 30
+
+fact batch_A2503 a Batch
+  lot "A-2503"
+  drug amoxicillin
+  expiry date(August 31st 2027)
+  quantity_on_hand quantity(0.6 kg)
+  packs_on_hand 60
+
+fact batch_I2403 a Batch
+  lot "I-2403"
+  drug ibuprofen
+  expiry date(November 30th 2027)
+  quantity_on_hand quantity(120 g)
+  packs_on_hand 30
+
+fact batch_M2404 a Batch
+  lot "M-2404"
+  drug morphine
+  expiry date(July 15th 2026)
+  quantity_on_hand quantity(500 mg)
+  packs_on_hand 5
+
+fact batch_F2405 a Batch
+  lot "F-2405"
+  drug furosemide
+  expiry date(January 31st 2028)
+  quantity_on_hand quantity(20 g)
+  packs_on_hand 25
+
+# Expired on 2026-06-01.
+fact batch_E2406 a Batch
+  lot "E-2406"
+  drug enoxaparin
+  expiry date(June 1st 2026)
+  quantity_on_hand quantity(4 g)
+  packs_on_hand 10
+
+fact batch_E2501 a Batch
+  lot "E-2501"
+  drug enoxaparin
+  expiry date(June 30th 2027)
+  quantity_on_hand quantity(10 g)
+  packs_on_hand 25
+
+fact batch_V2407 a Batch
+  lot "V-2407"
+  drug vancomycin
+  expiry date(September 10th 2026)
+  quantity_on_hand quantity(25 g)
+  packs_on_hand 25
+
+fact batch_V2502 a Batch
+  lot "V-2502"
+  drug vancomycin
+  expiry date(February 28th 2027)
+  quantity_on_hand quantity(50 g)
+  packs_on_hand 50
+
+fact batch_O2408 a Batch
+  lot "O-2408"
+  drug ondansetron
+  expiry date(December 31st 2026)
+  quantity_on_hand quantity(800 mg)
+  packs_on_hand 20
+
+fact batch_D2409 a Batch
+  lot "D-2409"
+  drug dexamethasone
+  expiry date(April 30th 2027)
+  quantity_on_hand quantity(2 g)
+  packs_on_hand 25
+
+# Expires 2026-09-20, a week past the 90-day window: not expiring soon.
+fact batch_AM2410 a Batch
+  lot "AM-2410"
+  drug amiodarone
+  expiry date(September 20th 2026)
+  quantity_on_hand quantity(30 g)
+  packs_on_hand 5
+
+# Prescriptions
+
+fact rx01 a Prescription
+  rxId "RX-01"
+  patient lea
+  prescriber dr_claire
+  drug paracetamol
+  dose quantity(360 mg)
+  frequency_per_day 4
+  start date(June 10th 2026)
+  length duration(5d)
+  route ORAL
+
+fact rx02 a Prescription
+  rxId "RX-02"
+  patient lea
+  prescriber dr_claire
+  drug amoxicillin
+  dose quantity(600 mg)
+  frequency_per_day 3
+  start date(June 10th 2026)
+  length duration(7d)
+  route ORAL
+
+fact rx03 a Prescription
+  rxId "RX-03"
+  patient noah
+  prescriber dr_claire
+  drug ibuprofen
+  dose quantity(170 mg)
+  frequency_per_day 3
+  start date(June 11th 2026)
+  length duration(3d)
+  route ORAL
+
+# A child given morphine, which has no mg/kg maximum: NeedsPharmacistReview.
+fact rx04 a Prescription
+  rxId "RX-04"
+  patient noah
+  prescriber dr_claire
+  drug morphine
+  dose quantity(1.5 mg)
+  frequency_per_day 6
+  start date(June 11th 2026)
+  length duration(2d)
+  route IV
+  volume quantity(0.0015 L as mL)
+
+fact rx05 a Prescription
+  rxId "RX-05"
+  patient ines
+  prescriber dr_claire
+  drug ondansetron
+  dose quantity(4 mg)
+  frequency_per_day 3
+  start date(June 12th 2026)
+  length duration(3d)
+  route IV
+  volume quantity(2 mL)
+
+# Inès is a minor: dexamethasone has no mg/kg maximum, NeedsPharmacistReview.
+fact rx06 a Prescription
+  rxId "RX-06"
+  patient ines
+  prescriber dr_claire
+  drug dexamethasone
+  dose quantity(8 mg)
+  frequency_per_day 1
+  start date(June 12th 2026)
+  length duration(5d)
+  route ORAL
+
+# Malik is 18: the same prescription needs no review.
+fact rx07 a Prescription
+  rxId "RX-07"
+  patient malik
+  prescriber dr_yanis
+  drug dexamethasone
+  dose quantity(8 mg)
+  frequency_per_day 1
+  start date(June 13th 2026)
+  length duration(5d)
+  route ORAL
+
+# Exactly the maximum (1 g): not an overdose.
+fact rx08 a Prescription
+  rxId "RX-08"
+  patient malik
+  prescriber dr_yanis
+  drug paracetamol
+  dose quantity(1 g)
+  frequency_per_day 4
+  start date(June 12th 2026)
+  length duration(3d)
+  route ORAL
+
+# 1500 mg > 1 g: OverdoseAlert. Held by the pharmacist, never dispensed.
+fact rx09 a Prescription
+  rxId "RX-09"
+  patient hugo
+  prescriber dr_yanis
+  drug paracetamol
+  dose quantity(1500 mg)
+  frequency_per_day 3
+  start date(June 14th 2026)
+  length duration(2d)
+  route ORAL
+
+# Exactly the maximum (10 mg): not an overdose.
+fact rx10 a Prescription
+  rxId "RX-10"
+  patient hugo
+  prescriber dr_yanis
+  drug morphine
+  dose quantity(10 mg)
+  frequency_per_day 4
+  start date(June 13th 2026)
+  length duration(1d)
+  route SC
+
+fact rx11 a Prescription
+  rxId "RX-11"
+  patient jeanne
+  prescriber dr_sophie
+  drug furosemide
+  dose quantity(40 mg)
+  frequency_per_day 1
+  start date(May 20th 2026)
+  length duration(30d)
+  route ORAL
+
+fact rx12 a Prescription
+  rxId "RX-12"
+  patient jeanne
+  prescriber dr_sophie
+  drug amiodarone
+  dose quantity(200 mg)
+  frequency_per_day 1
+  start date(May 20th 2026)
+  length duration(30d)
+  route ORAL
+
+fact rx13 a Prescription
+  rxId "RX-13"
+  patient jeanne
+  prescriber dr_sophie
+  drug enoxaparin
+  dose quantity(40 mg)
+  frequency_per_day 1
+  start date(May 28th 2026)
+  length duration(20d)
+  route SC
+
+# 0.12 g = 120 mg > 80 mg: OverdoseAlert. Never dispensed.
+fact rx14 a Prescription
+  rxId "RX-14"
+  patient jeanne
+  prescriber dr_sophie
+  drug furosemide
+  dose quantity(0.12 g)
+  frequency_per_day 1
+  start date(June 15th 2026)
+  length duration(7d)
+  route ORAL
+
+# Written this morning, not dispensed yet.
+fact rx15 a Prescription
+  rxId "RX-15"
+  patient camille
+  prescriber dr_sophie
+  drug ondansetron
+  dose quantity(8 mg)
+  frequency_per_day 2
+  start date(June 15th 2026)
+  length duration(3d)
+  route IV
+  volume quantity(50 mL)
+
+# Exactly the maximum (20 mg): not an overdose.
+fact rx16 a Prescription
+  rxId "RX-16"
+  patient camille
+  prescriber dr_sophie
+  drug dexamethasone
+  dose quantity(20 mg)
+  frequency_per_day 1
+  start date(June 8th 2026)
+  length duration(3d)
+  route ORAL
+
+# 250 mL at 5 mg/mL: 1.25 g.
+fact rx17 a Prescription
+  rxId "RX-17"
+  patient camille
+  prescriber dr_sophie
+  drug vancomycin
+  dose quantity(1.25 g)
+  frequency_per_day 2
+  start date(June 9th 2026)
+  length duration(7d)
+  route IV
+  volume quantity(0.25 L as mL)
+
+# 2500 mg > 2 g: OverdoseAlert. Held, never dispensed.
+fact rx18 a Prescription
+  rxId "RX-18"
+  patient yasmine
+  prescriber dr_sophie
+  drug vancomycin
+  dose quantity(2500 mg)
+  frequency_per_day 2
+  start date(June 14th 2026)
+  length duration(7d)
+  route IV
+  volume quantity(500 mL)
+
+fact rx19 a Prescription
+  rxId "RX-19"
+  patient yasmine
+  prescriber dr_sophie
+  drug ondansetron
+  dose quantity(8 mg)
+  frequency_per_day 3
+  start date(June 10th 2026)
+  length duration(2d)
+  route IV
+  volume quantity(4 mL)
+
+fact rx20 a Prescription
+  rxId "RX-20"
+  patient hugo
+  prescriber dr_yanis
+  drug amoxicillin
+  dose quantity(1 g)
+  frequency_per_day 3
+  start date(June 14th 2026)
+  length duration(7d)
+  route ORAL
+
+# Dispensings. Not dispensed: RX-09, RX-14, RX-18 (overdoses) and RX-15.
+
+fact disp01 a Dispensing
+  dispensingId "D-01"
+  prescription rx01
+  batch batch_P2401
+  at date_time(2026-06-10 08:00 as y-m-d)
+  day date(2026-06-10 as y-m-d)
+
+fact disp02 a Dispensing
+  dispensingId "D-02"
+  prescription rx01
+  batch batch_P2504
+  at date_time(2026-06-12 08:00 as y-m-d)
+  day date(2026-06-12 as y-m-d)
+
+fact disp03 a Dispensing
+  dispensingId "D-03"
+  prescription rx02
+  batch batch_A2402
+  at date_time(2026-06-10 09:00 as y-m-d)
+  day date(2026-06-10 as y-m-d)
+
+fact disp04 a Dispensing
+  dispensingId "D-04"
+  prescription rx02
+  batch batch_A2503
+  at date_time(2026-06-13 09:00 as y-m-d)
+  day date(2026-06-13 as y-m-d)
+
+fact disp05 a Dispensing
+  dispensingId "D-05"
+  prescription rx03
+  batch batch_I2403
+  at date_time(2026-06-11 10:00 as y-m-d)
+  day date(2026-06-11 as y-m-d)
+
+fact disp06 a Dispensing
+  dispensingId "D-06"
+  prescription rx04
+  batch batch_M2404
+  at date_time(2026-06-11 22:00 as y-m-d)
+  day date(2026-06-11 as y-m-d)
+
+fact disp07 a Dispensing
+  dispensingId "D-07"
+  prescription rx05
+  batch batch_O2408
+  at date_time(2026-06-12 07:30 as y-m-d)
+  day date(2026-06-12 as y-m-d)
+
+fact disp08 a Dispensing
+  dispensingId "D-08"
+  prescription rx06
+  batch batch_D2409
+  at date_time(2026-06-12 08:15 as y-m-d)
+  day date(2026-06-12 as y-m-d)
+
+fact disp09 a Dispensing
+  dispensingId "D-09"
+  prescription rx07
+  batch batch_D2409
+  at date_time(2026-06-13 08:15 as y-m-d)
+  day date(2026-06-13 as y-m-d)
+
+# P-2312 expired on 2026-05-31: ExpiredDispensing.
+fact disp10 a Dispensing
+  dispensingId "D-10"
+  prescription rx08
+  batch batch_P2312
+  at date_time(2026-06-12 14:00 as y-m-d)
+  day date(2026-06-12 as y-m-d)
+
+fact disp11 a Dispensing
+  dispensingId "D-11"
+  prescription rx08
+  batch batch_P2401
+  at date_time(2026-06-13 14:00 as y-m-d)
+  day date(2026-06-13 as y-m-d)
+
+fact disp12 a Dispensing
+  dispensingId "D-12"
+  prescription rx10
+  batch batch_M2404
+  at date_time(2026-06-13 20:00 as y-m-d)
+  day date(2026-06-13 as y-m-d)
+
+fact disp13 a Dispensing
+  dispensingId "D-13"
+  prescription rx11
+  batch batch_F2405
+  at date_time(2026-05-20 09:00 as y-m-d)
+  day date(2026-05-20 as y-m-d)
+
+fact disp14 a Dispensing
+  dispensingId "D-14"
+  prescription rx11
+  batch batch_F2405
+  at date_time(2026-06-03 09:00 as y-m-d)
+  day date(2026-06-03 as y-m-d)
+
+fact disp15 a Dispensing
+  dispensingId "D-15"
+  prescription rx12
+  batch batch_AM2410
+  at date_time(2026-05-20 09:00 as y-m-d)
+  day date(2026-05-20 as y-m-d)
+
+# E-2406 is expired now, but was still valid on 2026-05-28: not flagged.
+fact disp16 a Dispensing
+  dispensingId "D-16"
+  prescription rx13
+  batch batch_E2406
+  at date_time(2026-05-28 18:00 as y-m-d)
+  day date(2026-05-28 as y-m-d)
+
+# E-2406 expired on 2026-06-01: ExpiredDispensing.
+fact disp17 a Dispensing
+  dispensingId "D-17"
+  prescription rx13
+  batch batch_E2406
+  at date_time(2026-06-14 18:00 as y-m-d)
+  day date(2026-06-14 as y-m-d)
+
+fact disp18 a Dispensing
+  dispensingId "D-18"
+  prescription rx13
+  batch batch_E2501
+  at date_time(2026-06-15 08:00 as y-m-d)
+  day date(2026-06-15 as y-m-d)
+
+fact disp19 a Dispensing
+  dispensingId "D-19"
+  prescription rx16
+  batch batch_D2409
+  at date_time(2026-06-08 08:00 as y-m-d)
+  day date(2026-06-08 as y-m-d)
+
+fact disp20 a Dispensing
+  dispensingId "D-20"
+  prescription rx17
+  batch batch_V2407
+  at date_time(2026-06-09 11:00 as y-m-d)
+  day date(2026-06-09 as y-m-d)
+
+fact disp21 a Dispensing
+  dispensingId "D-21"
+  prescription rx17
+  batch batch_V2502
+  at date_time(2026-06-12 11:00 as y-m-d)
+  day date(2026-06-12 as y-m-d)
+
+fact disp22 a Dispensing
+  dispensingId "D-22"
+  prescription rx19
+  batch batch_O2408
+  at date_time(2026-06-10 07:00 as y-m-d)
+  day date(2026-06-10 as y-m-d)
+
+fact disp23 a Dispensing
+  dispensingId "D-23"
+  prescription rx19
+  batch batch_O2408
+  at date_time(2026-06-11 07:00 as y-m-d)
+  day date(2026-06-11 as y-m-d)
+
+fact disp24 a Dispensing
+  dispensingId "D-24"
+  prescription rx20
+  batch batch_A2402
+  at date_time(2026-06-14 09:00 as y-m-d)
+  day date(2026-06-14 as y-m-d)
+
+fact disp25 a Dispensing
+  dispensingId "D-25"
+  prescription rx12
+  batch batch_AM2410
+  at date_time(2026-06-10 09:00 as y-m-d)
+  day date(2026-06-10 as y-m-d)

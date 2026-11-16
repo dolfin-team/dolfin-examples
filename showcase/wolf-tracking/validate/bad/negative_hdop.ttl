@@ -1,0 +1,16 @@
+# HDOP is a dilution factor, never negative.
+@prefix tracking: <https://www.dolfin.fr/showcase/wolf-tracking/tracking#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+
+tracking:fix_neg_hdop a tracking:Fix ;
+  tracking:collar tracking:phv_0423 ;
+  tracking:at "2026-07-13T00:00:00Z" ;
+  tracking:t_min 29731680 ;
+  tracking:day "2026-07-13"^^xsd:date ;
+  tracking:lat "44.30120"^^xsd:float ;
+  tracking:lon "7.01234"^^xsd:float ;
+  tracking:elevation "1820"^^unit:m ;
+  tracking:satellites 9 ;
+  tracking:hdop "-1.5"^^xsd:float ;
+  tracking:is_night false .

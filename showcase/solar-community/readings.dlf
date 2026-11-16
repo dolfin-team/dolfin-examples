@@ -1,0 +1,65 @@
+# The meters' daily readings for July 2026, as the data hub exports them:
+# data/readings.csv, one row per site and day, written once by
+# generate_readings.py.
+#
+# Older meters report in Wh, newer ones in kWh, the school's in MWh; the
+# `unit` column says which. H07's Wh meter was replaced by a kWh one on
+# 16 July, so its month mixes both. A cast has a fixed unit and a `case` arm
+# cannot hold a cell, so there is one mapping per unit, each filtered with
+# `where:`; the first one reads what does not depend on the unit.
+prefix <https://www.dolfin.fr/showcase/solar-community/community#> as sol
+
+mapping from <package://data/readings.csv> as CSV
+  map:
+    pdl     as ?pdl
+    day     as ?day
+    weekday as ?weekday
+    peak_kw as ?peak
+  to:
+    fact sol:reading_{?pdl}d{?day} a community.DailyReading
+      site sol:site_{?pdl}
+      day {?day} as date
+      working_day {?weekday} as boolean
+      peak_draw {?peak} as quantity(kW)
+
+mapping from <package://data/readings.csv> as CSV
+  map:
+    pdl      as ?pdl
+    day      as ?day
+    unit     as ?unit
+    imported as ?imported
+    exported as ?exported
+  where:
+    ?unit [ = "Wh" ]
+  to:
+    fact sol:reading_{?pdl}d{?day} a community.DailyReading
+      imported {?imported} as quantity(W.h)
+      exported {?exported} as quantity(W.h)
+
+mapping from <package://data/readings.csv> as CSV
+  map:
+    pdl      as ?pdl
+    day      as ?day
+    unit     as ?unit
+    imported as ?imported
+    exported as ?exported
+  where:
+    ?unit [ = "kWh" ]
+  to:
+    fact sol:reading_{?pdl}d{?day} a community.DailyReading
+      imported {?imported} as quantity(kW.h)
+      exported {?exported} as quantity(kW.h)
+
+mapping from <package://data/readings.csv> as CSV
+  map:
+    pdl      as ?pdl
+    day      as ?day
+    unit     as ?unit
+    imported as ?imported
+    exported as ?exported
+  where:
+    ?unit [ = "MWh" ]
+  to:
+    fact sol:reading_{?pdl}d{?day} a community.DailyReading
+      imported {?imported} as quantity(MW.h)
+      exported {?exported} as quantity(MW.h)

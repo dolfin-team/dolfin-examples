@@ -1,0 +1,54 @@
+# A role a person can hold within a team.
+concept Role:
+  has key code: string
+
+  one of:
+    ENGINEER [code "engineer"]
+    DESIGNER [code "designer"]
+    PRODUCT_MANAGER [code "product_manager"]
+    LEAD [code "lead"]
+
+# Local stand-in for the identity record. Once dolfin supports import,
+# this would be `import person.Person` instead of a local declaration.
+concept Person:
+  has key email: string
+  has firstName: one string
+  has lastName: one string
+  has role: one Role
+
+# A group of people working toward shared goals.
+concept Team:
+  has key name: string
+  # lead is the single accountable owner; members is the full roster (lead included).
+  has lead: one Person
+  has members: some Person
+
+# reportsTo is the formal org-chart line from an individual contributor to their lead.
+property reports_to: Person -> Person
+
+fact priya a Person
+  email "priya@example.com"
+  firstName "Priya"
+  lastName "Natarajan"
+  role LEAD
+
+fact sam a Person
+  email "sam@example.com"
+  firstName "Sam"
+  lastName "Okafor"
+  role ENGINEER
+  reports_to priya
+
+fact lea a Person
+  email "lea@example.com"
+  firstName "Léa"
+  lastName "Fontaine"
+  role DESIGNER
+  reports_to priya
+
+fact platformTeam a Team
+  name "Platform"
+  lead priya
+  members priya
+  members sam
+  members lea

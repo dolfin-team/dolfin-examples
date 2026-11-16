@@ -1,0 +1,2 @@
+pharmacy#frequency_per_day> = "30"^^<http://www.w3.org/2001/XMLSchema#integer>: Value is not <= "24"
+MaxInclusiveConstraintComponent

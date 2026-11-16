@@ -1,0 +1,11 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Registered as a master 2 (50-59) but 41 on race day.
+race:r131 a race:Runner ;
+  race:bib "131"^^xsd:integer ;
+  race:first_name "Lucas" ;
+  race:category race:Category_M2_H ;
+  race:birthdate "1985-01-01"^^xsd:date ;
+  race:gear race:GearItem_HEADLAMP, race:GearItem_SURVIVAL_BLANKET, race:GearItem_WATER_1L .

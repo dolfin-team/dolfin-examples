@@ -1,0 +1,100 @@
+# Stage of an order's fulfillment.
+concept OrderStatus:
+  has key code: string
+
+  one of:
+    PENDING [code "pending"]
+    PAID [code "paid"]
+    SHIPPED [code "shipped"]
+    DELIVERED [code "delivered"]
+    CANCELLED [code "cancelled"]
+
+# A physical location holding stock.
+concept Warehouse:
+  has key code: string
+  has city: one string
+
+# A sellable item in the catalogue.
+concept Product:
+  has key sku: string
+  has name: one string
+  has category: optional string
+  has priceCents: one int
+  has warehouse: one Warehouse
+  has quantityOnHand: one int
+  has reorderThreshold: one int
+
+# A buyer placing orders.
+concept Customer:
+  has key email: string
+  has firstName: one string
+  has lastName: one string
+
+# A single purchase, made up of one or more line items.
+concept Order:
+  has key orderNumber: string
+  has customer: one Customer
+  has status: one OrderStatus
+  # items is repeatable — one entry per line item on the order.
+  has items: some Product
+  has placedDate: one string
+
+concept LowStockProduct
+concept OutOfStockProduct
+
+fact mainWarehouse a Warehouse
+  code "WH-EAST"
+  city "Newark"
+
+fact mechanicalKeyboard a Product
+  sku "SKU-1001"
+  name "Mechanical Keyboard"
+  category "Peripherals"
+  priceCents 8999
+  warehouse mainWarehouse
+  quantityOnHand 4
+  reorderThreshold 10
+
+fact usbCable a Product
+  sku "SKU-1002"
+  name "USB-C Cable"
+  category "Accessories"
+  priceCents 999
+  warehouse mainWarehouse
+  quantityOnHand 0
+  reorderThreshold 20
+
+fact dana a Customer
+  email "dana@example.com"
+  firstName "Dana"
+  lastName "Whitfield"
+
+fact order1001 a Order
+  orderNumber "ORD-1001"
+  customer dana
+  status PAID
+  items mechanicalKeyboard
+  placedDate "2026-07-01"
+
+# Anything at or below its reorder threshold needs restocking.
+rule flag_low_stock:
+  match:
+    ?p a Product
+    ?p reorderThreshold ?_threshold
+    ?p quantityOnHand [ <= ?_threshold ]
+  then:
+    ?p a LowStockProduct
+
+# Zero units on hand blocks new orders until restocked.
+rule flag_out_of_stock:
+  match:
+    ?p a Product
+    ?p quantityOnHand 0
+  then:
+    ?p a OutOfStockProduct
+
+# Every pending order and the warehouse each line item ships from.
+query pending_orders_by_warehouse:
+  ?_order a Order
+    status PENDING
+    items [ warehouse ?_wh ]

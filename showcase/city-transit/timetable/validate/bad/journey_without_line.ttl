@@ -1,0 +1,8 @@
+# A journey with no line.
+@prefix tt: <https://www.dolfin.fr/showcase/city-transit/timetable/timetable#> .
+@prefix net: <https://www.dolfin.fr/showcase/city-transit/network/network#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+tt:SJ-XX-93 a tt:ServiceJourney ; tt:journey_id "SJ-XX-93" ; tt:vehicle tt:VehicleType_CITADIS_302 ; tt:day_type tt:DayType_SUNDAY ;
+  tt:passing_times tt:SJ-XX-93-1 .
+tt:SJ-XX-93-1 a tt:PassingTime ; tt:journey tt:SJ-XX-93 ; tt:stop net:GAR ; tt:departure "09:00:00"^^xsd:time .

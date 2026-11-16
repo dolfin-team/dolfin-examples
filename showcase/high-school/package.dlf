@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/high-school>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "A French lycée: teachers, students, classes and half-class groups, rooms and the weekly timetable read from CSV files, with rules that flag room and teacher clashes, unqualified teachers and lab subjects taught to a whole class. The term's marks are read from an Excel gradebook (data/marks.xlsx, generated once by generate_marks.py), where an absence is not a zero."

@@ -1,0 +1,147 @@
+# The cooperative's register, as the farms send it: data/*.csv, and the
+# exchange book kept by the secretary in data/exchanges.xlsx.
+prefix <https://www.dolfin.fr/showcase/seed-cooperative/coop#> as seed
+
+mapping from <package://data/farms.csv> as CSV
+  map:
+    siret   as ?siret
+    name    as ?name
+    commune as ?commune
+    joined  as ?joined
+  to:
+    fact seed:farm_{?siret} a coop.Farm
+      siret {?siret}
+      name {?name}
+      commune {?commune}
+      joined {?joined} as date
+
+# The register writes species in French, not always capitalised the same
+# way: `case` compares after lowercasing and dropping accents. The record's
+# IRI is its catalogue code: two codes for one (species, name) pair are the
+# duplicates the key merges.
+mapping from <package://data/varieties.csv> as CSV
+  map:
+    code             as ?code
+    species          as ?species
+    name             as ?name
+    origin_region    as ?region
+    days_to_maturity as ?days
+    tag1             as ?tag1
+    tag2             as ?tag2
+  to:
+    fact seed:variety_{slug(?code)} a coop.Variety
+      code {?code}
+      species case ?species:
+        "tomate" -> TOMATO
+        "haricot" -> BEAN
+        "ail" -> GARLIC
+        "pomme de terre" -> POTATO
+        "laitue" -> LETTUCE
+        "epeautre" -> SPELT
+        "carotte" -> CARROT
+      name {?name}
+      origin_region {?region}
+      days_to_maturity {?days} as int
+      tags {?tag1}
+      tags {?tag2}
+
+# One lot per row. The `amount` column is read by the mappings below, one per
+# `unit`: a cast takes a fixed unit, and a `case` arm cannot hold a cell, so
+# the unit cannot be chosen per row inside one mapping. Here `case` only
+# names the unit of a counted lot (no arm for kg and g: the optional field is
+# left out on those rows).
+mapping from <package://data/lots.csv> as CSV
+  map:
+    lot_id           as ?id
+    variety_code     as ?variety
+    holder_siret     as ?holder
+    harvest_year     as ?year
+    germination_rate as ?germination
+    unit             as ?unit
+  to:
+    fact seed:lot_{slug(?id)} a coop.Lot
+      lot_id {?id}
+      variety seed:variety_{slug(?variety)}
+      holder seed:farm_{?holder}
+      harvest_year {?year} as int
+      germination_rate {?germination} as float
+      counted_in case ?unit:
+        "packet" -> PACKET
+        "bulb" -> BULB
+        "tuber" -> TUBER
+
+mapping from <package://data/lots.csv> as CSV
+  map:
+    lot_id as ?id
+    amount as ?amount
+    unit   as ?unit
+  where:
+    ?unit [ = "kg" ]
+  to:
+    fact seed:lot_{slug(?id)} a coop.Lot
+      mass {?amount} as quantity(kg)
+
+mapping from <package://data/lots.csv> as CSV
+  map:
+    lot_id as ?id
+    amount as ?amount
+    unit   as ?unit
+  where:
+    ?unit [ = "g" ]
+  to:
+    fact seed:lot_{slug(?id)} a coop.Lot
+      mass {?amount} as quantity(g)
+
+mapping from <package://data/lots.csv> as CSV
+  map:
+    lot_id as ?id
+    amount as ?amount
+    unit   as ?unit
+  where:
+    ?unit [ = "packet" ]
+  to:
+    fact seed:lot_{slug(?id)} a coop.Lot
+      counted {?amount} as quantity(packet)
+
+mapping from <package://data/lots.csv> as CSV
+  map:
+    lot_id as ?id
+    amount as ?amount
+    unit   as ?unit
+  where:
+    ?unit [ = "bulb" ]
+  to:
+    fact seed:lot_{slug(?id)} a coop.Lot
+      counted {?amount} as quantity(bulb)
+
+mapping from <package://data/lots.csv> as CSV
+  map:
+    lot_id as ?id
+    amount as ?amount
+    unit   as ?unit
+  where:
+    ?unit [ = "tuber" ]
+  to:
+    fact seed:lot_{slug(?id)} a coop.Lot
+      counted {?amount} as quantity(tuber)
+
+# The exchange book (radeau only: the browser playground has no spreadsheet
+# reader). `date` cells are real dates; `price` is in graines, empty for a
+# gift.
+mapping from <package://data/exchanges.xlsx> as XLSX
+  sheet "Exchanges"
+  map:
+    exchange_id as ?id
+    "date"      as ?date
+    from_siret  as ?from
+    to_siret    as ?to
+    lot_id      as ?lot
+    price       as ?price
+  to:
+    fact seed:exchange_{slug(?id)} a coop.Exchange
+      exchange_id {?id}
+      exchanged_on {?date} as date
+      from seed:farm_{?from}
+      to seed:farm_{?to}
+      lot seed:lot_{slug(?lot)}
+      price {?price} as quantity(graine)

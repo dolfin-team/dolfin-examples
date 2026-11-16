@@ -1,0 +1,5 @@
+package recipe:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin Examples"
+  description "Standalone recipe/kitchen data model — demonstrates dolfin-units quantity() literals"

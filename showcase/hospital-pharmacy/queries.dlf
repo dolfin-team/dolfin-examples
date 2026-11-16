@@ -1,0 +1,74 @@
+query expiring_batches:
+  ?_b a pharmacy.Batch
+    lot ?lot
+    drug [ name ?drug ]
+    expiry [?expiry >= date(June 15th 2026)]
+  ?expiry <= date(September 13th 2026)
+  return
+    ?lot
+    ?drug
+    ?expiry
+      order asc
+
+query dispensed_per_ward:
+  ?_d a pharmacy.Dispensing
+    prescription [ patient ?patient ]
+  ?patient ward [ code ?ward ]
+  group by ?ward
+    count distinct ?patient as ?patients
+  return
+    ?ward
+    ?patients
+
+query overdose_alerts:
+  ?_rx a pharmacy.OverdoseAlert
+    rxId ?rxId
+    patient [ firstName ?patient ]
+    drug [
+      name ?drug
+      max_single_dose ?max
+    ]
+    dose ?dose
+  return
+    ?rxId
+      order asc
+    ?patient
+    ?drug
+    ?dose
+    ?max
+
+query stock_by_drug:
+  ?_b a pharmacy.Batch
+    drug [ name ?drug ]
+    packs_on_hand ?packs
+  group by ?drug
+    sum ?packs as ?packs_total
+  return
+    ?drug
+    ?packs_total
+
+query iv_prescriptions_without_dispensing:
+  ?rx a pharmacy.Prescription
+    rxId ?rxId
+    route pharmacy.IV
+    patient [ firstName ?patient ]
+  none:
+    ?_d prescription ?rx
+  return
+    ?rxId
+    ?patient
+
+query expired_dispensings:
+  ?_d a pharmacy.ExpiredDispensing
+    dispensingId ?id
+    batch [ lot ?lot ]
+
+query pediatric_review:
+  ?_rx a pharmacy.NeedsPharmacistReview
+    rxId ?rxId
+    patient [ firstName ?patient ]
+    drug [ name ?drug ]
+
+query pediatric_patients:
+  ?_p a pharmacy.PediatricPatient
+    firstName ?name

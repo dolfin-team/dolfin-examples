@@ -1,0 +1,97 @@
+concept AccountType:
+  one of:
+    Checking
+    Savings
+    Credit
+
+concept TransactionType:
+  one of:
+    Deposit
+    Withdrawal
+    Transfer
+    Payment
+
+# A user-declared derived currency, on dolfin-units' built-in `currency`
+# dimension alongside the physical ones — `1 USD = 0.92 EUR`. EUR itself
+# ships built in as the one currency dolfin-units knows about; a project
+# adds every other currency (and its rate) itself with `unitdef`.
+unitdef USD: scale 0.92 EUR
+
+# A bank account.
+concept Account:
+  has key accountNumber: string
+  has ownerName: one string
+  has accountType: one AccountType
+  # balanceCents is the integer source of truth; amountQuantity on
+  # Transaction below shows the same value as a dolfin-units quantity().
+  has balanceCents: one int
+  has overdrawn: one boolean
+
+# A single posting against an account.
+concept Transaction:
+  has key reference: string
+  has account: one Account
+  has transactionType: one TransactionType
+  has amountCents: one int
+  # amountQuantity carries the same amount as a quantity(...) value, so it
+  # can be compared/converted across currencies (quantity(1200 USD) and
+  # quantity(3000 EUR) are on the same `currency` dimension and add/convert
+  # like `1 km + 500 m` would).
+  has amountQuantity: optional float
+  has postedDate: one string
+  has note: optional string
+
+concept LargeTransaction
+concept OverdrawnAccount
+
+fact checking a Account
+  accountNumber "ACC-001"
+  ownerName "Jordan Vasquez"
+  accountType Checking
+  balanceCents 0
+  overdrawn true
+
+fact savings a Account
+  accountNumber "ACC-002"
+  ownerName "Jordan Vasquez"
+  accountType Savings
+  balanceCents 250000
+  overdrawn false
+
+fact rent a Transaction
+  reference "TXN-1001"
+  account checking
+  transactionType Payment
+  amountCents 120000
+  amountQuantity quantity(1200 USD)
+  postedDate "2026-07-01"
+  note "Monthly rent"
+
+fact paycheck a Transaction
+  reference "TXN-1002"
+  account checking
+  transactionType Deposit
+  amountCents 300000
+  amountQuantity quantity(3000 EUR)
+  postedDate "2026-06-30"
+
+# Any posting over $1,000 is flagged for the fraud-review queue.
+rule flag_large_transaction:
+  match:
+    ?t a Transaction
+    ?t amountCents [ > 100000 ]
+  then:
+    ?t a LargeTransaction
+
+# Any account currently below zero needs an overdraft notice.
+rule flag_overdrawn:
+  match:
+    ?a a Account
+    ?a overdrawn true
+  then:
+    ?a a OverdrawnAccount
+
+# All large transactions, with the account they posted against.
+query large_transactions:
+  ?_t a LargeTransaction
+    account ?_account

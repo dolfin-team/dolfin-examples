@@ -1,0 +1,2 @@
+#fix_neg_hdop> <https://www.dolfin.fr/showcase/wolf-tracking/tracking#hdop> = "-1.5"
+[MinInclusiveConstraintComponent]

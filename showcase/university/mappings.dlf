@@ -1,0 +1,113 @@
+# The school office's files: data/*.csv, and the workbook data/scolarite.xlsx
+# (marks, coefficient points, sessions) written once by generate_scolarite.py.
+prefix <https://www.dolfin.fr/showcase/university/scolarite#> as univ
+
+# Each student is enrolled in both semesters: one Inscription per semester.
+mapping from <package://data/etudiants.csv> as CSV
+  map:
+    numero    as ?num
+    nom       as ?nom
+    prenom    as ?prenom
+    naissance as ?naissance
+    plan      as ?plan
+  to:
+    fact univ:etudiant_{?num} a scolarite.Etudiant
+      numero {?num}
+      nom {?nom}
+      prenom {?prenom}
+      naissance {?naissance} as date
+      planAnnee case ?plan:
+        "annuel" -> Annuel
+        "deux ans" -> DeuxAns
+    fact univ:inscription_S1_{?num} a scolarite.Inscription
+      etudiant univ:etudiant_{?num}
+      semestre S1
+    fact univ:inscription_S2_{?num} a scolarite.Inscription
+      etudiant univ:etudiant_{?num}
+      semestre S2
+
+mapping from <package://data/enseignants.csv> as CSV
+  map:
+    id     as ?id
+    nom    as ?nom
+    prenom as ?prenom
+    statut as ?statut
+  to:
+    fact univ:enseignant_{?id} a scolarite.Enseignant
+      idEnseignant {?id}
+      nom {?nom}
+      prenom {?prenom}
+      statut {?statut}
+
+mapping from <package://data/ue.csv> as CSV
+  map:
+    code        as ?code
+    intitule    as ?intitule
+    semestre    as ?semestre
+    heures      as ?heures
+    ects        as ?ects
+    coefficient as ?coef
+    enseignant  as ?enseignant
+  to:
+    fact univ:ue_{?code} a scolarite.UE
+      code {?code}
+      intitule {?intitule}
+      semestre case ?semestre:
+        "S1" -> S1
+        "S2" -> S2
+      heuresPrevues {?heures} as float
+      ects {?ects} as int
+      coefficient {?coef} as int
+      responsable univ:enseignant_{?enseignant}
+
+mapping from <package://data/absences.csv> as CSV
+  map:
+    id           as ?id
+    etudiant     as ?etudiant
+    "date"       as ?date
+    demi_journee as ?demi
+  to:
+    fact univ:absence_{?id} a scolarite.Absence
+      idAbsence {?id}
+      etudiant univ:etudiant_{?etudiant}
+      jour {?date} as date
+      demiJournee {?demi}
+
+mapping from <package://data/scolarite.xlsx> as XLSX
+  sheet "Notes"
+  map:
+    etudiant as ?etudiant
+    ue       as ?ue
+    note     as ?note
+  to:
+    fact univ:note_{?ue}{?etudiant} a scolarite.Note
+      etudiant univ:etudiant_{?etudiant}
+      ue univ:ue_{?ue}
+      valeur {?note} as float
+
+mapping from <package://data/scolarite.xlsx> as XLSX
+  sheet "Pondération"
+  map:
+    ue   as ?ue
+    part as ?part
+  to:
+    fact univ:ponderation_{?ue}{?part} a scolarite.Ponderation
+      ue univ:ue_{?ue}
+      part {?part} as int
+
+mapping from <package://data/scolarite.xlsx> as XLSX
+  sheet "Séances"
+  map:
+    id         as ?id
+    enseignant as ?enseignant
+    ue         as ?ue
+    "date"     as ?date
+    duree_h    as ?duree
+  to:
+    fact univ:seance_{?id} a scolarite.Seance
+      idSeance {?id}
+      enseignant univ:enseignant_{?enseignant}
+      ue univ:ue_{?ue}
+      jour {?date} as date
+      duree {?duree} as quantity(h)
+      heures {?duree} as float

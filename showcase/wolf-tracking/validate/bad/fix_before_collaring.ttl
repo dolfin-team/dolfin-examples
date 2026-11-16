@@ -1,0 +1,16 @@
+# F08 was collared on 28 June: a fix from 20 June is impossible.
+@prefix tracking: <https://www.dolfin.fr/showcase/wolf-tracking/tracking#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+
+tracking:fix_early a tracking:Fix ;
+  tracking:collar tracking:phv_0608 ;
+  tracking:at "2026-06-20T10:00:00Z" ;
+  tracking:t_min 29699160 ;
+  tracking:day "2026-06-20"^^xsd:date ;
+  tracking:lat "44.12500"^^xsd:float ;
+  tracking:lon "7.01234"^^xsd:float ;
+  tracking:elevation "1820"^^unit:m ;
+  tracking:satellites 9 ;
+  tracking:hdop "1.1"^^xsd:float ;
+  tracking:is_night false .

@@ -1,0 +1,83 @@
+# Lifecycle of a physical copy on loan.
+concept LoanStatus:
+  has key code: string
+
+  one of:
+    ACTIVE [code "active"]
+    RETURNED [code "returned"]
+    OVERDUE [code "overdue"]
+    LOST [code "lost"]
+
+# A writer credited on a book.
+concept Author:
+  has key name: string
+  has bio: optional string
+
+# A title the library catalogues — may have several physical copies.
+concept Book:
+  has key isbn: string
+  has title: one string
+  # authors is repeatable because a book can have co-authors.
+  has authors: some Author
+  has publishedYear: optional int
+  has genre: optional string
+
+# A person registered to borrow books.
+concept Member:
+  has key cardNumber: string
+  has firstName: one string
+  has lastName: one string
+  has email: optional string
+  # loanLimit caps how many active loans a member can carry at once.
+  has loanLimit: one int
+
+# A single borrowing event of one book by one member.
+concept Loan:
+  has book: one Book
+  has member: one Member
+  has status: one LoanStatus
+  # dueDate/checkoutDate are plain strings — swap for a proper date type once one is imported.
+  has checkoutDate: one string
+  has dueDate: one string
+  has returnDate: optional string
+
+concept ClassicBook
+
+fact tolkien a Author
+  name "J.R.R. Tolkien"
+  bio "English writer, best known for The Lord of the Rings"
+
+fact hobbit a Book
+  isbn "978-0-618-00221-4"
+  title "The Hobbit"
+  authors tolkien
+  publishedYear 1937
+  genre "Fantasy"
+
+fact alice a Member
+  cardNumber "M-1001"
+  firstName "Alice"
+  lastName "Munro"
+  email "alice@example.com"
+  loanLimit 5
+
+fact hobbitLoan a Loan
+  book hobbit
+  member alice
+  status ACTIVE
+  checkoutDate "2026-06-20"
+  dueDate "2026-07-04"
+
+# Books published before 1970 are tagged as classics for the reading-list display.
+rule flag_classic:
+  match:
+    ?b a Book
+    ?b publishedYear [ < 1970 ]
+  then:
+    ?b a ClassicBook
+
+# Every currently overdue loan, with the member who owes it.
+query overdue_loans:
+  ?_loan a Loan
+    status OVERDUE
+    member ?_member

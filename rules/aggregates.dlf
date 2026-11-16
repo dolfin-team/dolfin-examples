@@ -1,0 +1,38 @@
+# Aggregates in rule `match:` blocks (run by the SHACL output and, for `count`, by the N3 output too).
+
+concept Owner:
+  has pet_count: int
+
+concept BusyOwner:
+  sub Owner
+
+concept Pet:
+  has owner: Owner
+
+concept Dog:
+  sub Pet
+  has vaccinations: Vaccination
+
+concept Vaccination
+
+concept UnderVaccinatedDog:
+  sub Dog
+
+rule busy_owner:
+  match:
+    ?owner a Owner
+    count ?pet as ?n
+      ?pet owner ?owner
+    ?n [ > 5 ]
+  then:
+    ?owner a BusyOwner
+    ?owner pet_count ?n
+
+rule under_vaccinated_dog:
+  match:
+    ?dog a Dog
+    count distinct ?shot as ?shots
+      ?dog vaccinations ?shot
+    ?shots [ < 2 ]
+  then:
+    ?dog a UnderVaccinatedDog

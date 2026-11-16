@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/university>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "The school office (scolarité) of a fictional university licence: students, UEs with hours, ECTS and coefficients, marks, teachers and their sessions, absences, and one student on a two-year plan, read from CSV files and an Excel workbook. Rules flag the UEs below 10, the semesters that need compensation and repeated absences; queries compute the semester averages weighted by coefficient and the hours taught per UE. Exports write the bulletins (one sheet per semester), the absentee list, the teachers' hours and a JSON roster."

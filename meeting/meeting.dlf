@@ -1,0 +1,95 @@
+# The format of a meeting.
+concept MeetingType:
+  has key code: string
+
+  one of:
+    STANDUP [code "standup"]
+    PLANNING [code "planning"]
+    ONE_ON_ONE [code "one_on_one"]
+    RETRO [code "retro"]
+    ALL_HANDS [code "all_hands"]
+
+# Whether an invitee has responded, and how.
+concept RSVPStatus:
+  one of:
+    Pending
+    Accepted
+    Declined
+    Tentative
+
+# Local stand-in for the identity record. Once dolfin supports import,
+# this would be `import person.Person` instead of a local declaration.
+concept Person:
+  has key email: string
+  has firstName: one string
+  has lastName: one string
+
+# One invitee's response to a meeting.
+concept Invitation:
+  has attendee: one Person
+  has status: one RSVPStatus
+
+# A scheduled gathering between two or more people.
+concept Meeting:
+  has key title: string
+  has organizer: one Person
+  has type: one MeetingType
+  # startTime/endTime are plain strings here — swap for a proper datetime type once one is imported.
+  has startTime: one string
+  has endTime: one string
+  has location: optional string
+  # invitations is repeatable, one per invitee.
+  has invitations: some Invitation
+  has agenda: optional string
+  has notes: optional string
+
+concept NeedsFollowUp
+
+fact priya a Person
+  email "priya@example.com"
+  firstName "Priya"
+  lastName "Natarajan"
+
+fact sam a Person
+  email "sam@example.com"
+  firstName "Sam"
+  lastName "Okafor"
+
+fact standup a Meeting
+  title "Platform Daily Standup"
+  organizer priya
+  type STANDUP
+  startTime "2026-07-08T09:00:00Z"
+  endTime "2026-07-08T09:15:00Z"
+  invitations [
+    a Invitation
+    attendee priya
+    status Accepted
+  ]
+  invitations [
+    a Invitation
+    attendee sam
+    status Accepted
+  ]
+
+fact retro a Meeting
+  title "Platform Redesign Retro"
+  organizer priya
+  type RETRO
+  startTime "2026-07-08T09:00:00Z"
+  endTime "2026-07-08T10:00:00Z"
+  agenda "What went well, what didn't, action items"
+  invitations [
+    a Invitation
+    attendee sam
+    status Tentative
+  ]
+
+# A retro with no agenda recorded needs a follow-up before it can be closed out.
+rule flag_missing_agenda:
+  match:
+    ?m a Meeting
+    ?m type RETRO
+    ?m agenda 0
+  then:
+    ?m a NeedsFollowUp

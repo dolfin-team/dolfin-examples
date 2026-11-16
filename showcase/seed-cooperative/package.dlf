@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/seed-cooperative>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "Graines du Vercors, a fictional cooperative of fifteen small farms that keep and swap heirloom seed varieties. Custom units (the graine credit, packets, bulbs and tubers), a two-field variety key that merges duplicate records, a closed set of species with fixed Latin names, CSV and spreadsheet mappings with unit casts, rules for rare varieties and active members, and SHACL validation of new data."

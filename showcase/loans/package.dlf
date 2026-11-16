@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/loans>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "Money lent between friends: each loan is an annotated edge (reified property) with an amount and an optional note."

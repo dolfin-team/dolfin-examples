@@ -1,0 +1,8 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Edge case 3 submitted for the ranking: Julie (bib 128) at the Cormet de
+# Roselend at 18:40 UTC. Read as local time it would beat the 20:00 cutoff;
+# it is 20:40 in Europe/Paris, so it is late.
+race:p128_cp7 a race:RankedPassage .

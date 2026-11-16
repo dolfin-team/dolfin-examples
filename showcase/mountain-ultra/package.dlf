@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/mountain-ultra>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "The Ultra des Trois Cols, a fictional 78 km Alpine ultra-trail from Bourg-Saint-Maurice: checkpoints with distances, altitudes and gains in mixed units, cutoffs in Europe/Paris local time, chip timings in UTC. Rules time runners out at a cutoff and penalise missing mandatory gear; queries rank the finishers overall and by category."

@@ -1,0 +1,96 @@
+# Graines du Vercors: showcase queries. They run on the built facts after the
+# rules (RareVariety, UrgentRegeneration, ActiveMember) and the key rules are
+# materialized.
+prefix <http://www.w3.org/2002/07/owl#> as owl
+
+# 1. How many varieties of each species the cooperative keeps. Counted by
+# name, so a variety filed under two codes counts once.
+query varieties_per_species:
+  ?_v a coop.Variety
+    species ?species
+    name ?name
+  group by ?species
+    count distinct ?name as ?varieties
+  return
+    ?species
+    ?varieties
+
+# 2. Varieties held by one farm only, and by whom. The rule rare_variety judges
+# each record, but the query merges keyed records: a variety filed under two
+# codes is listed once per holder of either record (Noire de Crimée: TOM-CRIMEE
+# is rare, its twin TOM-NC is not, and both records' holders come back).
+query rare_varieties:
+  ?v a coop.RareVariety
+    name ?name
+    species ?species
+  ?_l variety ?v
+    holder [ name ?holder ]
+  return
+    ?species
+      order asc
+    ?name
+      order asc
+    ?holder
+      order asc
+
+# 3. The five farms that gave the most lots.
+query exchange_volume_by_farm:
+  ?f a coop.Farm
+    name ?farm
+  count ?e as ?exchanges
+    ?e from ?f
+  return
+    ?exchanges
+      order desc
+    ?farm
+      order asc
+    limit 5
+
+# 4. Lots counted in packets. SPARQL sees each count as a literal typed by
+# the unit IRI, "12"^^<https://dolfin.dev/unit/packet>, and the dq: block
+# describes that IRI. `counted [ > quantity(0 packet) ]` would compile to a
+# comparison with the string "0 packet" (rust/BUGS.md, seed-cooperative D),
+# so the lot's unit member selects them.
+query lots_in_packets:
+  ?_l a coop.Lot
+    lot_id ?lot
+    variety [ name ?variety ]
+    counted_in PACKET
+    counted ?count
+  return
+    ?lot
+      order asc
+    ?variety
+    ?count
+
+# 5. The key merge: variety records the (species, name) key made the same.
+query merged_varieties:
+  ?_v a coop.Variety
+    code ?code
+    owl:sameAs [ code ?other ]
+  return
+    ?code
+      order asc
+    ?other
+
+# 6. Members who gave or received a lot since 2025-06-15 (rule active_member).
+query active_members:
+  ?_f a coop.ActiveMember
+    name ?farm
+  return
+    ?farm
+      order asc
+
+# 7. Lots to regrow first: rare and germinating poorly (rule
+# seed_bank_candidate). GV-2023-002, Soissons beans at 0.55, is not one:
+# three farms hold Soissons.
+query urgent_regeneration:
+  ?_l a coop.UrgentRegeneration
+    lot_id ?lot
+    variety [ name ?variety ]
+    germination_rate ?rate
+  return
+    ?lot
+      order asc
+    ?variety
+    ?rate

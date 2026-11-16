@@ -1,0 +1,57 @@
+# World mythologies — showcase queries (Dolfin version of queries.md).
+
+# 1. Deities of death, across traditions.
+query death_figures:
+  a mythologies.Figure
+    domain Death
+    name ?figure
+    tradition [
+      name ?tradition
+    ]
+  return
+    ?tradition
+      order asc
+    ?figure
+      order asc
+
+# 2. Every descendant of Gaia, at any depth.
+# `ancestorOf` is the transitive closure of `parentOf` (rules in mythologies.dlf).
+query gaia_descendants:
+  ?g a mythologies.Figure
+    name "Gaia"
+  ?_d a mythologies.Figure
+    is ancestorOf of ?g
+    name ?descendant
+  return
+    ?descendant
+      order asc
+
+# 3. Which domains appear in the most traditions?
+# No GROUP_CONCAT in Dolfin: the figure names are not listed.
+query domains_by_tradition_count:
+  a mythologies.Figure
+    domain ?domain
+    tradition ?tradition
+  group by ?domain
+    count distinct ?tradition as ?traditions
+  return
+    ?traditions
+      order desc
+    ?domain
+      order asc
+
+# 4. Legendary weapons and their wielders.
+query artifacts_and_wielders:
+  a mythologies.Artifact
+    name ?artifact
+    wieldedBy [
+      name ?wielder
+      tradition [
+        name ?tradition
+      ]
+    ]
+  return
+    ?artifact
+    ?wielder
+    ?tradition
+      order asc

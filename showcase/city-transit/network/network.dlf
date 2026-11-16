@@ -1,0 +1,303 @@
+# Réseau Lumière (fictional): the tram and bus network of a mid-size French
+# city. This package is the infrastructure team's: stops, lines, the order of
+# the stops on each line, walking connections and step-free access. The
+# operations team's timetable package imports it at a pinned version.
+# Every name, code and coordinate is invented.
+
+concept FareZone:
+  one of:
+    Z1
+    Z2
+    Z3
+
+concept Mode:
+  one of:
+    TRAM
+    BUS
+    BRT
+
+concept Stop:
+  has key stop_code: string
+  has name: one string
+
+  # WGS 84, in degrees.
+  has lat: one float [ >= -90, <= 90 ]
+  has long: one float [ >= -180, <= 180 ]
+
+  # Step-free from the street to a low-floor vehicle.
+  has accessible: one boolean
+  has zone: one FareZone
+
+concept Line:
+  has key code: string
+  has mode: one Mode
+
+  # The stops in running order, from one terminus to the other. Not filled
+  # in the facts: a `list of` value in a fact is emitted as one plain triple
+  # per stop, not as an rdf:List, and then fails sh:maxCount 1 (rust/BUGS.md,
+  # mountain-ultra A). `serves` lists the stops in running order instead.
+  has stops: list of Stop
+  has length: one length
+
+# The stops a line calls at, without order: what other packages query and
+# check against. Written next to `stops` in every line below.
+property serves: Line -> Stop
+
+property served_by: Stop -> Line
+  inverse of serves
+
+# A walkway between two nearby stops of different lines: both directions.
+property connected_to: Stop -> Stop
+  symmetric
+  sub reachable_from
+
+# On foot through one or more walkways.
+property reachable_from: Stop -> Stop
+  transitive
+
+# Stops. Walkways (`connected_to`) are written once, on one end: `symmetric`
+# gives the other direction. Pont des Arts – Musée des Tisserands – Opéra –
+# Hôtel de Ville form a chain, so under OWL reasoning (`transitive`) Pont des
+# Arts is reachable from Hôtel de Ville; Bibliothèque – Marché Couvert links
+# T1 and T3.
+
+fact GAR a Stop
+  stop_code "GAR"
+  name "Gare Centrale"
+  lat 45.7598
+  long 4.8261
+  accessible true
+  zone Z1
+
+fact REP a Stop
+  stop_code "REP"
+  name "République"
+  lat 45.7631
+  long 4.8352
+  accessible true
+  zone Z1
+
+fact HDV a Stop
+  stop_code "HDV"
+  name "Hôtel de Ville"
+  lat 45.7672
+  long 4.8336
+  accessible true
+  zone Z1
+
+fact OPE a Stop
+  stop_code "OPE"
+  name "Opéra"
+  lat 45.7679
+  long 4.8364
+  accessible false
+  zone Z1
+  connected_to HDV
+
+fact MAR a Stop
+  stop_code "MAR"
+  name "Marché Couvert"
+  lat 45.7705
+  long 4.841
+  accessible true
+  zone Z1
+
+fact PON a Stop
+  stop_code "PON"
+  name "Pont des Arts"
+  lat 45.7611
+  long 4.8203
+  accessible true
+  zone Z1
+  connected_to MUS
+
+fact BIB a Stop
+  stop_code "BIB"
+  name "Bibliothèque"
+  lat 45.7652
+  long 4.8427
+  accessible true
+  zone Z1
+  connected_to MAR
+
+fact MUS a Stop
+  stop_code "MUS"
+  name "Musée des Tisserands"
+  lat 45.764
+  long 4.8299
+  accessible true
+  zone Z1
+  connected_to OPE
+
+fact UNI a Stop
+  stop_code "UNI"
+  name "Université"
+  lat 45.7703
+  long 4.8611
+  accessible true
+  zone Z2
+
+fact HOP a Stop
+  stop_code "HOP"
+  name "Hôpital Nord"
+  lat 45.7801
+  long 4.8683
+  accessible true
+  zone Z2
+
+fact STA a Stop
+  stop_code "STA"
+  name "Stade Lumière"
+  lat 45.7488
+  long 4.8502
+  accessible true
+  zone Z2
+
+fact PAR a Stop
+  stop_code "PAR"
+  name "Parc des Tilleuls"
+  lat 45.7759
+  long 4.8547
+  accessible true
+  zone Z2
+
+fact CAS a Stop
+  stop_code "CAS"
+  name "Caserne"
+  lat 45.7547
+  long 4.8424
+  accessible true
+  zone Z2
+
+fact LYC a Stop
+  stop_code "LYC"
+  name "Lycée Ampère"
+  lat 45.7741
+  long 4.859
+  accessible true
+  zone Z2
+
+fact POR a Stop
+  stop_code "POR"
+  name "Port Fluvial"
+  lat 45.755
+  long 4.8122
+  accessible true
+  zone Z2
+
+fact COL a Stop
+  stop_code "COL"
+  name "Colline Saint-Just"
+  lat 45.7577
+  long 4.8165
+  accessible false
+  zone Z2
+
+fact CIM a Stop
+  stop_code "CIM"
+  name "Cimetière Est"
+  lat 45.779
+  long 4.8551
+  accessible true
+  zone Z2
+
+fact CHA a Stop
+  stop_code "CHA"
+  name "Champ de Foire"
+  lat 45.7752
+  long 4.8466
+  accessible true
+  zone Z2
+
+fact BEL a Stop
+  stop_code "BEL"
+  name "Belvédère"
+  lat 45.7536
+  long 4.8089
+  accessible true
+  zone Z2
+
+fact TEC a Stop
+  stop_code "TEC"
+  name "Technopôle"
+  lat 45.7902
+  long 4.8812
+  accessible true
+  zone Z3
+
+fact ZAC a Stop
+  stop_code "ZAC"
+  name "ZAC des Sources"
+  lat 45.784
+  long 4.8402
+  accessible true
+  zone Z3
+
+fact AER a Stop
+  stop_code "AER"
+  name "Aérodrome"
+  lat 45.7921
+  long 4.8333
+  accessible true
+  zone Z3
+
+fact PLA a Stop
+  stop_code "PLA"
+  name "Plaine des Sports"
+  lat 45.7402
+  long 4.8571
+  accessible true
+  zone Z3
+
+fact VER a Stop
+  stop_code "VER"
+  name "Vergers"
+  lat 45.749
+  long 4.7988
+  accessible false
+  zone Z3
+
+fact MOU a Stop
+  stop_code "MOU"
+  name "Moulin Neuf"
+  lat 45.8003
+  long 4.829
+  accessible true
+  zone Z3
+
+# Lines. T1 runs Gare Centrale – Technopôle through the university, T2 Port
+# Fluvial – Plaine des Sports (the north–south spine), T3 Musée des
+# Tisserands – Cimetière Est, bus 10 Gare Centrale up the hill to Vergers,
+# bus 11 Université – Moulin Neuf (the outer ring). Interchanges, stops on
+# two lines or more: GAR (T1, T2, B10), HDV (T2, T3, B11), REP (T1, T3) and
+# UNI (T1, B11).
+
+fact T1 a Line
+  code "T1"
+  mode TRAM
+  serves GAR, REP, BIB, UNI, HOP, TEC
+  length quantity(9.4 km)
+
+fact T2 a Line
+  code "T2"
+  mode TRAM
+  serves POR, PON, GAR, HDV, CAS, STA, PLA
+  length quantity(8.1 km)
+
+fact T3 a Line
+  code "T3"
+  mode TRAM
+  serves MUS, REP, HDV, MAR, CHA, CIM
+  length quantity(6.3 km)
+
+fact B10 a Line
+  code "B10"
+  mode BUS
+  serves GAR, OPE, COL, BEL, VER
+  length quantity(5.2 km)
+
+fact B11 a Line
+  code "B11"
+  mode BUS
+  serves UNI, LYC, PAR, HDV, ZAC, AER, MOU
+  length quantity(11.7 km)

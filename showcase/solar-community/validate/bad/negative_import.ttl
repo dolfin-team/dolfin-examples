@@ -1,0 +1,13 @@
+@prefix c: <https://www.dolfin.fr/showcase/solar-community/community#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix cunit: <https://www.dolfin.fr/showcase/solar-community/unit/> .
+# A meter glitch: a negative import. The rule invalid_reading flags it, and an
+# InvalidReading needs the operator's correction note.
+c:reading_26140000000105d2026-08-01 a c:DailyReading ;
+  c:site c:site_26140000000105 ;
+  c:day "2026-08-01"^^xsd:date ;
+  c:working_day false ;
+  c:imported "-3.2"^^cunit:h.kW ;
+  c:exported "0"^^cunit:h.kW ;
+  c:peak_draw "3.1"^^unit:KiloW .

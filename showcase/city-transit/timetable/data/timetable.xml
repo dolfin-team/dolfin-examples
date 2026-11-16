@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Réseau Lumière (fictional): a NeTEx-like timetable export, simplified and
+     invented. Timing points only: each journey lists the stops it is timed at.
+     Each TimetabledPassingTime repeats its ServiceJourneyRef (real NeTEx does
+     not): a mapping has one `for each`, and XPath has no `..` (rust/BUGS.md). -->
+<PublicationDelivery version="1.0">
+  <dataObjects>
+    <TimetableFrame id="LUM:TimetableFrame:2026-S1">
+      <vehicleJourneys>
+        <ServiceJourney id="SJ-T1-01">
+          <LineRef ref="T1"/>
+          <VehicleTypeRef ref="CITADIS_402"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T1-01-1">
+              <ServiceJourneyRef ref="SJ-T1-01"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>06:00:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-01-2">
+              <ServiceJourneyRef ref="SJ-T1-01"/>
+              <StopPointRef ref="REP"/>
+              <DepartureTime>06:10:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-01-3">
+              <ServiceJourneyRef ref="SJ-T1-01"/>
+              <StopPointRef ref="UNI"/>
+              <DepartureTime>06:20:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-01-4">
+              <ServiceJourneyRef ref="SJ-T1-01"/>
+              <StopPointRef ref="TEC"/>
+              <DepartureTime>06:30:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T1-02">
+          <LineRef ref="T1"/>
+          <VehicleTypeRef ref="CITADIS_402"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T1-02-1">
+              <ServiceJourneyRef ref="SJ-T1-02"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>06:30:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-02-2">
+              <ServiceJourneyRef ref="SJ-T1-02"/>
+              <StopPointRef ref="REP"/>
+              <DepartureTime>06:40:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-02-3">
+              <ServiceJourneyRef ref="SJ-T1-02"/>
+              <StopPointRef ref="UNI"/>
+              <DepartureTime>06:50:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-02-4">
+              <ServiceJourneyRef ref="SJ-T1-02"/>
+              <StopPointRef ref="TEC"/>
+              <DepartureTime>07:00:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T1-03">
+          <LineRef ref="T1"/>
+          <VehicleTypeRef ref="CITADIS_402"/>
+          <DayTypeRef ref="SATURDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T1-03-1">
+              <ServiceJourneyRef ref="SJ-T1-03"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>07:00:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-03-2">
+              <ServiceJourneyRef ref="SJ-T1-03"/>
+              <StopPointRef ref="REP"/>
+              <DepartureTime>07:10:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-03-3">
+              <ServiceJourneyRef ref="SJ-T1-03"/>
+              <StopPointRef ref="UNI"/>
+              <DepartureTime>07:20:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T1-03-4">
+              <ServiceJourneyRef ref="SJ-T1-03"/>
+              <StopPointRef ref="TEC"/>
+              <DepartureTime>07:30:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T2-01">
+          <LineRef ref="T2"/>
+          <VehicleTypeRef ref="CITADIS_302"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T2-01-1">
+              <ServiceJourneyRef ref="SJ-T2-01"/>
+              <StopPointRef ref="PON"/>
+              <DepartureTime>06:10:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T2-01-2">
+              <ServiceJourneyRef ref="SJ-T2-01"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>06:20:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T2-01-3">
+              <ServiceJourneyRef ref="SJ-T2-01"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>06:30:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T2-01-4">
+              <ServiceJourneyRef ref="SJ-T2-01"/>
+              <StopPointRef ref="STA"/>
+              <DepartureTime>06:40:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T2-02">
+          <LineRef ref="T2"/>
+          <VehicleTypeRef ref="CITADIS_402"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T2-02-1">
+              <ServiceJourneyRef ref="SJ-T2-02"/>
+              <StopPointRef ref="PON"/>
+              <DepartureTime>06:40:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T2-02-2">
+              <ServiceJourneyRef ref="SJ-T2-02"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>06:50:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T2-02-3">
+              <ServiceJourneyRef ref="SJ-T2-02"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>07:00:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T2-02-4">
+              <ServiceJourneyRef ref="SJ-T2-02"/>
+              <StopPointRef ref="STA"/>
+              <DepartureTime>07:10:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T3-01">
+          <LineRef ref="T3"/>
+          <VehicleTypeRef ref="CITADIS_302"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T3-01-1">
+              <ServiceJourneyRef ref="SJ-T3-01"/>
+              <StopPointRef ref="MUS"/>
+              <DepartureTime>06:20:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-01-2">
+              <ServiceJourneyRef ref="SJ-T3-01"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>06:30:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-01-3">
+              <ServiceJourneyRef ref="SJ-T3-01"/>
+              <StopPointRef ref="CHA"/>
+              <DepartureTime>06:40:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-01-4">
+              <ServiceJourneyRef ref="SJ-T3-01"/>
+              <StopPointRef ref="CIM"/>
+              <DepartureTime>06:50:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T3-02">
+          <LineRef ref="T3"/>
+          <VehicleTypeRef ref="CITADIS_302"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T3-02-1">
+              <ServiceJourneyRef ref="SJ-T3-02"/>
+              <StopPointRef ref="MUS"/>
+              <DepartureTime>07:00:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-02-2">
+              <ServiceJourneyRef ref="SJ-T3-02"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>07:10:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-02-3">
+              <ServiceJourneyRef ref="SJ-T3-02"/>
+              <StopPointRef ref="CHA"/>
+              <DepartureTime>07:20:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-02-4">
+              <ServiceJourneyRef ref="SJ-T3-02"/>
+              <StopPointRef ref="CIM"/>
+              <DepartureTime>07:30:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-T3-03">
+          <LineRef ref="T3"/>
+          <VehicleTypeRef ref="CITADIS_302"/>
+          <DayTypeRef ref="SUNDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-T3-03-1">
+              <ServiceJourneyRef ref="SJ-T3-03"/>
+              <StopPointRef ref="MUS"/>
+              <DepartureTime>08:00:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-03-2">
+              <ServiceJourneyRef ref="SJ-T3-03"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>08:10:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-03-3">
+              <ServiceJourneyRef ref="SJ-T3-03"/>
+              <StopPointRef ref="CHA"/>
+              <DepartureTime>08:20:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-T3-03-4">
+              <ServiceJourneyRef ref="SJ-T3-03"/>
+              <StopPointRef ref="CIM"/>
+              <DepartureTime>08:30:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-B10-01">
+          <LineRef ref="B10"/>
+          <VehicleTypeRef ref="STANDARD_BUS"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-B10-01-1">
+              <ServiceJourneyRef ref="SJ-B10-01"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>06:50:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B10-01-2">
+              <ServiceJourneyRef ref="SJ-B10-01"/>
+              <StopPointRef ref="OPE"/>
+              <DepartureTime>07:00:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B10-01-3">
+              <ServiceJourneyRef ref="SJ-B10-01"/>
+              <StopPointRef ref="COL"/>
+              <DepartureTime>07:10:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B10-01-4">
+              <ServiceJourneyRef ref="SJ-B10-01"/>
+              <StopPointRef ref="VER"/>
+              <DepartureTime>07:20:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-B10-02">
+          <LineRef ref="B10"/>
+          <VehicleTypeRef ref="STANDARD_BUS"/>
+          <DayTypeRef ref="SATURDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-B10-02-1">
+              <ServiceJourneyRef ref="SJ-B10-02"/>
+              <StopPointRef ref="GAR"/>
+              <DepartureTime>07:40:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B10-02-2">
+              <ServiceJourneyRef ref="SJ-B10-02"/>
+              <StopPointRef ref="OPE"/>
+              <DepartureTime>07:50:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B10-02-3">
+              <ServiceJourneyRef ref="SJ-B10-02"/>
+              <StopPointRef ref="COL"/>
+              <DepartureTime>08:00:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B10-02-4">
+              <ServiceJourneyRef ref="SJ-B10-02"/>
+              <StopPointRef ref="VER"/>
+              <DepartureTime>08:10:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-B11-01">
+          <LineRef ref="B11"/>
+          <VehicleTypeRef ref="ARTICULATED_BUS"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-B11-01-1">
+              <ServiceJourneyRef ref="SJ-B11-01"/>
+              <StopPointRef ref="UNI"/>
+              <DepartureTime>06:40:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B11-01-2">
+              <ServiceJourneyRef ref="SJ-B11-01"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>06:50:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B11-01-3">
+              <ServiceJourneyRef ref="SJ-B11-01"/>
+              <StopPointRef ref="AER"/>
+              <DepartureTime>07:00:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B11-01-4">
+              <ServiceJourneyRef ref="SJ-B11-01"/>
+              <StopPointRef ref="MOU"/>
+              <DepartureTime>07:10:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+        <ServiceJourney id="SJ-B11-02">
+          <LineRef ref="B11"/>
+          <VehicleTypeRef ref="ARTICULATED_BUS"/>
+          <DayTypeRef ref="WEEKDAY"/>
+          <passingTimes>
+            <TimetabledPassingTime id="SJ-B11-02-1">
+              <ServiceJourneyRef ref="SJ-B11-02"/>
+              <StopPointRef ref="UNI"/>
+              <DepartureTime>07:20:00</DepartureTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B11-02-2">
+              <ServiceJourneyRef ref="SJ-B11-02"/>
+              <StopPointRef ref="HDV"/>
+              <DepartureTime>07:30:00</DepartureTime>
+              <WaitingTime>PT1M</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B11-02-3">
+              <ServiceJourneyRef ref="SJ-B11-02"/>
+              <StopPointRef ref="AER"/>
+              <DepartureTime>07:40:00</DepartureTime>
+              <WaitingTime>PT30S</WaitingTime>
+            </TimetabledPassingTime>
+            <TimetabledPassingTime id="SJ-B11-02-4">
+              <ServiceJourneyRef ref="SJ-B11-02"/>
+              <StopPointRef ref="MOU"/>
+              <DepartureTime>07:50:00</DepartureTime>
+            </TimetabledPassingTime>
+          </passingTimes>
+        </ServiceJourney>
+      </vehicleJourneys>
+    </TimetableFrame>
+  </dataObjects>
+</PublicationDelivery>

@@ -1,0 +1,28 @@
+@prefix pharmacy: <https://www.dolfin.fr/showcase/hospital-pharmacy/pharmacy#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+# Rose, 71, cardiology: one more patient, a safe prescription and its dispensing.
+pharmacy:rose a pharmacy:Patient ;
+  pharmacy:mrn "SR-0009" ;
+  pharmacy:firstName "Rose" ;
+  pharmacy:birthdate "1955-01-08"^^xsd:date ;
+  pharmacy:weight "64"^^unit:KiloGM ;
+  pharmacy:ward pharmacy:Ward_CARDIOLOGY .
+
+pharmacy:rx21 a pharmacy:SafePrescription ;
+  pharmacy:rxId "RX-21" ;
+  pharmacy:patient pharmacy:rose ;
+  pharmacy:prescriber pharmacy:dr_sophie ;
+  pharmacy:drug pharmacy:furosemide ;
+  pharmacy:dose "40"^^unit:MilliGM ;
+  pharmacy:frequency_per_day "1"^^xsd:integer ;
+  pharmacy:start "2026-06-15"^^xsd:date ;
+  pharmacy:length "P10D"^^xsd:duration ;
+  pharmacy:route pharmacy:Route_ORAL .
+
+pharmacy:disp26 a pharmacy:SafeDispensing ;
+  pharmacy:dispensingId "D-26" ;
+  pharmacy:prescription pharmacy:rx21 ;
+  pharmacy:batch pharmacy:batch_F2405 ;
+  pharmacy:at "2026-06-15T10:00:00"^^xsd:dateTime ;
+  pharmacy:day "2026-06-15"^^xsd:date .

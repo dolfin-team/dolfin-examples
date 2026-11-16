@@ -1,0 +1,107 @@
+# Letter grade recorded for a completed enrollment.
+concept Grade:
+  has key code: string
+
+  one of:
+    A [code "A"]
+    B [code "B"]
+    C [code "C"]
+    D [code "D"]
+    F [code "F"]
+
+concept Department:
+  has key code: string
+
+  one of:
+    CS [code "cs"]
+    MATH [code "math"]
+    PHYSICS [code "physics"]
+
+# A person enrolled in the university.
+concept Student:
+  has key studentId: string
+  has firstName: one string
+  has lastName: one string
+  has major: one Department
+
+# A person teaching one or more courses.
+concept Instructor:
+  has key employeeId: string
+  has name: one string
+  has department: one Department
+
+# A course offering that can be taken by students.
+concept Course:
+  has key code: string
+  has title: one string
+  has department: one Department
+  has credits: one int
+  has instructor: one Instructor
+  # prerequisites is repeatable — a course can require several others.
+  has prerequisites: Course
+
+# A student's registration in one course for one term.
+concept Enrollment:
+  has student: one Student
+  has course: one Course
+  has term: one string
+  has grade: optional Grade
+
+concept HonorsStudent
+concept AdvancedCourse
+
+fact turing a Instructor
+  employeeId "EMP-001"
+  name "Alan Turing"
+  department CS
+
+fact intro_cs a Course
+  code "CS101"
+  title "Introduction to Computer Science"
+  department CS
+  credits 4
+  instructor turing
+
+fact algorithms a Course
+  code "CS301"
+  title "Algorithms"
+  department CS
+  credits 4
+  instructor turing
+  prerequisites intro_cs
+
+fact ada a Student
+  studentId "S-2001"
+  firstName "Ada"
+  lastName "Lovelace"
+  major CS
+
+fact adaIntroCs a Enrollment
+  student ada
+  course intro_cs
+  term "2026-Spring"
+  grade A
+
+# Courses requiring at least one prerequisite are flagged as advanced.
+rule flag_advanced_course:
+  match:
+    ?c a Course
+    ?c prerequisites ?_prereq
+  then:
+    ?c a AdvancedCourse
+
+# A straight-A enrollment marks its student as an honors student.
+rule flag_honors_student:
+  match:
+    ?_e a Enrollment
+    ?_e grade A
+    ?_e student ?s
+  then:
+    ?s a HonorsStudent
+
+# All enrollments for a given term, with grade if recorded.
+query enrollments_by_term:
+  ?_e a Enrollment
+    term "2026-Spring"
+    student ?_student
+    course ?_course

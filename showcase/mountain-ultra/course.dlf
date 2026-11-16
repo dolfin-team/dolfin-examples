@@ -1,0 +1,95 @@
+@timezone Europe/Paris
+
+# The course of the Ultra des Trois Cols (fictional race, real places): a
+# 78 km loop from Bourg-Saint-Maurice over the Col du Petit-Saint-Bernard, the
+# Col de la Seigne and the Cormet de Roselend, on Saturday 11 July 2026.
+#
+# Every date_time below has no inline offset, so `@timezone Europe/Paris`
+# applies: in July that is CEST, 08:00 → 2026-07-11T08:00:00+02:00. The start
+# is at 05:00 local (03:00 UTC). A cutoff is inclusive: a runner timed exactly
+# at the cutoff is still in the race.
+#
+# Mixed units on purpose: one distance is given in miles and one altitude in
+# feet, both converted with `as`, the gains partly in km.
+
+fact cp1 a race.Checkpoint
+  code "CP1"
+  name "La Rosière"
+  distance_from_start quantity(15 km)
+  altitude quantity(1850 m)
+  cumulative_gain quantity(1150 m)
+  cutoff date_time(July 11th 2026, 09:00)
+  next cp2
+
+# The Col du Petit-Saint-Bernard, 13.67 miles in: the Italian marshals
+# measure in km, so the value is converted.
+fact cp2 a race.Checkpoint
+  code "CP2"
+  name "Col du Petit-Saint-Bernard"
+  distance_from_start quantity(13.67 mi as km)
+  altitude quantity(2188 m)
+  cumulative_gain quantity(1.5 km as m)
+  cutoff date_time(July 11th 2026, 10:30)
+  next cp3
+
+fact cp3 a race.Checkpoint
+  code "CP3"
+  name "La Thuile"
+  distance_from_start quantity(30 km)
+  altitude quantity(1441 m)
+  cumulative_gain quantity(1650 m)
+  cutoff date_time(July 11th 2026, 12:00)
+  next cp4
+
+# The roof of the race, 8255 ft on the old survey map.
+fact cp4 a race.Checkpoint
+  code "CP4"
+  name "Col de la Seigne"
+  distance_from_start quantity(44 km)
+  altitude quantity(8255 ft as m)
+  cumulative_gain quantity(3000 m)
+  cutoff date_time(July 11th 2026, 15:30)
+  next cp5
+
+fact cp5 a race.Checkpoint
+  code "CP5"
+  name "Refuge des Mottets"
+  distance_from_start quantity(48 km)
+  altitude quantity(1864 m)
+  cumulative_gain quantity(3050 m)
+  cutoff date_time(July 11th 2026, 16:30)
+  next cp6
+
+fact cp6 a race.Checkpoint
+  code "CP6"
+  name "Les Chapieux"
+  distance_from_start quantity(53 km)
+  altitude quantity(1549 m)
+  cumulative_gain quantity(3200 m)
+  cutoff date_time(July 11th 2026, 17:30)
+  next cp7
+
+fact cp7 a race.Checkpoint
+  code "CP7"
+  name "Cormet de Roselend"
+  distance_from_start quantity(62 km)
+  altitude quantity(1968 m)
+  cumulative_gain quantity(3800 m)
+  cutoff date_time(July 11th 2026, 20:00)
+  next finish
+
+fact finish a race.Checkpoint
+  code "FINISH"
+  name "Bourg-Saint-Maurice"
+  distance_from_start quantity(78000 m as km)
+  altitude quantity(813 m)
+  cumulative_gain quantity(4.8 km as m)
+  cutoff date_time(July 11th 2026, 23:00)
+
+# The ordered checkpoint list is not asserted here: a `list of` value in a
+# fact is emitted as one plain triple per element, not as an rdf:List, and
+# then fails the field's sh:maxCount 1 (rust/BUGS.md, mountain-ultra A).
+# validate/ok/course_as_rdf_list.ttl supplies it as a real rdf:List.
+fact trois_cols a race.Course
+  name "Ultra des Trois Cols"
+  total_distance quantity(78 km)

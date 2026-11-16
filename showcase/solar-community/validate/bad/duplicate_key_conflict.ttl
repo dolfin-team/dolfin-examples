@@ -1,0 +1,17 @@
+@prefix c: <https://www.dolfin.fr/showcase/solar-community/community#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix cunit: <https://www.dolfin.fr/showcase/solar-community/unit/> .
+# The hub resends Foyer Escoffier's 31 July reading under a new id, with a
+# corrected import. Same site and day: the key makes it the same reading as
+# the CSV row (4.10 kWh, a working day), which now has two imports and two
+# working_day values for `one` fields. Only working_day is reported: the
+# merge check compares the two imports with `!=`, an error on unit-typed
+# literals (rust/BUGS.md, solar-community C).
+c:resent_26140000000105d2026-07-31 a c:DailyReading ;
+  c:site c:site_26140000000105 ;
+  c:day "2026-07-31"^^xsd:date ;
+  c:working_day false ;
+  c:imported "99.99"^^cunit:h.kW ;
+  c:exported "0"^^cunit:h.kW ;
+  c:peak_draw "3.1"^^unit:KiloW .

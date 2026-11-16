@@ -1,0 +1,62 @@
+prefix fr.dolfin.showcase.city_transit.network.network as net
+
+# The lines calling at Hôtel de Ville, read backwards from the network's
+# `serves` (line → stop).
+query lines_at_stop:
+  ?_stop a net:Stop
+    net:name "Hôtel de Ville"
+    is net:serves of ?_line
+  ?_line net:code ?line
+  return
+    ?line
+      order asc
+
+# Stops served by several lines (rule `interchange`), busiest first.
+query interchanges:
+  ?_stop a timetable.Interchange
+    net:name ?stop
+    is net:serves of ?_line
+  group by ?stop
+    count distinct ?_line as ?lines
+  return
+    ?lines
+      order desc
+    ?stop
+      order asc
+
+# The first weekday departure of each line: the earliest passing time of its
+# weekday journeys.
+query first_departures:
+  ?_j a timetable.ServiceJourney
+    day_type timetable.WEEKDAY
+    line [ net:code ?line ]
+    passing_times [ departure ?departure ]
+  group by ?line
+    min ?departure as ?first
+  return
+    ?first
+      order asc
+    ?line
+
+# Journeys calling at a stop under an active disruption, at now()
+# (validate/now pins it for the showcase harness).
+query disrupted_journeys_now:
+  ?_j a timetable.DisruptedJourney
+    journey_id ?journey
+    line [ net:code ?line ]
+  return
+    ?journey
+      order asc
+    ?line
+
+# Average vehicle capacity of each line's journeys, one value per line.
+query capacity_per_line:
+  ?line a net:Line
+    net:code ?code
+  average ?capacity as ?avg_capacity
+    ?_j line ?line
+    ?_j vehicle [ capacity ?capacity ]
+  return
+    ?code
+      order asc
+    ?avg_capacity

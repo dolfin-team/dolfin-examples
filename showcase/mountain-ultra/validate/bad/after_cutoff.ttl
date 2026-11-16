@@ -1,0 +1,10 @@
+@prefix race: <https://www.dolfin.fr/showcase/mountain-ultra/race#> .
+@prefix course: <https://www.dolfin.fr/showcase/mountain-ultra/course#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit: <https://dolfin.dev/unit/> .
+# Yann (bib 121) is submitted at the Refuge des Mottets at 16:31 local, a
+# minute after the 16:30 cutoff.
+race:p121_cp5 a race:RankedPassage ;
+  race:runner race:r121 ;
+  race:checkpoint course:cp5 ;
+  race:at "2026-07-11T14:31:00Z"^^xsd:dateTime .

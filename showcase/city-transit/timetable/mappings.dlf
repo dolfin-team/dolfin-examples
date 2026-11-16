@@ -1,0 +1,70 @@
+# The operations export (data/timetable.xml, NeTEx-like) read into journeys
+# and passing times. Journey and passing-time IRIs are minted in this
+# package's namespace; lines and stops are the network package's IRIs, built
+# from the codes the export uses (a code is the network fact's name). `net`
+# is an IRI prefix here, as the templates need the namespace IRI; it covers
+# the same import namespace as timetable.dlf's dotted one.
+prefix <https://www.dolfin.fr/showcase/city-transit/network/network#> as net
+prefix <https://www.dolfin.fr/showcase/city-transit/timetable/timetable#> as tt
+
+# One row per journey.
+mapping from <package://data/timetable.xml> as XPath
+  for each "//ServiceJourney"
+  map:
+    "@id"                 as ?journey
+    "LineRef/@ref"        as ?line
+    "VehicleTypeRef/@ref" as ?vehicle
+    "DayTypeRef/@ref"     as ?day
+  to:
+    fact tt:{?journey} a timetable.ServiceJourney
+      journey_id {?journey}
+      line net:{?line}
+      vehicle case ?vehicle:
+        "CITADIS_302" -> CITADIS_302
+        "CITADIS_402" -> CITADIS_402
+        "ARTICULATED_BUS" -> ARTICULATED_BUS
+        "STANDARD_BUS" -> STANDARD_BUS
+      day_type case ?day:
+        "WEEKDAY" -> WEEKDAY
+        "SATURDAY" -> SATURDAY
+        "SUNDAY" -> SUNDAY
+
+# One row per passing time. A mapping has a single `for each` and XPath has
+# no `..`, so the journey is read from the passing time's own
+# ServiceJourneyRef, and the journey's `passing_times` is written from here.
+# There is no `as time` cast: `case` turns each departure of the export into
+# a time literal (rust/BUGS.md), and likewise the waiting times.
+mapping from <package://data/timetable.xml> as XPath
+  for each "//TimetabledPassingTime"
+  map:
+    "@id"                    as ?pt
+    "ServiceJourneyRef/@ref" as ?journey
+    "StopPointRef/@ref"      as ?stop
+    "DepartureTime"          as ?departure
+    "WaitingTime"            as ?wait
+  to:
+    fact tt:{?pt} a timetable.PassingTime
+      journey tt:{?journey}
+      stop net:{?stop}
+      departure case ?departure:
+        "06:00:00" -> time(06:00)
+        "06:10:00" -> time(06:10)
+        "06:20:00" -> time(06:20)
+        "06:30:00" -> time(06:30)
+        "06:40:00" -> time(06:40)
+        "06:50:00" -> time(06:50)
+        "07:00:00" -> time(07:00)
+        "07:10:00" -> time(07:10)
+        "07:20:00" -> time(07:20)
+        "07:30:00" -> time(07:30)
+        "07:40:00" -> time(07:40)
+        "07:50:00" -> time(07:50)
+        "08:00:00" -> time(08:00)
+        "08:10:00" -> time(08:10)
+        "08:20:00" -> time(08:20)
+        "08:30:00" -> time(08:30)
+      dwell case ?wait:
+        "PT30S" -> duration(30s)
+        "PT1M" -> duration(1min)
+    fact tt:{?journey} a timetable.ServiceJourney
+      passing_times tt:{?pt}

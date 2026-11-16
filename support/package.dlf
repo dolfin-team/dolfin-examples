@@ -1,0 +1,5 @@
+package support:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin Examples"
+  description "Standalone support-ticketing data model — SLA escalation rules"

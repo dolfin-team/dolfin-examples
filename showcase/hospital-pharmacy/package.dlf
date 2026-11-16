@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/hospital-pharmacy>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "The pharmacy of Hôpital Saint-Roch, a fictional hospital: prescriptions with doses typed as masses, drug batches with expiry dates, and dispensings to wards. SHACL checks the prescriptions (cardinalities, dimensions, bounds, dose against the drug maximum), rules flag overdoses, expired batches and children given drugs with no pediatric dosing."

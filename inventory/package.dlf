@@ -1,0 +1,5 @@
+package inventory:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin Examples"
+  description "Standalone e-commerce inventory and order data model"

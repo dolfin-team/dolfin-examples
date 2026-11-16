@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/showcase/solar-community>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "Soleil du Diois, a fictional citizen solar energy community in a Drôme valley: twenty households, a school, a summer day-camp and a cheese dairy on two low-voltage feeders, with a July of daily smart-meter readings in Wh, kWh and MWh (data/readings.csv, generated once by generate_readings.py). Rules aggregate the readings (sum, max, average, count, count distinct) after a plain rule, queries aggregate them again, and SHACL validates new readings."
