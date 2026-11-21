@@ -37,7 +37,7 @@ property generousTo: Person -> Person
 
 rule generous_lender:
   match:
-    ?lender lends ?borrower [amount [?x > 50.0]]
+    ?lender lends ?borrower [amount [ > 50.0]]
   then:
     ?lender generousTo ?borrower
 

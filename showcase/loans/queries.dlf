@@ -36,7 +36,7 @@ query loan_amounts:
 
 # 4. Each loan by pair: the bracket reads the link's `amount`.
 query loans_by_pair:
-  ?a a loans.Person
+  a loans.Person
     name ?lender
     lends ?b [amount ?amount]
   ?b name ?borrower
