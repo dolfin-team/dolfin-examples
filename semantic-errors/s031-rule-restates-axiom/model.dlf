@@ -1,0 +1,11 @@
+# S031: A rule that only restates the `symmetric` axiom OWL reasoning already entails.
+
+concept Person:
+  has friend: any Person
+    symmetric
+
+rule friendsym:
+  match:
+    ?a friend ?b
+  then:
+    ?b friend ?a

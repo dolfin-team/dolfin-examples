@@ -1,0 +1,5 @@
+# S013: An alias whose target is neither imported nor declared.
+
+concept Person
+
+alias Persn as Human

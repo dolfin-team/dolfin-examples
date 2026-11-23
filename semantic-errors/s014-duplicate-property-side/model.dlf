@@ -1,0 +1,7 @@
+# S014: A property domain given twice: on the one-line form and on a `domain` line.
+
+concept Person
+concept Book
+
+property wrote: Person -> Book
+  domain Person

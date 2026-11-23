@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s020-n3-not-emitted>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S020: A `count` that sees a pet once per weight row: no N3 encoding, the rule runs as SHACL-AF only."

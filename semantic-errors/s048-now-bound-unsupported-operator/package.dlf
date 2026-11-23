@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s048-now-bound-unsupported-operator>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S048: A `[ != $y ]` bound with a non-literal operand is not enforced."

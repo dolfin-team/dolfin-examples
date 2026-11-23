@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s005-invalid-temporal>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S005: A temporal literal that does not fit its kind: date(7d) is a duration."

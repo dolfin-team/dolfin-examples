@@ -1,0 +1,20 @@
+# S027: A JSON export key that is not a dotted path like `$.a.b`.
+
+concept Student:
+  has number: string
+  has name: string
+
+query report:
+  ?_s a Student
+    number ?num
+    name ?name
+  return
+    Number ?num
+    ?name
+
+export
+  from query report
+  map:
+    "$..name" as ?name
+  to:
+    <export://report.json> as JSONPath

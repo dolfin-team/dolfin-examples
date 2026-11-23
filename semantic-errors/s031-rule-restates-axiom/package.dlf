@@ -1,0 +1,6 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s031-rule-restates-axiom>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S031: A rule that only restates the `symmetric` axiom OWL reasoning already entails."
+  reasoning rdfs, owl

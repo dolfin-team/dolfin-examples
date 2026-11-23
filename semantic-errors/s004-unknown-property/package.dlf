@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s004-unknown-property>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S004: A fact line naming a property its concept does not have."

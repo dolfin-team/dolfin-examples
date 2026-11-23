@@ -1,0 +1,5 @@
+# S030: A `transitive` axiom while the package's reasoning leaves OWL off.
+
+concept Person:
+  has ancestor: Person
+    transitive

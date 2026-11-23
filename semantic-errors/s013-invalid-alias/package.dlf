@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s013-invalid-alias>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S013: An alias whose target is neither imported nor declared."

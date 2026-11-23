@@ -1,0 +1,12 @@
+# S016: Two `equivalent to` conditions forming a cycle through a negation.
+
+concept Base:
+  has p: Base
+
+concept X:
+  equivalent to Base
+    [ none p [ a Y ]]
+
+concept Y:
+  equivalent to Base
+    [ some p [ a X ]]

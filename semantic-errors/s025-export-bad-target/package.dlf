@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s025-export-bad-target>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S025: An export target that is not an `export://` file."

@@ -1,0 +1,18 @@
+# S025: An export target that is not an `export://` file.
+
+concept Student:
+  has number: string
+  has name: string
+
+query report:
+  ?_s a Student
+    number ?num
+    name ?name
+  return
+    Number ?num
+    ?name
+
+export
+  from query report
+  to:
+    <http://example.org/report.csv> as CSV

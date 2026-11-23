@@ -1,0 +1,19 @@
+# S024: A `sheet` line on a CSV export.
+
+concept Student:
+  has number: string
+  has name: string
+
+query report:
+  ?_s a Student
+    number ?num
+    name ?name
+  return
+    Number ?num
+    ?name
+
+export
+  from query report
+  to:
+    <export://report.csv> as CSV
+    sheet "Students"

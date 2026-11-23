@@ -1,0 +1,7 @@
+# S008: A length given where a mass is expected.
+
+concept Parcel:
+  has weight: mass
+
+fact p1 a Parcel
+  weight quantity(2 m)

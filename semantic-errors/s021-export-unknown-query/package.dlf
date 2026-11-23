@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s021-export-unknown-query>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S021: `from query` naming a query that does not exist."

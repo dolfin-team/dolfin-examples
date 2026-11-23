@@ -1,0 +1,7 @@
+# S003: Concepts that inherit from each other.
+
+concept Novel:
+  sub Story
+
+concept Story:
+  sub Novel

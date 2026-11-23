@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s037-sub-of-reified>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S037: `sub r` on a plain property while `r` requires an annotation."

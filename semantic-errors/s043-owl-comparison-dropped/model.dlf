@@ -1,0 +1,7 @@
+# S043: A quantity comparison OWL cannot express: left out of the OWL output.
+
+concept Dog:
+  has weight: mass
+
+concept BigDog:
+  sub Dog with weight: > quantity(40 kg)

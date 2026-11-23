@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s044-equivalent-path-one-way>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S044: A property equivalent to a path: inferred one way only."

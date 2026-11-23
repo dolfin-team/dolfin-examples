@@ -1,0 +1,7 @@
+# S032: `list(...)` on a field that is not a list.
+
+concept Article:
+  has tag: any string
+
+fact a1 a Article
+  tag list("rdf", "owl")

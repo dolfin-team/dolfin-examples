@@ -1,0 +1,8 @@
+# S034: `transitive` on a property carrying annotations.
+
+concept Person
+concept Company
+
+property manages: any Person -> any Person
+  has since: optional date
+  transitive

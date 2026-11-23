@@ -1,0 +1,8 @@
+# S018: The package does not build (invalid alias, S013), so the `check` of Person is never turned into SHACL.
+
+concept Person:
+  has age: int
+  check
+    [ age [ >= 0 ]]
+
+alias Persn as Human

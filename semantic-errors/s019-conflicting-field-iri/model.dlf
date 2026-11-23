@@ -1,0 +1,9 @@
+# S019: Two `has p` fields (one property) with different `@iri_name`.
+
+concept A
+  has p: A
+    @iri_name <http://x.org/p>
+
+concept B
+  has p: A
+    @iri_name <http://x.org/q>

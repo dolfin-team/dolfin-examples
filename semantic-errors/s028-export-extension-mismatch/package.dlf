@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s028-export-extension-mismatch>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S028: An XLSX export written to a `.csv` file."

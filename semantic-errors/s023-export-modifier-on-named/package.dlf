@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s023-export-modifier-on-named>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S023: `limit` in `map:` with `from query`: it belongs to the query's `return`."

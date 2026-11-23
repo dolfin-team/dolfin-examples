@@ -1,0 +1,21 @@
+# S023: `limit` in `map:` with `from query`: it belongs to the query's `return`.
+
+concept Student:
+  has number: string
+  has name: string
+
+query report:
+  ?_s a Student
+    number ?num
+    name ?name
+  return
+    Number ?num
+    ?name
+
+export
+  from query report
+  map:
+    N as ?num
+    limit 3
+  to:
+    <export://report.csv> as CSV

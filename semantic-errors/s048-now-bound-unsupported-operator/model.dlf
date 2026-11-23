@@ -1,0 +1,5 @@
+# S048: A `[ != $y ]` bound with a non-literal operand is not enforced.
+
+concept Range:
+  has low: float
+  has high: float [ != $low ]

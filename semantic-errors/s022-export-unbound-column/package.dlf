@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s022-export-unbound-column>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S022: A `map:` variable the query does not return."

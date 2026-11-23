@@ -1,0 +1,6 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s012-not-defined-by-import>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S012: A name in an imported namespace that the import does not define."
+  import <http://xmlns.com/foaf/0.1/> from <https://xmlns.com/foaf/spec/index.rdf>

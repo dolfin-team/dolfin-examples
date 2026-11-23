@@ -1,0 +1,21 @@
+# S022: A `map:` variable the query does not return.
+
+concept Student:
+  has number: string
+  has name: string
+
+query report:
+  ?_s a Student
+    number ?num
+    name ?name
+  return
+    Number ?num
+    ?name
+
+export
+  from query report
+  map:
+    N as ?num
+    Grade as ?grade
+  to:
+    <export://report.csv> as CSV

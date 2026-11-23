@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s043-owl-comparison-dropped>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S043: A quantity comparison OWL cannot express: left out of the OWL output."

@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s029-empty-ontology>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S029: A file with comments but no declaration."

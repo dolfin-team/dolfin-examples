@@ -1,0 +1,8 @@
+# S009: A fact value naming nothing: no fact, enum member or concept called `nobody`.
+
+concept Person
+concept Book:
+  has author: Person
+
+fact dune a Book
+  author nobody
