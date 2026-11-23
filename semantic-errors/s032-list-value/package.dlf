@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s032-list-value>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S032: `list(...)` on a field that is not a list."

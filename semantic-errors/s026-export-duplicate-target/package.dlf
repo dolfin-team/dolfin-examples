@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s026-export-duplicate-target>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S026: Two exports writing the same file."

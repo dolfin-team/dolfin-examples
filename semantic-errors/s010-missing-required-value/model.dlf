@@ -1,0 +1,7 @@
+# S010: A fact that does not set a field its concept requires (`one`).
+
+concept Person
+concept Book:
+  has author: one Person
+
+fact dune a Book

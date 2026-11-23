@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s018-shacl-not-checked>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S018: The package does not build (invalid alias, S013), so the `check` of Person is never turned into SHACL."

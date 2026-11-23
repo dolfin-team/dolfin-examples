@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s001-unresolved-type>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S001: A type that is not declared anywhere."

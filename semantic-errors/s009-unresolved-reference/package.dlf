@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s009-unresolved-reference>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S009: A fact value naming nothing: no fact, enum member or concept called `nobody`."

@@ -1,0 +1,7 @@
+# S036: A `symmetric` property whose domain and range cardinalities differ.
+
+concept Person
+concept Company
+
+property married: optional Person -> one Person
+  symmetric

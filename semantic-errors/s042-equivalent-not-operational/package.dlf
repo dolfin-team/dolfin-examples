@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s042-equivalent-not-operational>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S042: An `equivalent to` with `only`: no rule nor shape is generated, the OWL is unchanged."

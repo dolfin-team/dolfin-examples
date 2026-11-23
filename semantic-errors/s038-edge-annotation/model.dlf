@@ -1,0 +1,11 @@
+# S038: A fact edge missing the required annotation `q` of reified `ingredient`.
+
+concept Recipe
+concept Ingredient
+
+property ingredient: any Recipe -> any Ingredient
+  has q: one mass
+
+fact flour a Ingredient
+fact pancake a Recipe
+  ingredient flour

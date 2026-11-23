@@ -1,0 +1,7 @@
+# S005: A temporal literal that does not fit its kind: date(7d) is a duration.
+
+concept Person:
+  has birthDate: date
+
+fact bob a Person
+  birthDate date(7d)

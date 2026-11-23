@@ -1,0 +1,10 @@
+# S037: `sub r` on a plain property while `r` requires an annotation.
+
+concept Person
+concept Company
+
+property employs: any Company -> any Person
+  has since: one date
+
+property contracts: any Company -> any Person
+  sub employs

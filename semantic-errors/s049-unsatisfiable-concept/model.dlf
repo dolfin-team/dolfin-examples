@@ -1,0 +1,8 @@
+# S049: A concept whose merged bounds leave no possible instance (at least 3, at most 2).
+
+concept Parent:
+  has x: at least 3 int
+
+concept Child:
+  sub Parent
+  has x: at most 2 int

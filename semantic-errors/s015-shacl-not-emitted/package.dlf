@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s015-shacl-not-emitted>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S015: A check the SHACL emitter cannot express (`?nowhere` is bound by nothing): not validated."

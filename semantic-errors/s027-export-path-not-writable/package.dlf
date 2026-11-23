@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s027-export-path-not-writable>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S027: A JSON export key that is not a dotted path like `$.a.b`."

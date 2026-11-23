@@ -1,0 +1,18 @@
+# S028: An XLSX export written to a `.csv` file.
+
+concept Student:
+  has number: string
+  has name: string
+
+query report:
+  ?_s a Student
+    number ?num
+    name ?name
+  return
+    Number ?num
+    ?name
+
+export
+  from query report
+  to:
+    <export://report.csv> as XLSX

@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s019-conflicting-field-iri>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S019: Two `has p` fields (one property) with different `@iri_name`."

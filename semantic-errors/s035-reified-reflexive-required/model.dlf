@@ -1,0 +1,8 @@
+# S035: `reflexive` on a property with a required annotation.
+
+concept Person
+concept Company
+
+property trusts: any Person -> any Person
+  has level: one int
+  reflexive

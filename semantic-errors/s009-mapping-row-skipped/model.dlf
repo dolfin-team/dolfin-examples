@@ -1,0 +1,14 @@
+# S009: A CSV row skipped during mapping: its `id` cell is empty.
+
+prefix <http://example.org/stops/> as st
+
+concept Stop:
+  has route: int
+
+mapping from <package://stops.csv> as CSV
+  map:
+    id as ?id
+    route as ?route
+  to:
+    fact st:{?id} a Stop
+      route {?route} as int

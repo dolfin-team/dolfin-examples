@@ -1,0 +1,6 @@
+# S012: A name in an imported namespace that the import does not define.
+
+prefix <http://xmlns.com/foaf/0.1/> as foaf
+
+concept Gadget:
+  sub foaf:Agentx

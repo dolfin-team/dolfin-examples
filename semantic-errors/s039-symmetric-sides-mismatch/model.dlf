@@ -1,0 +1,8 @@
+# S039: A symmetric reified property whose domain and range differ.
+
+concept Person
+concept Company
+
+property worksWith: any Person -> any Company
+  symmetric
+  has since: optional date

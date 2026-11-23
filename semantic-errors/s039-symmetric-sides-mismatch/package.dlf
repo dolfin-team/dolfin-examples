@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s039-symmetric-sides-mismatch>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S039: A symmetric reified property whose domain and range differ."

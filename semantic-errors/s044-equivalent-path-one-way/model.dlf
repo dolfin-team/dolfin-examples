@@ -1,0 +1,6 @@
+# S044: A property equivalent to a path: inferred one way only.
+
+concept Person
+property parent: Person -> Person
+property grandparent: Person -> Person
+  equivalent to parent / parent

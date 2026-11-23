@@ -1,0 +1,6 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s030-owl-reasoning-off>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S030: A `transitive` axiom while the package's reasoning leaves OWL off."
+  reasoning rdfs

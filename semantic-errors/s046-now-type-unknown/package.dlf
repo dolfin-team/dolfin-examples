@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s046-now-type-unknown>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S046: `now()` compared with a field the concept does not have."

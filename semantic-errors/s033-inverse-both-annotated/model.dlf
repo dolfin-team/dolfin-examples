@@ -1,0 +1,11 @@
+# S033: Both properties of an `inverse of` pair declare `has` annotations.
+
+concept Person
+concept Company
+
+property lends: any Person -> any Person
+  has amount: one float
+
+property borrows: any Person -> any Person
+  has note: one string
+  inverse of lends

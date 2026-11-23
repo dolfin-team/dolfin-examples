@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s010-missing-required-value>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S010: A fact that does not set a field its concept requires (`one`)."

@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s016-unstratifiable>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S016: Two `equivalent to` conditions forming a cycle through a negation."

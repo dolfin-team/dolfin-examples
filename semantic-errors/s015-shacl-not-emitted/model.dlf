@@ -1,0 +1,9 @@
+# S015: A check the SHACL emitter cannot express (`?nowhere` is bound by nothing): not validated.
+
+concept Person:
+  has name: string
+
+concept Crowd:
+  has member: Person
+  check
+    [ at_least ?nowhere member ]

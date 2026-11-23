@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s033-inverse-both-annotated>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S033: Both properties of an `inverse of` pair declare `has` annotations."

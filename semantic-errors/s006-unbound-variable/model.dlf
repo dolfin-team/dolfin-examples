@@ -1,0 +1,13 @@
+# S006: A `then:` variable the `match:` block never binds.
+
+concept Owner
+concept BusyOwner:
+  sub Owner
+concept Pet:
+  has owner: Owner
+
+rule busy_owner:
+  match:
+    ?owner a Owner
+  then:
+    ?pet a BusyOwner

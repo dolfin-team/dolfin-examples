@@ -1,0 +1,7 @@
+# S007: A quantity literal with an unknown unit.
+
+concept Parcel:
+  has weight: mass
+
+fact p1 a Parcel
+  weight quantity(3 zonks)

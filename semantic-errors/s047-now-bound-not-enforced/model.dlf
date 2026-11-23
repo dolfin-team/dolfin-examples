@@ -1,0 +1,4 @@
+# S047: A `now()` bound on a `list of` field is not enforced.
+
+concept Log:
+  has at: list of date_time [ <= now() ]

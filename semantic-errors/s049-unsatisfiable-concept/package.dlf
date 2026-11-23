@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s049-unsatisfiable-concept>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S049: A concept whose merged bounds leave no possible instance (at least 3, at most 2)."

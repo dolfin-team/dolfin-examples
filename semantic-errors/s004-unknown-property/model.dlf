@@ -1,0 +1,8 @@
+# S004: A fact line naming a property its concept does not have.
+
+concept Book:
+  has title: string
+
+fact dune a Book
+  title "Dune"
+  year 1965

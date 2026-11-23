@@ -1,0 +1,10 @@
+# S011: A JSONPath iteration that matches nothing in the source file.
+
+prefix <http://example.com/ns#> as ex
+
+mapping from <package://venues.json> as JSONPath
+  for each "$.venues[*]"
+  map:
+    "$.location.city" as ?city
+  to:
+    fact <http://loc.example.com/city/{?city}> a ex:City

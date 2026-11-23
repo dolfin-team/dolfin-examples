@@ -1,0 +1,4 @@
+# S045: `now()` compared with an int: never holds.
+
+concept Ticket:
+  has n: one int [ <= now() ]
