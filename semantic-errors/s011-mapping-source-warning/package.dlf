@@ -1,5 +1,0 @@
-package <https://www.dolfin.fr/examples/semantic-errors/s011-mapping-source-warning>:
-  dolfin_version "1"
-  version "1.0.0"
-  author "Dolfin"
-  description "S011: A JSONPath iteration that matches nothing in the source file."
