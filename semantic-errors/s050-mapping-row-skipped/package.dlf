@@ -1,0 +1,5 @@
+package <https://www.dolfin.fr/examples/semantic-errors/s050-mapping-row-skipped>:
+  dolfin_version "1"
+  version "1.0.0"
+  author "Dolfin"
+  description "S050: A CSV row skipped during mapping: its `id` cell is empty."

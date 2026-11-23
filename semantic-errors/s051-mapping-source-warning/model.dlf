@@ -1,4 +1,4 @@
-# S011: A JSONPath iteration that matches nothing in the source file.
+# S051: A JSONPath iteration that matches nothing in the source file.
 
 prefix <http://example.com/ns#> as ex
 

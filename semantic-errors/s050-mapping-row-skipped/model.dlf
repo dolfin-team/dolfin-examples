@@ -1,4 +1,4 @@
-# S009: A CSV row skipped during mapping: its `id` cell is empty.
+# S050: A CSV row skipped during mapping: its `id` cell is empty.
 
 prefix <http://example.org/stops/> as st
 
