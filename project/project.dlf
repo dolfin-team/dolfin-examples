@@ -40,7 +40,7 @@ concept Task:
   has priority: one Priority
   has assignee: optional Person
   # blockedBy is repeatable because a task can wait on several others before it can start.
-  has blockedBy: Task
+  has blockedBy: optional Task
   has dueDate: optional string
 
 concept OverdueTask
